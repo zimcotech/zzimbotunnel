@@ -12,6 +12,7 @@ import { LandingPage } from './pages/LandingPage';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { Dashboard } from './pages/Dashboard';
+import { ServerDetails } from './pages/ServerDetails';
 import { CookieConsent } from './components/CookieConsent';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -44,6 +45,11 @@ function AppContent() {
                   <Route path="/dashboard" element={
                     <ProtectedRoute>
                       <Dashboard />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/server/:id" element={
+                    <ProtectedRoute>
+                      <ServerDetails />
                     </ProtectedRoute>
                   } />
                 </Routes>

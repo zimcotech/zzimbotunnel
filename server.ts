@@ -38,6 +38,11 @@ db.exec(`
     config TEXT NOT NULL,
     expires_at DATETIME NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    host TEXT,
+    port INTEGER,
+    username TEXT,
+    password TEXT,
+    uuid TEXT,
     FOREIGN KEY (user_id) REFERENCES users (id)
   );
 
@@ -51,6 +56,15 @@ db.exec(`
     FOREIGN KEY (user_id) REFERENCES users (id)
   );
 `);
+
+// Migration: Add columns if they don't exist
+const tableInfo = db.prepare('PRAGMA table_info(servers)').all() as any[];
+const columns = tableInfo.map(col => col.name);
+if (!columns.includes('host')) db.exec('ALTER TABLE servers ADD COLUMN host TEXT');
+if (!columns.includes('port')) db.exec('ALTER TABLE servers ADD COLUMN port INTEGER');
+if (!columns.includes('username')) db.exec('ALTER TABLE servers ADD COLUMN username TEXT');
+if (!columns.includes('password')) db.exec('ALTER TABLE servers ADD COLUMN password TEXT');
+if (!columns.includes('uuid')) db.exec('ALTER TABLE servers ADD COLUMN uuid TEXT');
 
 app.use(cors());
 app.use(express.json());
@@ -143,6 +157,32 @@ app.get('/api/servers', authenticateToken, (req, res) => {
   res.json(servers);
 });
 
+// Get single server
+app.get('/api/servers/:id', authenticateToken, (req, res) => {
+  const userId = (req as any).user.id;
+  const serverId = req.params.id;
+  const stmt = db.prepare('SELECT * FROM servers WHERE id = ? AND user_id = ?');
+  const server = stmt.get(serverId, userId);
+  if (!server) {
+    res.status(404).json({ error: 'Server not found' });
+    return;
+  }
+  res.json(server);
+});
+
+// Delete server
+app.delete('/api/servers/:id', authenticateToken, (req, res) => {
+  const userId = (req as any).user.id;
+  const serverId = req.params.id;
+  const stmt = db.prepare('DELETE FROM servers WHERE id = ? AND user_id = ?');
+  const info = stmt.run(serverId, userId);
+  if (info.changes === 0) {
+    res.status(404).json({ error: 'Server not found' });
+    return;
+  }
+  res.json({ success: true });
+});
+
 // --- SERVER CREATION SYSTEM ---
 // Handles creating a new tunneling server and deducting balance
 app.post('/api/servers', authenticateToken, (req, res) => {
@@ -168,11 +208,18 @@ app.post('/api/servers', authenticateToken, (req, res) => {
     const config = `${protocol}://${Math.random().toString(36).substring(2, 15)}@${location.toLowerCase().replace(' ', '')}.zimbotunnel.com:443?security=tls&type=ws`;
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + parseInt(duration));
+    
+    // Mock data for new fields
+    const host = `${location.toLowerCase().replace(' ', '')}.zimbotunnel.com`;
+    const port = 443;
+    const username = `user_${Math.random().toString(36).substring(2, 8)}`;
+    const password = Math.random().toString(36).substring(2, 12);
+    const uuid = Math.random().toString(36).substring(2, 15);
 
-    const insertStmt = db.prepare('INSERT INTO servers (user_id, protocol, location, duration, config, expires_at) VALUES (?, ?, ?, ?, ?, ?)');
-    const info = insertStmt.run(userId, protocol, location, duration, config, expiresAt.toISOString());
+    const insertStmt = db.prepare('INSERT INTO servers (user_id, protocol, location, duration, config, expires_at, host, port, username, password, uuid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+    const info = insertStmt.run(userId, protocol, location, duration, config, expiresAt.toISOString(), host, port, username, password, uuid);
 
-    return { id: info.lastInsertRowid, protocol, location, duration, config, expires_at: expiresAt.toISOString() };
+    return { id: info.lastInsertRowid, protocol, location, duration, config, expires_at: expiresAt.toISOString(), host, port, username, password, uuid };
   });
 
   try {
@@ -211,6 +258,62 @@ app.post('/api/topup', authenticateToken, (req, res) => {
       res.status(500).json({ error: 'Top-up failed' });
     }
   }, 1500);
+});
+
+// --- PAYMENT WEBHOOK (IPN) ---
+// This endpoint receives background POST data from the payment gateway when a user pays
+app.post('/api/webhooks/payment', (req, res) => {
+  // 1. Extract data sent by the payment gateway
+  // The exact field names depend on your gateway (e.g., Paynow uses 'reference', 'status', 'hash')
+  const { reference, status, amount, hash } = req.body;
+
+  console.log('Received payment webhook:', req.body);
+
+  // 2. CRITICAL SECURITY CHECK: Verify the signature/hash!
+  // You MUST verify the hash using your Merchant Key to ensure the request actually came from the payment gateway and not a hacker.
+  /* 
+  const expectedHash = generateHash(req.body, process.env.MERCHANT_KEY);
+  if (hash !== expectedHash) {
+    console.error('Security alert: Invalid webhook signature');
+    res.status(400).send('Invalid signature');
+    return;
+  }
+  */
+
+  // 3. Process the successful payment
+  if (status === 'Paid' || status === 'completed') {
+    try {
+      const dbTransaction = db.transaction(() => {
+        // Find the transaction in your database using the reference ID
+        const txStmt = db.prepare('SELECT * FROM transactions WHERE id = ? AND status = ?');
+        const tx = txStmt.get(reference, 'pending') as any;
+
+        if (tx) {
+          // Mark transaction as completed
+          db.prepare('UPDATE transactions SET status = ? WHERE id = ?').run('completed', tx.id);
+          
+          // Credit the user's balance
+          db.prepare('UPDATE users SET balance = balance + ? WHERE id = ?').run(tx.amount, tx.user_id);
+          
+          console.log(`Successfully credited user ${tx.user_id} with ${tx.amount} credits.`);
+        } else {
+          console.log(`Transaction ${reference} already processed or not found.`);
+        }
+      });
+
+      dbTransaction();
+      
+      // 4. Acknowledge receipt
+      // You must return a 200 OK status, otherwise the gateway will keep retrying the POST request
+      res.status(200).send('OK');
+    } catch (error) {
+      console.error('Webhook database error:', error);
+      res.status(500).send('Internal Server Error');
+    }
+  } else {
+    // Handle failed, cancelled, or refunded payments here
+    res.status(200).send('OK'); // Still return 200 so the gateway stops retrying
+  }
 });
 
 app.get('/api/transactions', authenticateToken, (req, res) => {

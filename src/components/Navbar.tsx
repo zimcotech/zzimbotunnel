@@ -1,17 +1,21 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Menu, X, Shield } from 'lucide-react';
+import { Menu, X, User } from 'lucide-react';
 
 export function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showUserDetails, setShowUserDetails] = useState(false);
 
   const handleLogout = () => {
     logout();
     navigate('/');
   };
+
+  const isDashboard = location.pathname === '/dashboard';
 
   return (
     <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-4xl bg-white/90 backdrop-blur-md border border-gray-200 shadow-lg rounded-full px-4 py-3">
@@ -35,17 +39,65 @@ export function Navbar() {
         </div>
 
         {/* Right side */}
-        <div className="flex items-center">
+        <div className="flex items-center relative">
           {user ? (
-            <Link to="/dashboard" className="px-5 py-2.5 rounded-full bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
-              <Shield className="h-4 w-4" />
-              <span className="hidden sm:inline">Dashboard</span>
-            </Link>
+            isDashboard ? (
+              <button onClick={() => setShowUserDetails(!showUserDetails)} className="px-5 py-2.5 rounded-full bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
+                <User className="h-4 w-4" />
+                <span className="hidden sm:inline">Profile</span>
+              </button>
+            ) : (
+              <Link to="/dashboard" className="px-5 py-2.5 rounded-full bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
+                <User className="h-4 w-4" />
+                <span className="hidden sm:inline">Dashboard</span>
+              </Link>
+            )
           ) : (
             <Link to="/login" className="px-5 py-2.5 rounded-full bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
               <span className="hidden sm:inline">Get Started</span>
               <span className="sm:hidden">Start</span>
             </Link>
+          )}
+
+          {/* User Details Dropdown */}
+          {showUserDetails && user && (
+            <>
+              <div className="fixed inset-0 z-[90]" onClick={() => setShowUserDetails(false)}></div>
+              <div className="absolute top-full right-0 mt-3 w-64 sm:w-72 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-[100] animate-in fade-in slide-in-from-top-2">
+                <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-5 text-white text-center relative">
+                  <div className="w-14 h-14 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-xl font-bold border border-white/30 mx-auto mb-3 shadow-inner">
+                    {user.username.charAt(0).toUpperCase()}
+                  </div>
+                  <h2 className="text-lg font-bold tracking-tight">{user.username}</h2>
+                  <p className="text-blue-100 text-xs font-medium truncate">{user.email}</p>
+                </div>
+                
+                <div className="p-4">
+                  <div className="bg-gray-50 rounded-xl p-3 border border-gray-100 mb-4 flex items-center justify-between">
+                    <div>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Balance</p>
+                      <p className="text-lg font-black text-gray-900">{user.balance.toFixed(2)} <span className="text-xs font-bold text-gray-400">USD</span></p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Link 
+                      to="/dashboard" 
+                      onClick={() => setShowUserDetails(false)}
+                      className="w-full flex items-center justify-center gap-2 bg-blue-50 text-blue-700 font-bold py-2.5 rounded-xl hover:bg-blue-100 transition-colors text-sm"
+                    >
+                      Dashboard
+                    </Link>
+                    <button 
+                      onClick={() => { handleLogout(); setShowUserDetails(false); }} 
+                      className="w-full flex items-center justify-center gap-2 bg-gray-50 text-red-600 font-bold py-2.5 rounded-xl hover:bg-red-50 transition-colors border border-gray-100 text-sm"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </>
           )}
         </div>
       </div>
