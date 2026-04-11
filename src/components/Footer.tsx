@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Shield, Facebook, Youtube, Send, Phone, Mail, Star } from 'lucide-react';
 
 const WhatsAppIcon = ({ className }: { className?: string }) => (
@@ -55,9 +56,9 @@ export function Footer() {
           <div>
             <h3 className="font-semibold text-gray-900 mb-4">Company</h3>
             <ul className="space-y-3">
-              <li><a href="#" className="text-gray-500 hover:text-blue-600 transition-colors">About Us</a></li>
-              <li><a href="#" className="text-gray-500 hover:text-blue-600 transition-colors">Terms of Service</a></li>
-              <li><a href="#" className="text-gray-500 hover:text-blue-600 transition-colors">Privacy Policy</a></li>
+              <li><Link to="/about-us" className="text-gray-500 hover:text-blue-600 transition-colors">About Us</Link></li>
+              <li><Link to="/terms-of-service" className="text-gray-500 hover:text-blue-600 transition-colors">Terms of Service</Link></li>
+              <li><Link to="/privacy-policy" className="text-gray-500 hover:text-blue-600 transition-colors">Privacy Policy</Link></li>
             </ul>
           </div>
 

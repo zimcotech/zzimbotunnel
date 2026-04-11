@@ -13,7 +13,13 @@ import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { Dashboard } from './pages/Dashboard';
 import { ServerDetails } from './pages/ServerDetails';
+import { Status } from './pages/Status';
 import { CookieConsent } from './components/CookieConsent';
+
+import { PrivacyPolicy } from './pages/PrivacyPolicy';
+import { TermsOfService } from './pages/TermsOfService';
+import { AboutUs } from './pages/AboutUs';
+import { ForgotPassword } from './pages/ForgotPassword';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
@@ -36,22 +42,27 @@ function AppContent() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/server/:id" element={
+            <ProtectedRoute>
+              <ServerDetails />
+            </ProtectedRoute>
+          } />
           <Route path="/*" element={
             <>
               <Navbar />
               <div className="flex-grow">
                 <Routes>
                   <Route path="/" element={<LandingPage />} />
-                  <Route path="/dashboard" element={
-                    <ProtectedRoute>
-                      <Dashboard />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/server/:id" element={
-                    <ProtectedRoute>
-                      <ServerDetails />
-                    </ProtectedRoute>
-                  } />
+                  <Route path="/status" element={<Status />} />
+                  <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                  <Route path="/terms-of-service" element={<TermsOfService />} />
+                  <Route path="/about-us" element={<AboutUs />} />
                 </Routes>
               </div>
               <Footer />

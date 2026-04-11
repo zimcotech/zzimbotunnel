@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 
 interface User {
-  id: number;
+  id: string;
   username: string;
   email: string;
   balance: number;
@@ -26,35 +27,114 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
+    // Check active sessions and sets the user
+    const initializeAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session) {
+        setToken(session.access_token);
+        await fetchProfile(session.user.id, session.user.email || '', session.user.user_metadata?.username);
+      } else {
+        setIsLoading(false);
+      }
+    };
 
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
-    }
-    setIsLoading(false);
+    initializeAuth();
+
+    // Listen for changes on auth state (logged in, signed out, etc.)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        setToken(session.access_token);
+        // Use setTimeout to escape the Supabase auth lock context and prevent deadlocks
+        setTimeout(() => {
+          fetchProfile(session.user.id, session.user.email || '', session.user.user_metadata?.username);
+        }, 0);
+      } else {
+        setToken(null);
+        setUser(null);
+        setIsLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
+
+  const fetchProfile = async (userId: string, email: string, metaUsername?: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') {
+          // Profile not found, attempt to create it (fallback for broken states)
+          const username = metaUsername || email.split('@')[0] + Math.floor(Math.random() * 10000);
+          const { data: newProfile, error: insertError } = await supabase
+            .from('profiles')
+            .insert([{ id: userId, username, balance: 0, role: 'user' }])
+            .select()
+            .single();
+            
+          if (!insertError && newProfile) {
+            setUser({
+              id: newProfile.id,
+              username: newProfile.username,
+              email: email,
+              balance: newProfile.balance || 0,
+              role: newProfile.role || 'user',
+              created_at: newProfile.created_at
+            });
+            return;
+          } else if (insertError && insertError.code === '23505') {
+            // If insert failed due to unique constraint, it means Register.tsx already inserted it.
+            const { data: existingProfile } = await supabase.from('profiles').select('*').eq('id', userId).single();
+            if (existingProfile) {
+              setUser({
+                id: existingProfile.id,
+                username: existingProfile.username,
+                email: email,
+                balance: existingProfile.balance || 0,
+                role: existingProfile.role || 'user',
+                created_at: existingProfile.created_at
+              });
+              return;
+            }
+          }
+        }
+        console.error('Error fetching profile:', error);
+      } else if (data) {
+        setUser({
+          id: data.id,
+          username: data.username,
+          email: email,
+          balance: data.balance || 0,
+          role: data.role || 'user',
+          created_at: data.created_at
+        });
+      }
+    } catch (err) {
+      console.error('Error in fetchProfile:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const login = (newToken: string, newUser: User) => {
     setToken(newToken);
     setUser(newUser);
-    localStorage.setItem('token', newToken);
-    localStorage.setItem('user', JSON.stringify(newUser));
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await supabase.auth.signOut();
     setToken(null);
     setUser(null);
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
   };
 
   const updateBalance = (newBalance: number) => {
     if (user) {
-      const updatedUser = { ...user, balance: newBalance };
-      setUser(updatedUser);
-      localStorage.setItem('user', JSON.stringify(updatedUser));
+      setUser({ ...user, balance: newBalance });
     }
   };
 

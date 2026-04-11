@@ -42,14 +42,12 @@ export function Navbar() {
         <div className="flex items-center relative">
           {user ? (
             isDashboard ? (
-              <button onClick={() => setShowUserDetails(!showUserDetails)} className="px-5 py-2.5 rounded-full bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
-                <User className="h-4 w-4" />
-                <span className="hidden sm:inline">Profile</span>
+              <button onClick={() => setShowUserDetails(!showUserDetails)} className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-100 to-indigo-50 flex items-center justify-center text-blue-600 shadow-inner border border-blue-100/50 hover:shadow-md transition-all">
+                <User className="h-5 w-5" />
               </button>
             ) : (
-              <Link to="/dashboard" className="px-5 py-2.5 rounded-full bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
-                <User className="h-4 w-4" />
-                <span className="hidden sm:inline">Dashboard</span>
+              <Link to="/dashboard" className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-100 to-indigo-50 flex items-center justify-center text-blue-600 shadow-inner border border-blue-100/50 hover:shadow-md transition-all">
+                <User className="h-5 w-5" />
               </Link>
             )
           ) : (
@@ -65,7 +63,7 @@ export function Navbar() {
               <div className="fixed inset-0 z-[90]" onClick={() => setShowUserDetails(false)}></div>
               <div className="absolute top-full right-0 mt-3 w-64 sm:w-72 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-[100] animate-in fade-in slide-in-from-top-2">
                 <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-5 text-white text-center relative">
-                  <div className="w-14 h-14 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-xl font-bold border border-white/30 mx-auto mb-3 shadow-inner">
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-blue-100 to-indigo-50 flex items-center justify-center text-blue-600 text-xl font-bold shadow-inner border border-blue-100/50 mx-auto mb-3">
                     {user.username.charAt(0).toUpperCase()}
                   </div>
                   <h2 className="text-lg font-bold tracking-tight">{user.username}</h2>
@@ -76,7 +74,7 @@ export function Navbar() {
                   <div className="bg-gray-50 rounded-xl p-3 border border-gray-100 mb-4 flex items-center justify-between">
                     <div>
                       <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Balance</p>
-                      <p className="text-lg font-black text-gray-900">{user.balance.toFixed(2)} <span className="text-xs font-bold text-gray-400">USD</span></p>
+                      <p className="text-lg font-black text-gray-900">{user.balance.toFixed(0)} <span className="text-xs font-bold text-gray-400">Coins</span></p>
                     </div>
                   </div>
                   

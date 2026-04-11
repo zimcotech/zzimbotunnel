@@ -1,0 +1,178 @@
+import React, { useState } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { Menu, X, User, Star, Info, Activity, LayoutDashboard, LogOut, Headset, Bot } from 'lucide-react';
+
+export function Topbar() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showUserDetails, setShowUserDetails] = useState(false);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+
+  return (
+    <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+      <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          {/* Left side / Mobile menu button */}
+          <div className="flex items-center md:hidden">
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-2 text-gray-600 hover:text-gray-900 focus:outline-none rounded-full hover:bg-gray-100 transition-colors"
+            >
+              {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
+
+          {/* Logo */}
+          <div className="flex items-center justify-center md:justify-start">
+            <Link to="/" className="flex items-center gap-1.5 sm:gap-2">
+              <span className="font-bold text-lg sm:text-xl tracking-tight text-gray-900 whitespace-nowrap">Zimbo Tunnel</span>
+              <span className="px-1.5 sm:px-2 py-0.5 rounded-md bg-blue-100 text-blue-700 text-[10px] sm:text-xs font-bold">1.0</span>
+            </Link>
+          </div>
+
+          {/* Center Links (Desktop) */}
+          <nav className="hidden md:flex items-center gap-8">
+            <Link to="/#features" className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">Features</Link>
+            <Link to="/#how-it-works" className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">How it Works</Link>
+          </nav>
+
+          {/* Right side */}
+          <div className="flex items-center relative">
+            {user ? (
+              <button onClick={() => setShowUserDetails(!showUserDetails)} className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-100 to-indigo-50 flex items-center justify-center text-blue-600 shadow-inner border border-blue-100/50 hover:shadow-md transition-all">
+                <User className="h-5 w-5" />
+              </button>
+            ) : (
+              <Link to="/login" className="px-5 py-2.5 rounded-full bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
+                <span className="hidden sm:inline">Get Started</span>
+                <span className="sm:hidden">Start</span>
+              </Link>
+            )}
+
+            {/* User Details Dropdown */}
+            {showUserDetails && user && (
+              <>
+                <div className="fixed inset-0 z-[90]" onClick={() => setShowUserDetails(false)}></div>
+                <div className="absolute top-full right-0 mt-3 w-64 sm:w-72 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-[100] animate-in fade-in slide-in-from-top-2">
+                  <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-5 text-white text-center relative">
+                    <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-blue-100 to-indigo-50 flex items-center justify-center text-blue-600 text-xl font-bold shadow-inner border border-blue-100/50 mx-auto mb-3">
+                      {user.username.charAt(0).toUpperCase()}
+                    </div>
+                    <h2 className="text-lg font-bold tracking-tight">{user.username}</h2>
+                    <p className="text-blue-100 text-xs font-medium truncate">{user.email}</p>
+                  </div>
+                  
+                  <div className="p-4">
+                    <div className="bg-gray-50 rounded-xl p-3 border border-gray-100 mb-4 flex items-center justify-between">
+                      <div>
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Balance</p>
+                        <p className="text-lg font-black text-gray-900">{user.balance.toFixed(0)} <span className="text-xs font-bold text-gray-400">Coins</span></p>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Link 
+                        to="/dashboard" 
+                        onClick={() => setShowUserDetails(false)}
+                        className="w-full flex items-center justify-center gap-2 bg-blue-50 text-blue-700 font-bold py-2.5 rounded-xl hover:bg-blue-100 transition-colors text-sm"
+                      >
+                        Dashboard
+                      </Link>
+                      <button 
+                        onClick={() => { handleLogout(); setShowUserDetails(false); }} 
+                        className="w-full flex items-center justify-center gap-2 bg-gray-50 text-red-600 font-bold py-2.5 rounded-xl hover:bg-red-50 transition-colors border border-gray-100 text-sm"
+                      >
+                        Sign Out
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Mobile Menu Dropdown */}
+        {isMobileMenuOpen && (
+          <>
+            <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-[100] md:hidden" onClick={() => setIsMobileMenuOpen(false)}></div>
+            <div className="fixed inset-y-0 left-0 w-4/5 max-w-sm bg-white shadow-2xl z-[101] md:hidden flex flex-col animate-in slide-in-from-left duration-300">
+              <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+                <Link to="/" className="flex items-center gap-3" onClick={() => setIsMobileMenuOpen(false)}>
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white font-bold text-sm shadow-sm">ZT</div>
+                  <span className="font-bold text-xl tracking-tight text-gray-900">Zimbo Tunnel</span>
+                </Link>
+                <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              
+              <div className="flex-1 overflow-y-auto py-5 px-4 space-y-1.5">
+                <Link to="/#features" onClick={() => setIsMobileMenuOpen(false)} className="group flex items-center gap-3 px-4 py-3.5 text-base font-medium text-gray-700 hover:text-blue-700 hover:bg-blue-50/80 rounded-xl transition-all">
+                  <Star className="h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-colors" /> Features
+                </Link>
+                <Link to="/#how-it-works" onClick={() => setIsMobileMenuOpen(false)} className="group flex items-center gap-3 px-4 py-3.5 text-base font-medium text-gray-700 hover:text-blue-700 hover:bg-blue-50/80 rounded-xl transition-all">
+                  <Info className="h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-colors" /> How it Works
+                </Link>
+                <Link to="/status" onClick={() => setIsMobileMenuOpen(false)} className="group flex items-center gap-3 px-4 py-3.5 text-base font-medium text-gray-700 hover:text-blue-700 hover:bg-blue-50/80 rounded-xl transition-all">
+                  <Activity className="h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-colors" /> Status
+                </Link>
+                <a href="#" onClick={() => setIsMobileMenuOpen(false)} className="group flex items-center gap-3 px-4 py-3.5 text-base font-medium text-gray-700 hover:text-blue-700 hover:bg-blue-50/80 rounded-xl transition-all">
+                  <Headset className="h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-colors" /> Support
+                </a>
+                <a href="#" onClick={() => setIsMobileMenuOpen(false)} className="group flex items-center gap-3 px-4 py-3.5 text-base font-medium text-gray-700 hover:text-blue-700 hover:bg-blue-50/80 rounded-xl transition-all">
+                  <Bot className="h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-colors" /> Zimbo Tunnel Bot
+                </a>
+                
+                {user && (
+                  <>
+                    <div className="my-4 border-t border-gray-100"></div>
+                    <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="group flex items-center gap-3 px-4 py-3.5 text-base font-medium text-gray-700 hover:text-blue-700 hover:bg-blue-50/80 rounded-xl transition-all">
+                      <LayoutDashboard className="h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-colors" /> Dashboard
+                    </Link>
+                  </>
+                )}
+              </div>
+              
+              {user ? (
+                <div className="p-4 border-t border-gray-100 bg-gray-50">
+                  <div className="flex items-center gap-3 mb-4 px-2">
+                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
+                      {user.username.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="font-bold text-gray-900 text-sm">{user.username}</p>
+                      <p className="text-xs text-gray-500 font-medium">{user.balance.toFixed(2)} Coins</p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }}
+                    className="w-full flex items-center justify-center gap-2 bg-white border border-gray-200 text-red-600 font-bold py-2.5 rounded-xl hover:bg-red-50 transition-colors text-sm"
+                  >
+                    <LogOut className="h-4 w-4" /> Sign Out
+                  </button>
+                </div>
+              ) : (
+                <div className="p-4 border-t border-gray-100 bg-gray-50 space-y-3">
+                  <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="w-full flex items-center justify-center gap-2 bg-white border border-gray-200 text-gray-700 font-bold py-2.5 rounded-xl hover:bg-gray-100 transition-colors text-sm">
+                    Log in
+                  </Link>
+                  <Link to="/register" onClick={() => setIsMobileMenuOpen(false)} className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white font-bold py-2.5 rounded-xl hover:bg-blue-700 transition-colors text-sm shadow-sm">
+                    Create Account
+                  </Link>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+    </header>
+  );
+}
