@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Server, Plus, Clock, Copy, CheckCircle2, AlertCircle, Wallet, History, LogOut, User, LayoutDashboard, Facebook, Send, Youtube } from 'lucide-react';
+import { Server, Plus, Clock, Copy, CheckCircle2, AlertCircle, Wallet, History, LogOut, User, LayoutDashboard, Facebook, Send, Youtube, Filter, ArrowUpDown, Coins, DollarSign, Bitcoin, Briefcase, Smartphone, Infinity, ArrowRightLeft, Info, X, ChevronDown } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Topbar } from '../components/Topbar';
 import { WhatsAppIcon } from '../components/icons/WhatsAppIcon';
@@ -12,24 +12,64 @@ export function Dashboard() {
   const navigate = useNavigate();
   const [servers, setServers] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'overview' | 'servers' | 'create' | 'billing' | 'profile'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'servers' | 'create' | 'billing'>('overview');
   
   // Create Server Form State
   const [protocol, setProtocol] = useState('V2Ray');
-  const [location, setLocation] = useState('South Africa');
+  const [location, setLocation] = useState('United Kingdom UK1');
   const [duration, setDuration] = useState(30);
   const [serverUsername, setServerUsername] = useState('');
   const [serverPassword, setServerPassword] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [createError, setCreateError] = useState('');
+  const [createSuccess, setCreateSuccess] = useState('');
+  const [showProtocolGuide, setShowProtocolGuide] = useState(false);
+  const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
+
+  const LOCATION_OPTIONS = [
+    { value: 'United Kingdom UK1', label: '🇬🇧 United Kingdom UK1' },
+    { value: 'Canada CND1', label: '🇨🇦 Canada CND1' },
+    { value: 'United States USA1', label: '🇺🇸 United States USA1' },
+    { value: 'Netherlands NTH1', label: '🇳🇱 Netherlands NTH1' },
+    { value: 'Germany GMY1', label: '🇩🇪 Germany GMY1' },
+    { value: 'Zimbabwe ZW1', label: '🇿🇼 Zimbabwe ZW1' }
+  ];
+
+  // Server List Filters & Sorting
+  const [filterProtocols, setFilterProtocols] = useState<string[]>([]);
+  const [filterStatuses, setFilterStatuses] = useState<string[]>([]);
+  const [sortBy, setSortBy] = useState('created_desc');
+  
+  const [isProtocolDropdownOpen, setIsProtocolDropdownOpen] = useState(false);
+  const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
+  const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
+
+  const sortOptions = [
+    { value: 'created_desc', label: 'Newest First' },
+    { value: 'created_asc', label: 'Oldest First' },
+    { value: 'expires_asc', label: 'Expires Soonest' },
+    { value: 'expires_desc', label: 'Expires Latest' },
+    { value: 'location_asc', label: 'Location (A-Z)' },
+    { value: 'location_desc', label: 'Location (Z-A)' },
+  ];
 
   // Billing & Topup State
+  const PACKAGES = [
+    { id: 'pkg_30', coins: 30, price: 1.00, icon: Coins },
+    { id: 'pkg_50', coins: 50, price: 1.67, icon: Coins },
+    { id: 'pkg_100', coins: 100, price: 3.33, icon: Coins },
+    { id: 'pkg_250', coins: 250, price: 8.33, icon: Coins },
+    { id: 'pkg_500', coins: 500, price: 16.67, icon: Coins },
+  ];
+
   const [showTopUpForm, setShowTopUpForm] = useState(false);
+  const [selectedPackageId, setSelectedPackageId] = useState('pkg_30');
+  const [paymentMethod, setPaymentMethod] = useState('ecocash');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [amount, setAmount] = useState('');
   const [couponCode, setCouponCode] = useState('');
   const [isToppingUp, setIsToppingUp] = useState(false);
   const [topupMessage, setTopupMessage] = useState('');
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   const [copiedId, setCopiedId] = useState<number | null>(null);
 
@@ -70,10 +110,49 @@ export function Dashboard() {
     }
   };
 
+  const filteredAndSortedServers = React.useMemo(() => {
+    let result = [...servers];
+
+    if (filterProtocols.length > 0) {
+      result = result.filter(s => filterProtocols.includes(s.protocol));
+    }
+
+    if (filterStatuses.length > 0) {
+      const now = new Date();
+      result = result.filter(s => {
+        const isActive = new Date(s.expires_at) > now;
+        const status = isActive ? 'Active' : 'Expired';
+        return filterStatuses.includes(status);
+      });
+    }
+
+    result.sort((a, b) => {
+      switch (sortBy) {
+        case 'created_desc':
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        case 'created_asc':
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        case 'expires_asc':
+          return new Date(a.expires_at).getTime() - new Date(b.expires_at).getTime();
+        case 'expires_desc':
+          return new Date(b.expires_at).getTime() - new Date(a.expires_at).getTime();
+        case 'location_asc':
+          return a.location.localeCompare(b.location);
+        case 'location_desc':
+          return b.location.localeCompare(a.location);
+        default:
+          return 0;
+      }
+    });
+
+    return result;
+  }, [servers, filterProtocols, filterStatuses, sortBy]);
+
   const handleCreateServer = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsCreating(true);
     setCreateError('');
+    setCreateSuccess('');
 
     try {
       const cost = duration * 1;
@@ -81,7 +160,7 @@ export function Dashboard() {
         throw new Error('Insufficient balance');
       }
 
-      const host = `${location.toLowerCase().replace(' ', '')}.zimbotunnel.com`;
+      const host = `${location.toLowerCase().replace(/\s+/g, '')}.zimbotunnel.com`;
       const port = 443;
       const username = `zigssh.com-${serverUsername}` || `user_${Math.random().toString(36).substring(2, 8)}`;
       const password = serverPassword || Math.random().toString(36).substring(2, 12);
@@ -131,6 +210,8 @@ export function Dashboard() {
       setServerUsername('');
       setServerPassword('');
       setActiveTab('servers');
+      setCreateSuccess('Server created successfully!');
+      setTimeout(() => setCreateSuccess(''), 5000); // Clear success message after 5 seconds
     } catch (error: any) {
       setCreateError(error.message);
     } finally {
@@ -138,22 +219,25 @@ export function Dashboard() {
     }
   };
 
-  const handleTopup = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleTopup = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setIsToppingUp(true);
     setTopupMessage('');
 
     try {
-      if (!phoneNumber || !amount || parseFloat(amount) <= 0) {
-        throw new Error('Invalid top-up details');
+      const selectedPkg = PACKAGES.find(p => p.id === selectedPackageId);
+      if (!selectedPkg) throw new Error('Invalid package selected');
+
+      if (paymentMethod === 'ecocash' && !phoneNumber) {
+        throw new Error('Please enter your EcoCash number');
       }
 
-      let coinsToAdd = parseFloat(amount) * 5;
+      let coinsToAdd = selectedPkg.coins;
       if (couponCode && couponCode.toUpperCase() === 'BONUS10') {
         coinsToAdd += 10;
       }
 
-      // Simulate EcoCash delay
+      // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 1500));
 
       const newBalance = (user?.balance || 0) + coinsToAdd;
@@ -171,8 +255,8 @@ export function Dashboard() {
         .from('transactions')
         .insert([{
           user_id: user?.id,
-          amount: parseFloat(amount),
-          phone_number: phoneNumber,
+          amount: selectedPkg.price,
+          phone_number: paymentMethod === 'ecocash' ? phoneNumber : null,
           status: 'completed'
         }]);
 
@@ -181,7 +265,6 @@ export function Dashboard() {
       updateBalance(newBalance);
       fetchTransactions();
       setTopupMessage('Top-up successful!');
-      setAmount('');
       setPhoneNumber('');
       setCouponCode('');
       setTimeout(() => setShowTopUpForm(false), 2000);
@@ -202,6 +285,14 @@ export function Dashboard() {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] flex flex-col font-sans">
+      {snackbarMessage && (
+        <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-[100] w-[calc(100%-2rem)] max-w-sm bg-gray-900 border border-gray-800 text-white px-4 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 text-sm font-medium animate-in fade-in slide-in-from-top-4">
+          <div className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center flex-shrink-0">
+            <Info className="h-4 w-4 text-blue-400" />
+          </div>
+          <p className="flex-1">{snackbarMessage}</p>
+        </div>
+      )}
       <Topbar />
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         {/* Sidebar */}
@@ -238,7 +329,6 @@ export function Dashboard() {
                 { id: 'servers', icon: Server, label: 'My Servers' },
                 { id: 'create', icon: Plus, label: 'Create Server' },
                 { id: 'billing', icon: Wallet, label: 'Billing & Coins' },
-                { id: 'profile', icon: User, label: 'Profile' },
               ].map((item) => (
                 <button 
                   key={item.id}
@@ -322,6 +412,186 @@ export function Dashboard() {
               </button>
             </div>
 
+            {createSuccess && (
+              <div className="mb-8 p-4 bg-green-50 border border-green-100 rounded-xl flex items-start gap-3 text-green-700">
+                <CheckCircle2 className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                <p className="text-sm font-medium">{createSuccess}</p>
+              </div>
+            )}
+
+            {servers.length > 0 && (
+              <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm mb-6 flex flex-col md:flex-row gap-4 justify-between items-center">
+                <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                  <div className="flex items-center gap-2 text-sm text-gray-600 font-medium">
+                    <Filter className="h-4 w-4" /> Filters:
+                  </div>
+                  
+                  {/* Protocol Multi-select */}
+                  <div 
+                    className="relative outline-none" 
+                    tabIndex={-1}
+                    onBlur={(e) => {
+                      if (!e.currentTarget.contains(e.relatedTarget)) {
+                        setIsProtocolDropdownOpen(false);
+                      }
+                    }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setIsProtocolDropdownOpen(!isProtocolDropdownOpen)}
+                      className="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 flex items-center justify-between p-2 outline-none min-w-[140px] transition-all"
+                    >
+                      <span className="truncate mr-2 font-medium">
+                        {filterProtocols.length === 0 ? 'All Protocols' : `${filterProtocols.length} Selected`}
+                      </span>
+                      <ChevronDown className="h-4 w-4 text-gray-500" />
+                    </button>
+                    
+                    {isProtocolDropdownOpen && (
+                      <div className="absolute z-50 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-xl py-2 left-0">
+                        {['V2Ray', 'SSH WebSocket', 'Slow DNS', 'OpenVPN', 'WireGuard'].map(p => (
+                          <label key={p} className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer transition-colors">
+                            <input
+                              type="checkbox"
+                              checked={filterProtocols.includes(p)}
+                              onChange={() => {
+                                if (filterProtocols.includes(p)) {
+                                  setFilterProtocols(filterProtocols.filter(item => item !== p));
+                                } else {
+                                  setFilterProtocols([...filterProtocols, p]);
+                                }
+                              }}
+                              className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mr-3"
+                            />
+                            <span className="text-sm text-gray-700 font-medium">{p}</span>
+                          </label>
+                        ))}
+                        {filterProtocols.length > 0 && (
+                          <div className="px-4 pt-2 mt-2 border-t border-gray-100">
+                            <button 
+                              onClick={() => setFilterProtocols([])}
+                              className="text-xs text-blue-600 font-bold hover:text-blue-700"
+                            >
+                              Clear Selection
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Status Multi-select */}
+                  <div 
+                    className="relative outline-none" 
+                    tabIndex={-1}
+                    onBlur={(e) => {
+                      if (!e.currentTarget.contains(e.relatedTarget)) {
+                        setIsStatusDropdownOpen(false);
+                      }
+                    }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
+                      className="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 flex items-center justify-between p-2 outline-none min-w-[130px] transition-all"
+                    >
+                      <span className="truncate mr-2 font-medium">
+                        {filterStatuses.length === 0 ? 'All Statuses' : `${filterStatuses.length} Selected`}
+                      </span>
+                      <ChevronDown className="h-4 w-4 text-gray-500" />
+                    </button>
+                    
+                    {isStatusDropdownOpen && (
+                      <div className="absolute z-50 mt-2 w-40 bg-white border border-gray-100 rounded-xl shadow-xl py-2 left-0">
+                        {['Active', 'Expired'].map(s => (
+                          <label key={s} className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer transition-colors">
+                            <input
+                              type="checkbox"
+                              checked={filterStatuses.includes(s)}
+                              onChange={() => {
+                                if (filterStatuses.includes(s)) {
+                                  setFilterStatuses(filterStatuses.filter(item => item !== s));
+                                } else {
+                                  setFilterStatuses([...filterStatuses, s]);
+                                }
+                              }}
+                              className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mr-3"
+                            />
+                            <span className="text-sm text-gray-700 font-medium">{s}</span>
+                          </label>
+                        ))}
+                        {filterStatuses.length > 0 && (
+                          <div className="px-4 pt-2 mt-2 border-t border-gray-100">
+                            <button 
+                              onClick={() => setFilterStatuses([])}
+                              className="text-xs text-blue-600 font-bold hover:text-blue-700"
+                            >
+                              Clear Selection
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-3 w-full md:w-auto">
+                  <div className="flex items-center gap-2 text-sm text-gray-600 font-medium">
+                    <ArrowUpDown className="h-4 w-4" /> Sort by:
+                  </div>
+                  
+                  {/* Sort Dropdown */}
+                  <div 
+                    className="relative outline-none w-full md:w-auto" 
+                    tabIndex={-1}
+                    onBlur={(e) => {
+                      if (!e.currentTarget.contains(e.relatedTarget)) {
+                        setIsSortDropdownOpen(false);
+                      }
+                    }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
+                      className="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 flex items-center justify-between p-2 outline-none min-w-[160px] w-full md:w-auto transition-all"
+                    >
+                      <span className="truncate mr-2 font-medium">
+                        {sortOptions.find(opt => opt.value === sortBy)?.label || 'Sort By'}
+                      </span>
+                      <ChevronDown className="h-4 w-4 text-gray-500" />
+                    </button>
+                    
+                    {isSortDropdownOpen && (
+                      <div className="absolute z-50 mt-2 w-full md:w-48 bg-white border border-gray-100 rounded-xl shadow-xl py-2 right-0">
+                        {sortOptions.map(opt => (
+                          <button
+                            key={opt.value}
+                            type="button"
+                            onClick={() => {
+                              setSortBy(opt.value);
+                              setIsSortDropdownOpen(false);
+                            }}
+                            className={`w-full text-left flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer transition-colors ${
+                              sortBy === opt.value ? 'bg-blue-50/50' : ''
+                            }`}
+                          >
+                            <div className={`w-4 h-4 rounded-full border flex items-center justify-center mr-3 ${
+                              sortBy === opt.value ? 'border-blue-600' : 'border-gray-300'
+                            }`}>
+                              {sortBy === opt.value && <div className="w-2 h-2 rounded-full bg-blue-600" />}
+                            </div>
+                            <span className={`text-sm font-medium ${sortBy === opt.value ? 'text-blue-700' : 'text-gray-700'}`}>
+                              {opt.label}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {servers.length === 0 ? (
               <div className="bg-white rounded-3xl border border-gray-100 p-12 text-center shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
                 <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -337,9 +607,23 @@ export function Dashboard() {
                   Create your first server
                 </button>
               </div>
+            ) : filteredAndSortedServers.length === 0 ? (
+              <div className="bg-white rounded-3xl border border-gray-100 p-12 text-center shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+                <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Filter className="h-10 w-10 text-gray-300" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">No servers match your filters</h3>
+                <p className="text-gray-500 mb-8 max-w-sm mx-auto">Try adjusting your protocol or status filters to see your servers.</p>
+                <button 
+                  onClick={() => { setFilterProtocols([]); setFilterStatuses([]); }}
+                  className="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-all inline-flex items-center gap-2 text-sm"
+                >
+                  Clear Filters
+                </button>
+              </div>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {servers.map(server => {
+                {filteredAndSortedServers.map(server => {
                   const isExpired = new Date(server.expires_at) < new Date();
                   return (
                     <div 
@@ -418,16 +702,45 @@ export function Dashboard() {
 
               <form onSubmit={handleCreateServer} className="space-y-8">
                 <div>
-                  <label className="block text-sm font-bold text-gray-900 mb-3">Protocol</label>
+                  <div className="flex items-center justify-between mb-3">
+                    <label className="block text-sm font-bold text-gray-900">Protocol</label>
+                    <button 
+                      type="button" 
+                      onClick={() => setShowProtocolGuide(!showProtocolGuide)}
+                      className="text-gray-400 hover:text-blue-600 transition-colors flex items-center gap-1 text-xs font-medium"
+                    >
+                      <Info className="h-4 w-4" />
+                      {showProtocolGuide ? 'Hide Guide' : 'What are these?'}
+                    </button>
+                  </div>
+                  
+                  {showProtocolGuide && (
+                    <div className="mb-4 p-4 bg-blue-50 border border-blue-100 rounded-xl text-sm text-blue-800 space-y-2 animate-in fade-in slide-in-from-top-2">
+                      <div className="flex justify-between items-start">
+                        <h4 className="font-bold text-blue-900">Protocol Guide</h4>
+                        <button type="button" onClick={() => setShowProtocolGuide(false)} className="text-blue-400 hover:text-blue-700">
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                      <ul className="space-y-1.5 list-disc list-inside text-blue-700/80">
+                        <li><strong className="text-blue-900">V2Ray:</strong> Best for bypassing strict firewalls and deep packet inspection.</li>
+                        <li><strong className="text-blue-900">SSH WebSocket:</strong> Good balance of speed and stealth, works well on most networks.</li>
+                        <li><strong className="text-blue-900">Slow DNS:</strong> Extremely stealthy, works when other protocols are blocked, but very slow.</li>
+                        <li><strong className="text-blue-900">OpenVPN:</strong> Industry standard, highly secure, but easier to detect and block.</li>
+                        <li><strong className="text-blue-900">WireGuard:</strong> Modern, fast, and lightweight, excellent for general use.</li>
+                      </ul>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {['V2Ray', 'SSH WebSocket', 'Slow DNS', 'OpenVPN', 'WireGuard'].map(p => (
                       <button
                         key={p}
                         type="button"
                         onClick={() => setProtocol(p)}
-                        className={`px-4 py-3.5 rounded-xl border text-sm font-semibold transition-all duration-200 ${
+                        className={`px-4 py-3 rounded-lg border text-sm font-medium transition-all duration-200 ${
                           protocol === p 
-                            ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-[0_0_0_2px_rgba(37,99,235,0.1)]' 
+                            ? 'border-blue-600 bg-blue-50 text-blue-700 ring-1 ring-blue-600' 
                             : 'border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'
                         }`}
                       >
@@ -439,36 +752,67 @@ export function Dashboard() {
 
                 <div>
                   <label className="block text-sm font-bold text-gray-900 mb-3">Location</label>
-                  <div className="relative">
-                    <select 
-                      value={location}
-                      onChange={(e) => setLocation(e.target.value)}
-                      className="w-full appearance-none border border-gray-200 rounded-xl px-4 py-3.5 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-medium text-gray-700"
+                  <div 
+                    className="relative outline-none"
+                    tabIndex={-1}
+                    onBlur={(e) => {
+                      if (!e.currentTarget.contains(e.relatedTarget)) {
+                        setIsLocationDropdownOpen(false);
+                      }
+                    }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setIsLocationDropdownOpen(!isLocationDropdownOpen)}
+                      className="w-full bg-white border border-gray-200 text-gray-900 text-sm rounded-lg hover:border-gray-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 flex items-center justify-between px-4 py-3 outline-none transition-all"
                     >
-                      <option value="South Africa">🇿🇦 South Africa (Johannesburg)</option>
-                      <option value="United Kingdom">🇬🇧 United Kingdom (London)</option>
-                      <option value="United States">🇺🇸 United States (New York)</option>
-                      <option value="Germany">🇩🇪 Germany (Frankfurt)</option>
-                      <option value="Singapore">🇸🇬 Singapore</option>
-                    </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </div>
+                      <span className="truncate mr-2 font-medium">
+                        {LOCATION_OPTIONS.find(opt => opt.value === location)?.label || 'Select Location'}
+                      </span>
+                      <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${isLocationDropdownOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    
+                    {isLocationDropdownOpen && (
+                      <div className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg py-1 left-0">
+                        {LOCATION_OPTIONS.map(opt => (
+                          <button
+                            key={opt.value}
+                            type="button"
+                            onClick={() => {
+                              setLocation(opt.value);
+                              setIsLocationDropdownOpen(false);
+                            }}
+                            className={`w-full text-left flex items-center px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors ${
+                              location === opt.value ? 'bg-blue-50' : ''
+                            }`}
+                          >
+                            <span className={`text-sm font-medium ${location === opt.value ? 'text-blue-700' : 'text-gray-700'}`}>
+                              {opt.label}
+                            </span>
+                            {location === opt.value && (
+                              <div className="ml-auto text-blue-600">
+                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                              </div>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-bold text-gray-900 mb-3">Username</label>
                   <div className="flex rounded-xl border border-gray-200 bg-white focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 transition-all overflow-hidden shadow-sm">
-                    <div className="flex items-center px-4 bg-blue-50 border-r border-blue-100 select-none">
-                      <span className="text-blue-700 font-bold text-sm tracking-tight">zigssh.com-</span>
+                    <div className="flex items-center px-4 bg-gray-50 border-r border-gray-200 select-none">
+                      <span className="text-gray-400 text-sm tracking-tight">zimbotunnel-</span>
                     </div>
                     <input 
                       type="text" 
                       value={serverUsername}
                       onChange={(e) => setServerUsername(e.target.value)}
-                      className="w-full py-3.5 px-4 bg-transparent outline-none font-bold text-gray-900 placeholder:text-gray-400 placeholder:font-medium"
-                      placeholder="yourname"
+                      className="w-full py-3 px-4 bg-transparent outline-none text-gray-600 text-sm font-medium tracking-tight placeholder:text-gray-400"
+                      placeholder="Enter username"
                       required
                     />
                   </div>
@@ -477,14 +821,16 @@ export function Dashboard() {
                 {!['V2Ray', 'WireGuard'].includes(protocol) && (
                   <div>
                     <label className="block text-sm font-bold text-gray-900 mb-3">Password</label>
-                    <input 
-                      type="text" 
-                      value={serverPassword}
-                      onChange={(e) => setServerPassword(e.target.value)}
-                      className="w-full border border-gray-200 rounded-xl px-4 py-3.5 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-medium text-gray-900"
-                      placeholder="Enter password"
-                      required
-                    />
+                    <div className="flex rounded-xl border border-gray-200 bg-white focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 transition-all overflow-hidden shadow-sm">
+                      <input 
+                        type="text" 
+                        value={serverPassword}
+                        onChange={(e) => setServerPassword(e.target.value)}
+                        className="w-full py-3 px-4 bg-transparent outline-none text-gray-600 text-sm font-medium tracking-tight placeholder:text-gray-400"
+                        placeholder="Enter password"
+                        required
+                      />
+                    </div>
                   </div>
                 )}
 
@@ -590,214 +936,179 @@ export function Dashboard() {
               </>
             ) : (
               <>
-                <div className="mb-8 flex items-center gap-4">
-                  <button 
-                    onClick={() => setShowTopUpForm(false)}
-                    className="p-2 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
-                  >
-                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
-                  </button>
-                  <div>
-                    <h1 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">Top Up Coins</h1>
-                    <p className="text-gray-500 mt-1">Add funds to your account to deploy more servers.</p>
+                <div className="max-w-3xl mx-auto">
+                  <div className="mb-8 flex items-center gap-4">
+                    <button 
+                      onClick={() => setShowTopUpForm(false)}
+                      className="p-2 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+                    >
+                      <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
+                    </button>
+                    <div>
+                      <h1 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">Top Up</h1>
+                    </div>
                   </div>
-                </div>
-                
-                <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-                  <div className="lg:col-span-3 bg-white rounded-3xl border border-gray-100 p-6 md:p-8 shadow-[0_2px_20px_rgba(0,0,0,0.02)] h-fit">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 shadow-inner border border-blue-200">
-                        <Wallet className="h-6 w-6" />
-                      </div>
-                      <div>
-                        <h2 className="text-xl font-bold text-gray-900">EcoCash Payment</h2>
-                        <p className="text-sm text-gray-500">Instant mobile money transfer</p>
+
+                  {topupMessage && (
+                    <div className={`mb-6 p-4 rounded-xl flex items-start gap-3 ${topupMessage.includes('successful') ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-red-50 text-red-700 border border-red-100'}`}>
+                      <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                      <p className="text-sm font-medium">{topupMessage}</p>
+                    </div>
+                  )}
+
+                  <div className="space-y-6">
+                    {/* Coin Package */}
+                    <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-[0_2px_20px_rgba(0,0,0,0.02)]">
+                      <h2 className="text-lg font-bold text-gray-900 mb-4">Coin Package</h2>
+                      <div className="space-y-3">
+                        {PACKAGES.map(pkg => (
+                          <div 
+                            key={pkg.id}
+                            onClick={() => setSelectedPackageId(pkg.id)}
+                            className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all ${selectedPackageId === pkg.id ? 'border-blue-600 bg-blue-50/50' : 'border-gray-100 hover:border-gray-200'}`}
+                          >
+                            <div className="flex items-center gap-4">
+                              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedPackageId === pkg.id ? 'border-blue-600' : 'border-gray-300'}`}>
+                                {selectedPackageId === pkg.id && <div className="w-2.5 h-2.5 rounded-full bg-blue-600"></div>}
+                              </div>
+                              <div className="w-10 h-10 rounded-lg bg-blue-100/50 flex items-center justify-center text-blue-600">
+                                <pkg.icon className="h-5 w-5" />
+                              </div>
+                              <div>
+                                <p className="font-bold text-gray-900">{pkg.coins} Coins</p>
+                                <p className="text-xs text-gray-500 font-medium">${pkg.price.toFixed(2)} USD</p>
+                              </div>
+                            </div>
+                            <div className="text-lg font-black text-blue-600">
+                              ${pkg.price.toFixed(2)}
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                    
-                    {topupMessage && (
-                      <div className={`mb-8 p-4 rounded-xl flex items-start gap-3 ${topupMessage.includes('successful') ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-red-50 text-red-700 border border-red-100'}`}>
-                        <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
-                        <p className="text-sm font-medium">{topupMessage}</p>
-                      </div>
-                    )}
 
-                    <form onSubmit={handleTopup} className="space-y-6">
-                      <div>
-                        <label className="block text-sm font-bold text-gray-900 mb-2">EcoCash Number</label>
-                        <div className="relative">
-                          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <span className="text-gray-500 sm:text-sm font-medium">+263</span>
+                    {/* Payment Method */}
+                    <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-[0_2px_20px_rgba(0,0,0,0.02)]">
+                      <h2 className="text-lg font-bold text-gray-900 mb-4">Payment Method</h2>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div 
+                          onClick={() => setPaymentMethod('ecocash')}
+                          className={`p-4 rounded-xl border-2 cursor-pointer transition-all text-center ${paymentMethod === 'ecocash' ? 'border-blue-600 bg-blue-50/50' : 'border-gray-100 hover:border-gray-200'}`}
+                        >
+                          <div className="w-12 h-12 mx-auto rounded-xl bg-green-100 flex items-center justify-center text-green-600 mb-3">
+                            <Smartphone className="h-6 w-6" />
                           </div>
-                          <input 
-                            type="text" 
-                            placeholder="77X XXX XXX"
-                            value={phoneNumber}
-                            onChange={(e) => setPhoneNumber(e.target.value)}
-                            className="w-full border border-gray-200 rounded-xl pl-14 pr-4 py-3.5 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-medium text-gray-900"
-                            required
-                          />
+                          <h3 className="font-bold text-gray-900">EcoCash</h3>
+                          <p className="text-xs text-gray-500 mt-1">Mobile Money</p>
                         </div>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-bold text-gray-900 mb-2">Amount (USD)</label>
-                        <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-3">
-                          {[1, 5, 10, 20].map(preset => (
-                            <button
-                              key={preset}
-                              type="button"
-                              onClick={() => setAmount(preset.toString())}
-                              className={`px-3 py-2.5 rounded-xl border text-sm font-bold transition-all duration-200 ${
-                                amount === preset.toString() 
-                                  ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-[0_0_0_2px_rgba(37,99,235,0.1)]' 
-                                  : 'border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'
-                              }`}
-                            >
-                              ${preset}
-                            </button>
-                          ))}
-                        </div>
-                        <div className="relative">
-                          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <span className="text-gray-500 sm:text-sm font-medium">$</span>
+                        <div 
+                          onClick={() => {
+                            setSnackbarMessage('Innbucks not yet supported');
+                            setTimeout(() => setSnackbarMessage(''), 3000);
+                          }}
+                          className={`p-4 rounded-xl border-2 cursor-pointer transition-all text-center border-gray-100 hover:border-gray-200 opacity-60`}
+                        >
+                          <div className="w-12 h-12 mx-auto rounded-xl bg-purple-100 flex items-center justify-center text-purple-600 mb-3">
+                            <Wallet className="h-6 w-6" />
                           </div>
-                          <input 
-                            type="number" 
-                            min="1"
-                            step="1"
-                            placeholder="Custom amount"
-                            value={amount}
-                            onChange={(e) => setAmount(e.target.value)}
-                            className="w-full border border-gray-200 rounded-xl pl-8 pr-4 py-3.5 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-medium text-gray-900"
-                            required
-                          />
+                          <h3 className="font-bold text-gray-900">Innbucks</h3>
+                          <p className="text-xs text-gray-500 mt-1">Mobile Wallet</p>
                         </div>
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-bold text-gray-900 mb-2">Coupon Code <span className="text-gray-400 font-normal">(Optional)</span></label>
+                      {paymentMethod === 'ecocash' && (
+                        <div className="mt-6 pt-6 border-t border-gray-100">
+                          <label className="block text-sm font-bold text-gray-900 mb-2">EcoCash Number</label>
+                          <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                              <span className="text-gray-500 sm:text-sm font-medium">+263</span>
+                            </div>
+                            <input 
+                              type="text" 
+                              placeholder="77X XXX XXX"
+                              value={phoneNumber}
+                              onChange={(e) => setPhoneNumber(e.target.value)}
+                              className="w-full border border-gray-200 rounded-xl pl-14 pr-4 py-3.5 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-medium text-gray-900"
+                              required
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Coupon Code */}
+                    <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-[0_2px_20px_rgba(0,0,0,0.02)]">
+                      <h2 className="text-lg font-bold text-gray-900 mb-4">Coupon Code</h2>
+                      <div className="flex gap-2">
                         <input 
                           type="text" 
-                          placeholder="Enter promo code"
+                          placeholder="ENTER CODE"
                           value={couponCode}
                           onChange={(e) => setCouponCode(e.target.value)}
-                          className="w-full border border-gray-200 rounded-xl px-4 py-3.5 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-medium text-gray-900 uppercase"
+                          className="flex-1 min-w-0 border border-gray-200 rounded-xl px-4 py-3.5 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-medium text-gray-900 uppercase"
                         />
-                      </div>
-                      
-                      <div className="pt-4">
-                        <button 
-                          type="submit"
-                          disabled={isToppingUp}
-                          className="w-full bg-blue-600 text-white font-bold py-4 px-4 rounded-xl hover:bg-blue-700 transition-all shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none flex justify-center items-center text-base"
-                        >
-                          {isToppingUp ? 'Processing Payment...' : 'Pay with EcoCash'}
+                        <button className="shrink-0 px-5 sm:px-6 py-3.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
+                          <CheckCircle2 className="h-4 w-4 hidden sm:block" /> Apply
                         </button>
-                        <p className="text-xs text-gray-500 text-center mt-4 font-medium">
-                          A prompt will be sent to your phone to confirm the payment.
-                        </p>
                       </div>
-                    </form>
-                  </div>
+                    </div>
 
-                  <div className="lg:col-span-2 space-y-6">
-                    <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-6 shadow-lg text-white relative overflow-hidden">
-                      <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-10 rounded-full blur-2xl"></div>
-                      <div className="relative z-10">
-                        <h3 className="text-lg font-bold mb-2">Exchange Rate</h3>
-                        <div className="flex items-center gap-4 bg-white/10 rounded-xl p-4 backdrop-blur-sm border border-white/20">
-                          <div className="flex-1 text-center">
-                            <p className="text-2xl font-black">$1</p>
-                            <p className="text-xs text-blue-100 uppercase tracking-wider font-bold mt-1">USD</p>
-                          </div>
-                          <div className="text-blue-200 font-black text-xl">=</div>
-                          <div className="flex-1 text-center">
-                            <p className="text-2xl font-black text-yellow-300">5</p>
-                            <p className="text-xs text-blue-100 uppercase tracking-wider font-bold mt-1">Coins</p>
-                          </div>
+                    {/* Proceed to Payment */}
+                    <div>
+                      <button 
+                        onClick={handleTopup}
+                        disabled={isToppingUp || (paymentMethod === 'ecocash' && !phoneNumber)}
+                        className="w-full bg-blue-600 text-white font-bold py-4 px-4 rounded-xl hover:bg-blue-700 transition-all shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center text-base gap-2"
+                      >
+                        {isToppingUp ? 'Processing...' : <><Wallet className="h-5 w-5" /> Proceed to Payment</>}
+                      </button>
+                      <p className="text-xs text-gray-500 text-center mt-3 font-medium">
+                        You will be redirected to dischub to process the payment
+                      </p>
+                    </div>
+
+                    {/* Payment Summary */}
+                    <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-[0_2px_20px_rgba(0,0,0,0.02)]">
+                      <h2 className="text-lg font-bold text-gray-900 mb-4">Payment Summary</h2>
+                      <div className="space-y-3 mb-6">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-500 font-medium">Original Price</span>
+                          <span className="font-bold text-gray-900">${PACKAGES.find(p => p.id === selectedPackageId)?.price.toFixed(2)}</span>
                         </div>
-                        <p className="text-sm text-blue-100 mt-4 font-medium text-center">
-                          {amount ? `You will receive ${(parseFloat(amount) * 5).toFixed(0)} Coins` : 'Enter an amount to calculate coins'}
-                        </p>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-500 font-medium">Payment Fee</span>
+                          <span className="font-bold text-red-500">+$0.00</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-yellow-600 font-bold">Bonus Coins</span>
+                          <span className="font-bold text-gray-900">+{(couponCode.toUpperCase() === 'BONUS10') ? 10 : 0}</span>
+                        </div>
+                        <div className="pt-3 border-t border-gray-100 flex justify-between items-center">
+                          <span className="text-lg font-bold text-gray-900">Total</span>
+                          <span className="text-xl font-black text-blue-600">${PACKAGES.find(p => p.id === selectedPackageId)?.price.toFixed(2)}</span>
+                        </div>
+                      </div>
+
+                      <div className="pt-6 border-t border-gray-100 space-y-3">
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Pricing Info</p>
+                        <div className="flex items-center gap-3 text-sm text-gray-600 font-medium">
+                          <div className="w-6 h-6 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center"><Coins className="h-3 w-3" /></div>
+                          1 USD = 30 Coins
+                        </div>
+                        <div className="flex items-center gap-3 text-sm text-gray-600 font-medium">
+                          <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center"><Infinity className="h-3 w-3" /></div>
+                          Coins never expire
+                        </div>
+                        <div className="flex items-center gap-3 text-sm text-gray-600 font-medium">
+                          <div className="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center"><ArrowRightLeft className="h-3 w-3" /></div>
+                          Can be transferred to others
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </>
             )}
-          </motion.div>
-        )}
-        {activeTab === 'profile' && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="max-w-4xl mx-auto">
-            <div className="mb-8">
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">My Profile</h1>
-              <p className="text-gray-500 mt-1">Manage your account settings and preferences.</p>
-            </div>
-            
-            <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_2px_20px_rgba(0,0,0,0.02)] overflow-hidden">
-              {/* Cover Photo / Gradient Banner */}
-              <div className="h-32 sm:h-48 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 relative">
-                <div className="absolute inset-0 bg-white/10 backdrop-blur-[2px]"></div>
-                <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/20 to-transparent"></div>
-              </div>
-
-              <div className="px-6 sm:px-10 pb-10 relative">
-                {/* Floating Avatar */}
-                <div className="flex flex-col sm:flex-row sm:items-end gap-5 -mt-12 sm:-mt-16 mb-8">
-                  <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-white p-1.5 shadow-xl relative z-10">
-                    <div className="w-full h-full rounded-full bg-gradient-to-tr from-blue-100 to-indigo-50 flex items-center justify-center text-blue-600 font-black text-4xl sm:text-5xl border border-blue-100/50">
-                      {user.username.charAt(0).toUpperCase()}
-                    </div>
-                  </div>
-                  <div className="flex-1 pb-2">
-                    <h2 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">{user.username}</h2>
-                    <p className="text-gray-500 font-medium mt-1">{user.email}</p>
-                  </div>
-                  <div className="pb-3">
-                    <span className="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-100 uppercase tracking-wider shadow-sm">
-                      {user.role} Account
-                    </span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                  <div className="bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-2xl p-6 border border-gray-100 hover:border-blue-200 hover:shadow-md transition-all group">
-                    <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                      <Wallet className="h-5 w-5" />
-                    </div>
-                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Available Coins</label>
-                    <p className="text-gray-900 font-black text-2xl">{user.balance.toFixed(0)} <span className="text-sm font-bold text-gray-400">Coins</span></p>
-                  </div>
-                  
-                  <div className="bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-2xl p-6 border border-gray-100 hover:border-indigo-200 hover:shadow-md transition-all group">
-                    <div className="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                      <Server className="h-5 w-5" />
-                    </div>
-                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Active Servers</label>
-                    <p className="text-gray-900 font-black text-2xl">{servers.filter(s => new Date(s.expires_at) > new Date()).length}</p>
-                  </div>
-
-                  <div className="bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-2xl p-6 border border-gray-100 hover:border-purple-200 hover:shadow-md transition-all group">
-                    <div className="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                      <Clock className="h-5 w-5" />
-                    </div>
-                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Member Since</label>
-                    <p className="text-gray-900 font-bold text-lg mt-1">
-                      {user.created_at ? new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'Recently'}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="pt-8 border-t border-gray-100 flex justify-end gap-4">
-                  <button className="px-6 py-3 bg-gray-50 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-100 border border-gray-200 transition-colors">
-                    Change Password
-                  </button>
-                  <button className="px-6 py-3 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 shadow-md shadow-blue-600/20 transition-all hover:-translate-y-0.5">
-                    Edit Profile
-                  </button>
-                </div>
-              </div>
-            </div>
           </motion.div>
         )}
           </div>

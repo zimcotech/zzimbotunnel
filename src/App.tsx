@@ -12,6 +12,7 @@ import { LandingPage } from './pages/LandingPage';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { Dashboard } from './pages/Dashboard';
+import { Profile } from './pages/Profile';
 import { ServerDetails } from './pages/ServerDetails';
 import { Status } from './pages/Status';
 import { CookieConsent } from './components/CookieConsent';
@@ -46,6 +47,11 @@ function AppContent() {
           <Route path="/dashboard" element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/profile" element={
+            <ProtectedRoute>
+              <Profile />
             </ProtectedRoute>
           } />
           <Route path="/server/:id" element={

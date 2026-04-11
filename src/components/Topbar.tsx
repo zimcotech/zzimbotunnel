@@ -81,9 +81,16 @@ export function Topbar() {
                       <Link 
                         to="/dashboard" 
                         onClick={() => setShowUserDetails(false)}
-                        className="w-full flex items-center justify-center gap-2 bg-blue-50 text-blue-700 font-bold py-2.5 rounded-xl hover:bg-blue-100 transition-colors text-sm"
+                        className={`w-full flex items-center justify-center gap-2 font-bold py-2.5 rounded-xl transition-colors text-sm ${location.pathname === '/dashboard' ? 'bg-blue-50 text-blue-700' : 'bg-gray-50 text-gray-700 hover:bg-gray-100'}`}
                       >
                         Dashboard
+                      </Link>
+                      <Link 
+                        to="/profile" 
+                        onClick={() => setShowUserDetails(false)}
+                        className={`w-full flex items-center justify-center gap-2 font-bold py-2.5 rounded-xl transition-colors text-sm ${location.pathname === '/profile' ? 'bg-blue-50 text-blue-700' : 'bg-gray-50 text-gray-700 hover:bg-gray-100'}`}
+                      >
+                        Profile
                       </Link>
                       <button 
                         onClick={() => { handleLogout(); setShowUserDetails(false); }} 
@@ -114,28 +121,47 @@ export function Topbar() {
                 </button>
               </div>
               
-              <div className="flex-1 overflow-y-auto py-5 px-4 space-y-1.5">
-                <Link to="/#features" onClick={() => setIsMobileMenuOpen(false)} className="group flex items-center gap-3 px-4 py-3.5 text-base font-medium text-gray-700 hover:text-blue-700 hover:bg-blue-50/80 rounded-xl transition-all">
-                  <Star className="h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-colors" /> Features
+              <div className="flex-1 overflow-y-auto py-5 px-4 space-y-2">
+                <Link to="/#how-it-works" onClick={() => setIsMobileMenuOpen(false)} className="group flex items-center gap-3.5 px-3 py-3 text-sm font-bold text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-xl transition-all">
+                  <div className="w-9 h-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-400 shadow-sm group-hover:border-blue-200 group-hover:text-blue-600 group-hover:bg-blue-50 transition-colors">
+                    <Info className="h-4 w-4" />
+                  </div>
+                  How it Works
                 </Link>
-                <Link to="/#how-it-works" onClick={() => setIsMobileMenuOpen(false)} className="group flex items-center gap-3 px-4 py-3.5 text-base font-medium text-gray-700 hover:text-blue-700 hover:bg-blue-50/80 rounded-xl transition-all">
-                  <Info className="h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-colors" /> How it Works
+                <Link to="/status" onClick={() => setIsMobileMenuOpen(false)} className={`group flex items-center gap-3.5 px-3 py-3 text-sm font-bold rounded-xl transition-all ${location.pathname === '/status' ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}>
+                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center shadow-sm transition-colors ${location.pathname === '/status' ? 'bg-white/20 text-white' : 'bg-white border border-gray-200 text-gray-400 group-hover:border-blue-200 group-hover:text-blue-600 group-hover:bg-blue-50'}`}>
+                    <Activity className="h-4 w-4" />
+                  </div>
+                  Status
                 </Link>
-                <Link to="/status" onClick={() => setIsMobileMenuOpen(false)} className="group flex items-center gap-3 px-4 py-3.5 text-base font-medium text-gray-700 hover:text-blue-700 hover:bg-blue-50/80 rounded-xl transition-all">
-                  <Activity className="h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-colors" /> Status
-                </Link>
-                <a href="#" onClick={() => setIsMobileMenuOpen(false)} className="group flex items-center gap-3 px-4 py-3.5 text-base font-medium text-gray-700 hover:text-blue-700 hover:bg-blue-50/80 rounded-xl transition-all">
-                  <Headset className="h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-colors" /> Support
+                <a href="#" onClick={() => setIsMobileMenuOpen(false)} className="group flex items-center gap-3.5 px-3 py-3 text-sm font-bold text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-xl transition-all">
+                  <div className="w-9 h-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-400 shadow-sm group-hover:border-blue-200 group-hover:text-blue-600 group-hover:bg-blue-50 transition-colors">
+                    <Headset className="h-4 w-4" />
+                  </div>
+                  Support
                 </a>
-                <a href="#" onClick={() => setIsMobileMenuOpen(false)} className="group flex items-center gap-3 px-4 py-3.5 text-base font-medium text-gray-700 hover:text-blue-700 hover:bg-blue-50/80 rounded-xl transition-all">
-                  <Bot className="h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-colors" /> Zimbo Tunnel Bot
+                <a href="#" onClick={() => setIsMobileMenuOpen(false)} className="group flex items-center gap-3.5 px-3 py-3 text-sm font-bold text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-xl transition-all">
+                  <div className="w-9 h-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-400 shadow-sm group-hover:border-blue-200 group-hover:text-blue-600 group-hover:bg-blue-50 transition-colors">
+                    <Bot className="h-4 w-4" />
+                  </div>
+                  Zimbo Tunnel Bot
                 </a>
                 
                 {user && (
                   <>
                     <div className="my-4 border-t border-gray-100"></div>
-                    <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="group flex items-center gap-3 px-4 py-3.5 text-base font-medium text-gray-700 hover:text-blue-700 hover:bg-blue-50/80 rounded-xl transition-all">
-                      <LayoutDashboard className="h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-colors" /> Dashboard
+                    <div className="px-3 mb-2 text-[10px] font-black text-gray-400 uppercase tracking-wider">Account</div>
+                    <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className={`group flex items-center gap-3.5 px-3 py-3 text-sm font-bold rounded-xl transition-all ${location.pathname === '/dashboard' ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}>
+                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center shadow-sm transition-colors ${location.pathname === '/dashboard' ? 'bg-white/20 text-white' : 'bg-white border border-gray-200 text-gray-400 group-hover:border-blue-200 group-hover:text-blue-600 group-hover:bg-blue-50'}`}>
+                        <LayoutDashboard className="h-4 w-4" />
+                      </div>
+                      Dashboard
+                    </Link>
+                    <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)} className={`group flex items-center gap-3.5 px-3 py-3 text-sm font-bold rounded-xl transition-all ${location.pathname === '/profile' ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}>
+                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center shadow-sm transition-colors ${location.pathname === '/profile' ? 'bg-white/20 text-white' : 'bg-white border border-gray-200 text-gray-400 group-hover:border-blue-200 group-hover:text-blue-600 group-hover:bg-blue-50'}`}>
+                        <User className="h-4 w-4" />
+                      </div>
+                      Profile
                     </Link>
                   </>
                 )}

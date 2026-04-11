@@ -45,6 +45,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
         setToken(session.access_token);
+        setIsLoading(true);
         // Use setTimeout to escape the Supabase auth lock context and prevent deadlocks
         setTimeout(() => {
           fetchProfile(session.user.id, session.user.email || '', session.user.user_metadata?.username);
