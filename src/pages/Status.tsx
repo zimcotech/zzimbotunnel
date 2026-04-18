@@ -20,13 +20,13 @@ export function Status() {
           </div>
           
           <div className="bg-white rounded-3xl border border-gray-100 p-6 md:p-8 shadow-[0_2px_20px_rgba(0,0,0,0.02)]">
-            <div className="flex items-center gap-4 mb-8 p-4 bg-green-50 rounded-2xl border border-green-100">
-              <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+            <div className="flex items-center gap-4 mb-8 p-4 bg-brand-green-light rounded-2xl border border-brand-green/10">
+              <div className="w-12 h-12 rounded-full bg-brand-green-light flex items-center justify-center text-brand-green">
                 <CheckCircle2 className="h-6 w-6" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-green-900">All Systems Operational</h3>
-                <p className="text-sm text-green-700 font-medium">Last updated: Just now</p>
+                <h3 className="text-lg font-bold text-gray-900">All Systems Operational</h3>
+                <p className="text-sm text-brand-green font-medium">Last updated: Just now</p>
               </div>
             </div>
 
@@ -46,7 +46,7 @@ export function Status() {
                   </div>
                   <div className="flex items-center gap-4">
                     <span className="text-sm font-medium text-gray-500 hidden sm:inline-block">{service.uptime} uptime</span>
-                    <span className="px-3 py-1 bg-green-50 text-green-700 text-xs font-bold uppercase tracking-wider rounded-md border border-green-100">
+                    <span className="px-3 py-1 bg-brand-green-light text-brand-green text-xs font-bold uppercase tracking-wider rounded-md border border-brand-green/10">
                       Operational
                     </span>
                   </div>

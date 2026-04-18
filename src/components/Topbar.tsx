@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Menu, X, User, Star, Info, Activity, LayoutDashboard, LogOut, Headset, Bot } from 'lucide-react';
+import { Logo } from './Logo';
 
 export function Topbar() {
   const { user, logout } = useAuth();
@@ -31,26 +32,27 @@ export function Topbar() {
 
           {/* Logo */}
           <div className="flex items-center justify-center md:justify-start">
-            <Link to="/" className="flex items-center gap-1.5 sm:gap-2">
+            <Link to="/" className="flex items-center gap-1.5 sm:gap-2 group">
+              <Logo size={28} className="group-hover:rotate-12 transition-transform duration-300" />
               <span className="font-bold text-lg sm:text-xl tracking-tight text-gray-900 whitespace-nowrap">Zimbo Tunnel</span>
-              <span className="px-1.5 sm:px-2 py-0.5 rounded-md bg-blue-100 text-blue-700 text-[10px] sm:text-xs font-bold">1.0</span>
+              <span className="px-1.5 sm:px-2 py-0.5 rounded-md bg-brand-green-light text-brand-green text-[10px] sm:text-xs font-bold whitespace-nowrap">2.1</span>
             </Link>
           </div>
 
           {/* Center Links (Desktop) */}
           <nav className="hidden md:flex items-center gap-8">
-            <Link to="/#features" className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">Features</Link>
-            <Link to="/#how-it-works" className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">How it Works</Link>
+            <Link to="/#features" className="text-sm font-medium text-gray-600 hover:text-brand-green transition-colors">Features</Link>
+            <Link to="/#how-it-works" className="text-sm font-medium text-gray-600 hover:text-brand-green transition-colors">How it Works</Link>
           </nav>
 
           {/* Right side */}
           <div className="flex items-center relative">
             {user ? (
-              <button onClick={() => setShowUserDetails(!showUserDetails)} className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-100 to-indigo-50 flex items-center justify-center text-blue-600 shadow-inner border border-blue-100/50 hover:shadow-md transition-all">
+              <button onClick={() => setShowUserDetails(!showUserDetails)} className="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-green-light to-brand-yellow-light flex items-center justify-center text-brand-green shadow-inner border border-brand-green/20 hover:shadow-md transition-all">
                 <User className="h-5 w-5" />
               </button>
             ) : (
-              <Link to="/login" className="px-5 py-2.5 rounded-full bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
+              <Link to="/login" className="px-5 py-2.5 rounded-full bg-brand-green text-white text-sm font-medium hover:bg-brand-green/90 transition-colors shadow-sm flex items-center gap-2">
                 <span className="hidden sm:inline">Get Started</span>
                 <span className="sm:hidden">Start</span>
               </Link>
@@ -61,12 +63,12 @@ export function Topbar() {
               <>
                 <div className="fixed inset-0 z-[90]" onClick={() => setShowUserDetails(false)}></div>
                 <div className="absolute top-full right-0 mt-3 w-64 sm:w-72 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-[100] animate-in fade-in slide-in-from-top-2">
-                  <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-5 text-white text-center relative">
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-blue-100 to-indigo-50 flex items-center justify-center text-blue-600 text-xl font-bold shadow-inner border border-blue-100/50 mx-auto mb-3">
+                  <div className="bg-gradient-to-br from-brand-green to-brand-yellow p-5 text-white text-center relative">
+                    <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center text-brand-green text-xl font-bold shadow-inner border border-brand-green/10 mx-auto mb-3">
                       {user.username.charAt(0).toUpperCase()}
                     </div>
                     <h2 className="text-lg font-bold tracking-tight">{user.username}</h2>
-                    <p className="text-blue-100 text-xs font-medium truncate">{user.email}</p>
+                    <p className="text-white/80 text-xs font-medium truncate">{user.email}</p>
                   </div>
                   
                   <div className="p-4">
@@ -81,14 +83,14 @@ export function Topbar() {
                       <Link 
                         to="/dashboard" 
                         onClick={() => setShowUserDetails(false)}
-                        className={`w-full flex items-center justify-center gap-2 font-bold py-2.5 rounded-xl transition-colors text-sm ${location.pathname === '/dashboard' ? 'bg-blue-50 text-blue-700' : 'bg-gray-50 text-gray-700 hover:bg-gray-100'}`}
+                        className={`w-full flex items-center justify-center gap-2 font-bold py-2.5 rounded-xl transition-colors text-sm ${location.pathname === '/dashboard' ? 'bg-brand-green-light text-brand-green' : 'bg-gray-50 text-gray-700 hover:bg-gray-100'}`}
                       >
                         Dashboard
                       </Link>
                       <Link 
                         to="/profile" 
                         onClick={() => setShowUserDetails(false)}
-                        className={`w-full flex items-center justify-center gap-2 font-bold py-2.5 rounded-xl transition-colors text-sm ${location.pathname === '/profile' ? 'bg-blue-50 text-blue-700' : 'bg-gray-50 text-gray-700 hover:bg-gray-100'}`}
+                        className={`w-full flex items-center justify-center gap-2 font-bold py-2.5 rounded-xl transition-colors text-sm ${location.pathname === '/profile' ? 'bg-brand-green-light text-brand-green' : 'bg-gray-50 text-gray-700 hover:bg-gray-100'}`}
                       >
                         Profile
                       </Link>
@@ -113,7 +115,7 @@ export function Topbar() {
             <div className="fixed inset-y-0 left-0 w-4/5 max-w-sm bg-white shadow-2xl z-[101] md:hidden flex flex-col animate-in slide-in-from-left duration-300">
               <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
                 <Link to="/" className="flex items-center gap-3" onClick={() => setIsMobileMenuOpen(false)}>
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white font-bold text-sm shadow-sm">ZT</div>
+                  <Logo size={28} />
                   <span className="font-bold text-xl tracking-tight text-gray-900">Zimbo Tunnel</span>
                 </Link>
                 <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
@@ -123,25 +125,25 @@ export function Topbar() {
               
               <div className="flex-1 overflow-y-auto py-5 px-4 space-y-2">
                 <Link to="/#how-it-works" onClick={() => setIsMobileMenuOpen(false)} className="group flex items-center gap-3.5 px-3 py-3 text-sm font-bold text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-xl transition-all">
-                  <div className="w-9 h-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-400 shadow-sm group-hover:border-blue-200 group-hover:text-blue-600 group-hover:bg-blue-50 transition-colors">
+                  <div className="w-9 h-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-400 shadow-sm group-hover:border-brand-green/20 group-hover:text-brand-green group-hover:bg-brand-green-light transition-colors">
                     <Info className="h-4 w-4" />
                   </div>
                   How it Works
                 </Link>
-                <Link to="/status" onClick={() => setIsMobileMenuOpen(false)} className={`group flex items-center gap-3.5 px-3 py-3 text-sm font-bold rounded-xl transition-all ${location.pathname === '/status' ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}>
-                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center shadow-sm transition-colors ${location.pathname === '/status' ? 'bg-white/20 text-white' : 'bg-white border border-gray-200 text-gray-400 group-hover:border-blue-200 group-hover:text-blue-600 group-hover:bg-blue-50'}`}>
+                <Link to="/status" onClick={() => setIsMobileMenuOpen(false)} className={`group flex items-center gap-3.5 px-3 py-3 text-sm font-bold rounded-xl transition-all ${location.pathname === '/status' ? 'bg-brand-green text-white shadow-md shadow-brand-green/20' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}>
+                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center shadow-sm transition-colors ${location.pathname === '/status' ? 'bg-white/20 text-white' : 'bg-white border border-gray-200 text-gray-400 group-hover:border-brand-green/20 group-hover:text-brand-green group-hover:bg-brand-green-light'}`}>
                     <Activity className="h-4 w-4" />
                   </div>
                   Status
                 </Link>
                 <a href="#" onClick={() => setIsMobileMenuOpen(false)} className="group flex items-center gap-3.5 px-3 py-3 text-sm font-bold text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-xl transition-all">
-                  <div className="w-9 h-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-400 shadow-sm group-hover:border-blue-200 group-hover:text-blue-600 group-hover:bg-blue-50 transition-colors">
+                  <div className="w-9 h-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-400 shadow-sm group-hover:border-brand-green/20 group-hover:text-brand-green group-hover:bg-brand-green-light transition-colors">
                     <Headset className="h-4 w-4" />
                   </div>
                   Support
                 </a>
                 <a href="#" onClick={() => setIsMobileMenuOpen(false)} className="group flex items-center gap-3.5 px-3 py-3 text-sm font-bold text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-xl transition-all">
-                  <div className="w-9 h-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-400 shadow-sm group-hover:border-blue-200 group-hover:text-blue-600 group-hover:bg-blue-50 transition-colors">
+                  <div className="w-9 h-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-400 shadow-sm group-hover:border-brand-green/20 group-hover:text-brand-green group-hover:bg-brand-green-light transition-colors">
                     <Bot className="h-4 w-4" />
                   </div>
                   Zimbo Tunnel Bot
@@ -151,14 +153,14 @@ export function Topbar() {
                   <>
                     <div className="my-4 border-t border-gray-100"></div>
                     <div className="px-3 mb-2 text-[10px] font-black text-gray-400 uppercase tracking-wider">Account</div>
-                    <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className={`group flex items-center gap-3.5 px-3 py-3 text-sm font-bold rounded-xl transition-all ${location.pathname === '/dashboard' ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}>
-                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center shadow-sm transition-colors ${location.pathname === '/dashboard' ? 'bg-white/20 text-white' : 'bg-white border border-gray-200 text-gray-400 group-hover:border-blue-200 group-hover:text-blue-600 group-hover:bg-blue-50'}`}>
+                    <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className={`group flex items-center gap-3.5 px-3 py-3 text-sm font-bold rounded-xl transition-all ${location.pathname === '/dashboard' ? 'bg-brand-green text-white shadow-md shadow-brand-green/20' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}>
+                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center shadow-sm transition-colors ${location.pathname === '/dashboard' ? 'bg-white/20 text-white' : 'bg-white border border-gray-200 text-gray-400 group-hover:border-brand-green/20 group-hover:text-brand-green group-hover:bg-brand-green-light'}`}>
                         <LayoutDashboard className="h-4 w-4" />
                       </div>
                       Dashboard
                     </Link>
-                    <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)} className={`group flex items-center gap-3.5 px-3 py-3 text-sm font-bold rounded-xl transition-all ${location.pathname === '/profile' ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}>
-                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center shadow-sm transition-colors ${location.pathname === '/profile' ? 'bg-white/20 text-white' : 'bg-white border border-gray-200 text-gray-400 group-hover:border-blue-200 group-hover:text-blue-600 group-hover:bg-blue-50'}`}>
+                    <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)} className={`group flex items-center gap-3.5 px-3 py-3 text-sm font-bold rounded-xl transition-all ${location.pathname === '/profile' ? 'bg-brand-green text-white shadow-md shadow-brand-green/20' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}>
+                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center shadow-sm transition-colors ${location.pathname === '/profile' ? 'bg-white/20 text-white' : 'bg-white border border-gray-200 text-gray-400 group-hover:border-brand-green/20 group-hover:text-brand-green group-hover:bg-brand-green-light'}`}>
                         <User className="h-4 w-4" />
                       </div>
                       Profile
@@ -170,7 +172,7 @@ export function Topbar() {
               {user ? (
                 <div className="p-4 border-t border-gray-100 bg-gray-50">
                   <div className="flex items-center gap-3 mb-4 px-2">
-                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
+                    <div className="w-10 h-10 rounded-full bg-brand-green-light flex items-center justify-center text-brand-green font-bold">
                       {user.username.charAt(0).toUpperCase()}
                     </div>
                     <div>

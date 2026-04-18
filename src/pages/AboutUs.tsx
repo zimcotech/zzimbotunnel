@@ -9,24 +9,24 @@ export function AboutUs() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-gray-100">
           <div className="text-center mb-12">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight mb-4">About Zimbo Tunnel</h1>
-            <p className="text-lg text-gray-500 max-w-2xl mx-auto">We are dedicated to providing fast, secure, and reliable internet access to everyone in Zimbabwe and beyond.</p>
+            <p className="text-lg text-gray-500 max-w-2xl mx-auto">We are dedicated to providing fast, secure, and reliable digital services and internet access to everyone in Zimbabwe and beyond.</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-            <div className="bg-blue-50/50 rounded-2xl p-6 border border-blue-100/50">
-              <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 mb-4">
+            <div className="bg-brand-green-light rounded-2xl p-6 border border-brand-green/10">
+              <div className="w-12 h-12 rounded-xl bg-brand-green-light flex items-center justify-center text-brand-green mb-4">
                 <Globe className="h-6 w-6" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">Our Mission</h3>
               <p className="text-gray-600">To break down digital barriers and ensure unrestricted, high-speed internet access is available to all our users, regardless of their location or network restrictions.</p>
             </div>
             
-            <div className="bg-indigo-50/50 rounded-2xl p-6 border border-indigo-100/50">
-              <div className="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600 mb-4">
+            <div className="bg-brand-yellow-light rounded-2xl p-6 border border-brand-yellow/10">
+              <div className="w-12 h-12 rounded-xl bg-brand-yellow-light flex items-center justify-center text-brand-yellow mb-4">
                 <Shield className="h-6 w-6" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">Our Vision</h3>
-              <p className="text-gray-600">To become the leading provider of secure tunneling solutions in Africa, recognized for our reliability, cutting-edge technology, and exceptional customer support.</p>
+              <p className="text-gray-600">To become the leading provider of secure digital solutions and tunneling in Africa, recognized for our reliability, cutting-edge technology, and exceptional customer support.</p>
             </div>
           </div>
           

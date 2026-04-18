@@ -8,13 +8,13 @@ export function PrivacyPolicy() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-gray-100">
           <div className="flex items-center gap-3 mb-8">
-            <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+            <div className="w-12 h-12 rounded-xl bg-brand-green-light flex items-center justify-center text-brand-green">
               <Shield className="h-6 w-6" />
             </div>
             <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Privacy Policy</h1>
           </div>
           
-          <div className="prose prose-blue max-w-none text-gray-600">
+          <div className="prose prose-green max-w-none text-gray-600">
             <p className="lead text-lg text-gray-500 mb-8">Last updated: {new Date().toLocaleDateString()}</p>
             
             <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">1. Information We Collect</h2>

@@ -6,6 +6,7 @@ import { motion } from 'motion/react';
 import { Topbar } from '../components/Topbar';
 import { WhatsAppIcon } from '../components/icons/WhatsAppIcon';
 import { supabase } from '../lib/supabase';
+import { createPaymentOrder, checkPaymentStatus } from '../lib/payment';
 
 export function Dashboard() {
   const { user, token, updateBalance, logout } = useAuth();
@@ -55,11 +56,11 @@ export function Dashboard() {
 
   // Billing & Topup State
   const PACKAGES = [
-    { id: 'pkg_30', coins: 30, price: 1.00, icon: Coins },
-    { id: 'pkg_50', coins: 50, price: 1.67, icon: Coins },
-    { id: 'pkg_100', coins: 100, price: 3.33, icon: Coins },
-    { id: 'pkg_250', coins: 250, price: 8.33, icon: Coins },
-    { id: 'pkg_500', coins: 500, price: 16.67, icon: Coins },
+    { id: 'pkg_30', coins: 30, price: 0.01, icon: Coins },
+    { id: 'pkg_50', coins: 50, price: 0.02, icon: Coins },
+    { id: 'pkg_100', coins: 100, price: 0.03, icon: Coins },
+    { id: 'pkg_250', coins: 250, price: 0.08, icon: Coins },
+    { id: 'pkg_500', coins: 500, price: 0.17, icon: Coins },
   ];
 
   const [showTopUpForm, setShowTopUpForm] = useState(false);
@@ -70,6 +71,8 @@ export function Dashboard() {
   const [isToppingUp, setIsToppingUp] = useState(false);
   const [topupMessage, setTopupMessage] = useState('');
   const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [paymentOrderId, setPaymentOrderId] = useState<string | null>(null);
+  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'pending' | 'success' | 'failed'>('idle');
 
   const [copiedId, setCopiedId] = useState<number | null>(null);
 
@@ -223,6 +226,7 @@ export function Dashboard() {
     if (e) e.preventDefault();
     setIsToppingUp(true);
     setTopupMessage('');
+    setPaymentStatus('pending');
 
     try {
       const selectedPkg = PACKAGES.find(p => p.id === selectedPackageId);
@@ -232,44 +236,81 @@ export function Dashboard() {
         throw new Error('Please enter your EcoCash number');
       }
 
-      let coinsToAdd = selectedPkg.coins;
-      if (couponCode && couponCode.toUpperCase() === 'BONUS10') {
-        coinsToAdd += 10;
+      const orderId = Date.now().toString();
+      
+      // Create Payment Order
+      const response = await createPaymentOrder(orderId, selectedPkg.price, phoneNumber || '+263780070488');
+      
+      if (response.status === 'success') {
+        setPaymentOrderId(orderId);
+        window.open(`https://dischub.co.zw/api/make/payment/to/${orderId}`, '_blank');
+        setTopupMessage('Please complete the payment in the new tab.');
+      } else {
+        throw new Error(response.message || 'Failed to initiate payment');
       }
+    } catch (err: any) {
+      setTopupMessage(err.message || 'An error occurred');
+      setPaymentStatus('failed');
+    } finally {
+      setIsToppingUp(false);
+    }
+  };
 
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+  const handleCheckStatus = async () => {
+    if (!paymentOrderId) return;
+    setIsToppingUp(true);
+    setTopupMessage('');
+    
+    try {
+      const response = await checkPaymentStatus(paymentOrderId);
+      
+      if (response.status === 'success') {
+        setPaymentStatus('success');
+        
+        const selectedPkg = PACKAGES.find(p => p.id === selectedPackageId);
+        let coinsToAdd = selectedPkg?.coins || 0;
+        if (couponCode && couponCode.toUpperCase() === 'BONUS10') {
+          coinsToAdd += 10;
+        }
 
-      const newBalance = (user?.balance || 0) + coinsToAdd;
+        const newBalance = (user?.balance || 0) + coinsToAdd;
 
-      // 1. Update balance
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ balance: newBalance })
-        .eq('id', user?.id);
+        // 1. Update balance
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ balance: newBalance })
+          .eq('id', user?.id);
 
-      if (updateError) throw updateError;
+        if (updateError) throw updateError;
 
-      // 2. Record transaction
-      const { error: txError } = await supabase
-        .from('transactions')
-        .insert([{
-          user_id: user?.id,
-          amount: selectedPkg.price,
-          phone_number: paymentMethod === 'ecocash' ? phoneNumber : null,
-          status: 'completed'
-        }]);
+        // 2. Record transaction
+        const { error: txError } = await supabase
+          .from('transactions')
+          .insert([{
+            user_id: user?.id,
+            amount: selectedPkg?.price || 0,
+            phone_number: paymentMethod === 'ecocash' ? phoneNumber : null,
+            status: 'completed'
+          }]);
 
-      if (txError) throw txError;
+        if (txError) throw txError;
 
-      updateBalance(newBalance);
-      fetchTransactions();
-      setTopupMessage('Top-up successful!');
-      setPhoneNumber('');
-      setCouponCode('');
-      setTimeout(() => setShowTopUpForm(false), 2000);
-    } catch (error: any) {
-      setTopupMessage(error.message);
+        updateBalance(newBalance);
+        fetchTransactions();
+        setTopupMessage('Payment successful! Coins added.');
+        setPaymentOrderId(null);
+        setTimeout(() => {
+          setShowTopUpForm(false);
+          setPaymentStatus('idle');
+        }, 3000);
+      } else if (response.status === 'pending') {
+        setTopupMessage('Payment is still pending. Please complete it or try again later.');
+      } else {
+        setPaymentStatus('failed');
+        setTopupMessage('Payment failed. Please try again.');
+      }
+    } catch (err: any) {
+      setTopupMessage(err.message || 'Failed to check status');
     } finally {
       setIsToppingUp(false);
     }
@@ -288,7 +329,7 @@ export function Dashboard() {
       {snackbarMessage && (
         <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-[100] w-[calc(100%-2rem)] max-w-sm bg-gray-900 border border-gray-800 text-white px-4 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 text-sm font-medium animate-in fade-in slide-in-from-top-4">
           <div className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center flex-shrink-0">
-            <Info className="h-4 w-4 text-blue-400" />
+            <Info className="h-4 w-4 text-brand-yellow" />
           </div>
           <p className="flex-1">{snackbarMessage}</p>
         </div>
@@ -299,7 +340,7 @@ export function Dashboard() {
         <aside className="w-full md:w-72 bg-white border-r border-gray-100 flex-shrink-0 shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-10 flex flex-col overflow-y-auto">
           <div className="p-6">
             <div className="flex items-center gap-4 mb-8 p-2 rounded-2xl hover:bg-gray-50 transition-colors cursor-pointer">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-blue-100 to-indigo-50 flex items-center justify-center text-blue-600 shadow-inner border border-blue-100/50">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-brand-green-light to-brand-yellow-light flex items-center justify-center text-brand-green shadow-inner border border-brand-green/20">
                 <User className="h-6 w-6" />
               </div>
               <div className="flex-1 min-w-0">
@@ -308,17 +349,17 @@ export function Dashboard() {
               </div>
             </div>
 
-            <div className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 rounded-2xl p-5 text-white mb-8 shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-blue-500/20 group">
+            <div className="relative overflow-hidden bg-gradient-to-br from-brand-green via-green-600 to-brand-yellow rounded-2xl p-5 text-white mb-8 shadow-[0_8px_30px_rgb(22,163,74,0.15)] border border-brand-green/20 group">
               <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-10 rounded-full blur-2xl group-hover:opacity-20 transition-opacity duration-500"></div>
-              <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-20 h-20 bg-blue-400 opacity-20 rounded-full blur-xl"></div>
+              <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-20 h-20 bg-brand-yellow/30 rounded-full blur-xl"></div>
               
               <div className="relative z-10">
-                <p className="text-blue-100/80 text-xs font-medium tracking-wide uppercase mb-1 flex items-center gap-1.5">
+                <p className="text-white/80 text-xs font-medium tracking-wide uppercase mb-1 flex items-center gap-1.5">
                   <Wallet className="h-3.5 w-3.5" /> Available Coins
                 </p>
                 <div className="flex items-baseline gap-1">
                   <h2 className="text-3xl font-black tracking-tight">{user.balance.toFixed(0)}</h2>
-                  <span className="text-sm font-medium text-blue-200">Coins</span>
+                  <span className="text-sm font-medium text-white/70">Coins</span>
                 </div>
               </div>
             </div>
@@ -335,11 +376,11 @@ export function Dashboard() {
                   onClick={() => setActiveTab(item.id as any)}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
                     activeTab === item.id 
-                      ? 'bg-blue-50 text-blue-700 shadow-sm ring-1 ring-blue-600/10' 
+                      ? 'bg-brand-green-light text-brand-green shadow-sm ring-1 ring-brand-green/10' 
                       : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
                   }`}
                 >
-                  <item.icon className={`h-5 w-5 ${activeTab === item.id ? 'text-blue-600' : 'text-gray-400'}`} />
+                  <item.icon className={`h-5 w-5 ${activeTab === item.id ? 'text-brand-green' : 'text-gray-400'}`} />
                   {item.label}
                 </button>
               ))}
@@ -356,10 +397,10 @@ export function Dashboard() {
             <p className="text-gray-500 mb-8">Welcome back, here's what's happening with your account today.</p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-gradient-to-br from-white to-blue-50/50 rounded-2xl border border-blue-100/50 p-6 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden">
-                <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-blue-100 opacity-50 rounded-full blur-2xl"></div>
+              <div className="bg-gradient-to-br from-white to-brand-green-light/50 rounded-2xl border border-brand-green/10 p-6 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden">
+                <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-brand-green-light opacity-50 rounded-full blur-2xl"></div>
                 <div className="flex justify-between items-start mb-4 relative z-10">
-                  <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 shadow-inner border border-blue-200/50">
+                  <div className="w-12 h-12 rounded-xl bg-brand-green-light flex items-center justify-center text-brand-green shadow-inner border border-brand-green/20">
                     <Server className="h-6 w-6" />
                   </div>
                   <span className="px-3 py-1 bg-green-50 text-green-700 text-xs font-bold rounded-full border border-green-200/50 flex items-center gap-2 shadow-sm">
@@ -377,13 +418,13 @@ export function Dashboard() {
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-white to-red-50/50 rounded-2xl border border-red-100/50 p-6 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden">
-                <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-red-100 opacity-50 rounded-full blur-2xl"></div>
+              <div className="bg-gradient-to-br from-white to-brand-yellow-light/50 rounded-2xl border border-brand-yellow/10 p-6 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden">
+                <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-brand-yellow-light opacity-50 rounded-full blur-2xl"></div>
                 <div className="flex justify-between items-start mb-4 relative z-10">
-                  <div className="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center text-red-600 shadow-inner border border-red-200/50">
+                  <div className="w-12 h-12 rounded-xl bg-brand-yellow-light flex items-center justify-center text-brand-yellow shadow-inner border border-brand-yellow/20">
                     <Clock className="h-6 w-6" />
                   </div>
-                  <span className="px-3 py-1 bg-red-50 text-red-700 text-xs font-bold rounded-full border border-red-200/50 shadow-sm">
+                  <span className="px-3 py-1 bg-brand-yellow-light text-brand-yellow text-xs font-bold rounded-full border border-brand-yellow/20 shadow-sm">
                     Expired
                   </span>
                 </div>
@@ -405,7 +446,7 @@ export function Dashboard() {
               </div>
               <button 
                 onClick={() => setActiveTab('create')}
-                className="px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2 w-fit"
+                className="px-5 py-2.5 bg-brand-green text-white rounded-xl text-sm font-semibold hover:bg-brand-green/90 transition-colors shadow-sm flex items-center gap-2 w-fit"
               >
                 <Plus className="h-4 w-4" />
                 New Server
@@ -439,7 +480,7 @@ export function Dashboard() {
                     <button
                       type="button"
                       onClick={() => setIsProtocolDropdownOpen(!isProtocolDropdownOpen)}
-                      className="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 flex items-center justify-between p-2 outline-none min-w-[140px] transition-all"
+                      className="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-2 focus:ring-brand-green/10 focus:border-brand-green flex items-center justify-between p-2 outline-none min-w-[140px] transition-all"
                     >
                       <span className="truncate mr-2 font-medium">
                         {filterProtocols.length === 0 ? 'All Protocols' : `${filterProtocols.length} Selected`}
@@ -461,7 +502,7 @@ export function Dashboard() {
                                   setFilterProtocols([...filterProtocols, p]);
                                 }
                               }}
-                              className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mr-3"
+                              className="w-4 h-4 rounded border-gray-300 text-brand-green focus:ring-brand-green/20 mr-3"
                             />
                             <span className="text-sm text-gray-700 font-medium">{p}</span>
                           </label>
@@ -470,7 +511,7 @@ export function Dashboard() {
                           <div className="px-4 pt-2 mt-2 border-t border-gray-100">
                             <button 
                               onClick={() => setFilterProtocols([])}
-                              className="text-xs text-blue-600 font-bold hover:text-blue-700"
+                              className="text-xs text-brand-green font-bold hover:text-brand-green/80"
                             >
                               Clear Selection
                             </button>
@@ -493,7 +534,7 @@ export function Dashboard() {
                     <button
                       type="button"
                       onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
-                      className="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 flex items-center justify-between p-2 outline-none min-w-[130px] transition-all"
+                      className="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-2 focus:ring-brand-green/10 focus:border-brand-green flex items-center justify-between p-2 outline-none min-w-[130px] transition-all"
                     >
                       <span className="truncate mr-2 font-medium">
                         {filterStatuses.length === 0 ? 'All Statuses' : `${filterStatuses.length} Selected`}
@@ -515,7 +556,7 @@ export function Dashboard() {
                                   setFilterStatuses([...filterStatuses, s]);
                                 }
                               }}
-                              className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mr-3"
+                              className="w-4 h-4 rounded border-gray-300 text-brand-green focus:ring-brand-green/20 mr-3"
                             />
                             <span className="text-sm text-gray-700 font-medium">{s}</span>
                           </label>
@@ -524,7 +565,7 @@ export function Dashboard() {
                           <div className="px-4 pt-2 mt-2 border-t border-gray-100">
                             <button 
                               onClick={() => setFilterStatuses([])}
-                              className="text-xs text-blue-600 font-bold hover:text-blue-700"
+                              className="text-xs text-brand-green font-bold hover:text-brand-green/80"
                             >
                               Clear Selection
                             </button>
@@ -553,7 +594,7 @@ export function Dashboard() {
                     <button
                       type="button"
                       onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
-                      className="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 flex items-center justify-between p-2 outline-none min-w-[160px] w-full md:w-auto transition-all"
+                      className="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-2 focus:ring-brand-green/10 focus:border-brand-green flex items-center justify-between p-2 outline-none min-w-[160px] w-full md:w-auto transition-all"
                     >
                       <span className="truncate mr-2 font-medium">
                         {sortOptions.find(opt => opt.value === sortBy)?.label || 'Sort By'}
@@ -572,15 +613,15 @@ export function Dashboard() {
                               setIsSortDropdownOpen(false);
                             }}
                             className={`w-full text-left flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer transition-colors ${
-                              sortBy === opt.value ? 'bg-blue-50/50' : ''
+                              sortBy === opt.value ? 'bg-brand-green-light/50' : ''
                             }`}
                           >
                             <div className={`w-4 h-4 rounded-full border flex items-center justify-center mr-3 ${
-                              sortBy === opt.value ? 'border-blue-600' : 'border-gray-300'
+                              sortBy === opt.value ? 'border-brand-green' : 'border-gray-300'
                             }`}>
-                              {sortBy === opt.value && <div className="w-2 h-2 rounded-full bg-blue-600" />}
+                              {sortBy === opt.value && <div className="w-2 h-2 rounded-full bg-brand-green" />}
                             </div>
-                            <span className={`text-sm font-medium ${sortBy === opt.value ? 'text-blue-700' : 'text-gray-700'}`}>
+                            <span className={`text-sm font-medium ${sortBy === opt.value ? 'text-brand-green' : 'text-gray-700'}`}>
                               {opt.label}
                             </span>
                           </button>
@@ -601,7 +642,7 @@ export function Dashboard() {
                 <p className="text-gray-500 mb-8 max-w-sm mx-auto">You haven't created any tunneling servers yet. Create one now to get started.</p>
                 <button 
                   onClick={() => setActiveTab('create')}
-                  className="px-8 py-4 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 inline-flex items-center gap-2 text-base"
+                  className="px-8 py-4 bg-brand-green text-white rounded-xl font-bold hover:bg-brand-green/90 transition-all shadow-[0_4px_14px_0_rgba(22,163,74,0.3)] hover:shadow-[0_6px_20px_rgba(22,163,74,0.2)] hover:-translate-y-0.5 inline-flex items-center gap-2 text-base"
                 >
                   <Plus className="h-5 w-5" />
                   Create your first server
@@ -632,7 +673,7 @@ export function Dashboard() {
                       className={`group bg-white rounded-2xl border ${isExpired ? 'border-red-100' : 'border-gray-100'} p-6 shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] cursor-pointer transition-all duration-300 relative overflow-hidden`}
                     >
                       {/* Subtle gradient background on hover */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                      <div className="absolute inset-0 bg-gradient-to-br from-brand-green-light/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                       
                       <div className="relative z-10">
                         <div className="flex justify-between items-start mb-5">
@@ -647,7 +688,7 @@ export function Dashboard() {
                                 </span>
                               ) : (
                                 <span className="px-2.5 py-1 rounded-md bg-green-50 text-green-700 border border-green-100 text-xs font-bold uppercase tracking-wider flex items-center gap-1">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> Active
+                                  <span className="w-1.5 h-1.5 rounded-full bg-brand-green animate-pulse"></span> Active
                                 </span>
                               )}
                             </div>
@@ -670,10 +711,10 @@ export function Dashboard() {
                           </p>
                           <button 
                             onClick={(e) => { e.stopPropagation(); copyToClipboard(server.config, server.id); }}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 text-gray-400 hover:text-blue-600 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-gray-200 transition-all"
+                            className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 text-gray-400 hover:text-brand-green hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-gray-200 transition-all"
                             title="Copy Config"
                           >
-                            {copiedId === server.id ? <CheckCircle2 className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                            {copiedId === server.id ? <CheckCircle2 className="h-4 w-4 text-brand-green" /> : <Copy className="h-4 w-4" />}
                           </button>
                         </div>
                       </div>
@@ -707,7 +748,7 @@ export function Dashboard() {
                     <button 
                       type="button" 
                       onClick={() => setShowProtocolGuide(!showProtocolGuide)}
-                      className="text-gray-400 hover:text-blue-600 transition-colors flex items-center gap-1 text-xs font-medium"
+                      className="text-gray-400 hover:text-brand-green transition-colors flex items-center gap-1 text-xs font-medium"
                     >
                       <Info className="h-4 w-4" />
                       {showProtocolGuide ? 'Hide Guide' : 'What are these?'}
@@ -715,19 +756,19 @@ export function Dashboard() {
                   </div>
                   
                   {showProtocolGuide && (
-                    <div className="mb-4 p-4 bg-blue-50 border border-blue-100 rounded-xl text-sm text-blue-800 space-y-2 animate-in fade-in slide-in-from-top-2">
+                    <div className="mb-4 p-4 bg-brand-green-light border border-brand-green/20 rounded-xl text-sm text-brand-green space-y-2 animate-in fade-in slide-in-from-top-2">
                       <div className="flex justify-between items-start">
-                        <h4 className="font-bold text-blue-900">Protocol Guide</h4>
-                        <button type="button" onClick={() => setShowProtocolGuide(false)} className="text-blue-400 hover:text-blue-700">
+                        <h4 className="font-bold text-brand-green">Protocol Guide</h4>
+                        <button type="button" onClick={() => setShowProtocolGuide(false)} className="text-brand-green/40 hover:text-brand-green">
                           <X className="h-4 w-4" />
                         </button>
                       </div>
-                      <ul className="space-y-1.5 list-disc list-inside text-blue-700/80">
-                        <li><strong className="text-blue-900">V2Ray:</strong> Best for bypassing strict firewalls and deep packet inspection.</li>
-                        <li><strong className="text-blue-900">SSH WebSocket:</strong> Good balance of speed and stealth, works well on most networks.</li>
-                        <li><strong className="text-blue-900">Slow DNS:</strong> Extremely stealthy, works when other protocols are blocked, but very slow.</li>
-                        <li><strong className="text-blue-900">OpenVPN:</strong> Industry standard, highly secure, but easier to detect and block.</li>
-                        <li><strong className="text-blue-900">WireGuard:</strong> Modern, fast, and lightweight, excellent for general use.</li>
+                      <ul className="space-y-1.5 list-disc list-inside text-brand-green/80">
+                        <li><strong className="text-brand-green">V2Ray:</strong> Best for bypassing strict firewalls and deep packet inspection.</li>
+                        <li><strong className="text-brand-green">SSH WebSocket:</strong> Good balance of speed and stealth, works well on most networks.</li>
+                        <li><strong className="text-brand-green">Slow DNS:</strong> Extremely stealthy, works when other protocols are blocked, but very slow.</li>
+                        <li><strong className="text-brand-green">OpenVPN:</strong> Industry standard, highly secure, but easier to detect and block.</li>
+                        <li><strong className="text-brand-green">WireGuard:</strong> Modern, fast, and lightweight, excellent for general use.</li>
                       </ul>
                     </div>
                   )}
@@ -740,7 +781,7 @@ export function Dashboard() {
                         onClick={() => setProtocol(p)}
                         className={`px-4 py-3 rounded-lg border text-sm font-medium transition-all duration-200 ${
                           protocol === p 
-                            ? 'border-blue-600 bg-blue-50 text-blue-700 ring-1 ring-blue-600' 
+                            ? 'border-brand-green bg-brand-green-light text-brand-green ring-1 ring-brand-green' 
                             : 'border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'
                         }`}
                       >
@@ -764,7 +805,7 @@ export function Dashboard() {
                     <button
                       type="button"
                       onClick={() => setIsLocationDropdownOpen(!isLocationDropdownOpen)}
-                      className="w-full bg-white border border-gray-200 text-gray-900 text-sm rounded-lg hover:border-gray-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 flex items-center justify-between px-4 py-3 outline-none transition-all"
+                      className="w-full bg-white border border-gray-200 text-gray-900 text-sm rounded-lg hover:border-gray-400 focus:ring-2 focus:ring-brand-green/20 focus:border-brand-green flex items-center justify-between px-4 py-3 outline-none transition-all"
                     >
                       <span className="truncate mr-2 font-medium">
                         {LOCATION_OPTIONS.find(opt => opt.value === location)?.label || 'Select Location'}
@@ -783,14 +824,14 @@ export function Dashboard() {
                               setIsLocationDropdownOpen(false);
                             }}
                             className={`w-full text-left flex items-center px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors ${
-                              location === opt.value ? 'bg-blue-50' : ''
+                              location === opt.value ? 'bg-brand-green-light' : ''
                             }`}
                           >
-                            <span className={`text-sm font-medium ${location === opt.value ? 'text-blue-700' : 'text-gray-700'}`}>
+                            <span className={`text-sm font-medium ${location === opt.value ? 'text-brand-green font-bold' : 'text-gray-700'}`}>
                               {opt.label}
                             </span>
                             {location === opt.value && (
-                              <div className="ml-auto text-blue-600">
+                              <div className="ml-auto text-brand-green">
                                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
                               </div>
                             )}
@@ -803,9 +844,9 @@ export function Dashboard() {
 
                 <div>
                   <label className="block text-sm font-bold text-gray-900 mb-3">Username</label>
-                  <div className="flex rounded-xl border border-gray-200 bg-white focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 transition-all overflow-hidden shadow-sm">
+                  <div className="flex rounded-xl border border-gray-200 bg-white focus-within:ring-2 focus-within:ring-brand-green/20 focus-within:border-brand-green transition-all overflow-hidden shadow-sm">
                     <div className="flex items-center px-4 bg-gray-50 border-r border-gray-200 select-none">
-                      <span className="text-gray-400 text-sm tracking-tight">zimbotunnel-</span>
+                      <span className="text-gray-400 text-sm font-semibold tracking-tight">zimbotunnel-</span>
                     </div>
                     <input 
                       type="text" 
@@ -821,7 +862,7 @@ export function Dashboard() {
                 {!['V2Ray', 'WireGuard'].includes(protocol) && (
                   <div>
                     <label className="block text-sm font-bold text-gray-900 mb-3">Password</label>
-                    <div className="flex rounded-xl border border-gray-200 bg-white focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 transition-all overflow-hidden shadow-sm">
+                    <div className="flex rounded-xl border border-gray-200 bg-white focus-within:ring-2 focus-within:ring-brand-green/20 focus-within:border-brand-green transition-all overflow-hidden shadow-sm">
                       <input 
                         type="text" 
                         value={serverPassword}
@@ -835,21 +876,34 @@ export function Dashboard() {
                 )}
 
                 <div>
-                  <label className="block text-sm font-bold text-gray-900 mb-3">Duration (Days)</label>
+                  <label className="block text-sm font-bold text-gray-900 mb-3">Duration</label>
                   <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
                     {[1, 3, 7, 14, 30, 360].map(d => (
-                      <button
+                      <motion.button
                         key={d}
                         type="button"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
                         onClick={() => setDuration(d)}
-                        className={`px-3 py-3 rounded-xl border text-sm font-semibold transition-all duration-200 ${
+                        className={`relative px-3 py-3 rounded-xl border text-xs font-bold transition-all duration-300 flex flex-col items-center justify-center gap-0.5 ${
                           duration === d 
-                            ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-[0_0_0_2px_rgba(37,99,235,0.1)]' 
-                            : 'border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'
+                            ? 'border-brand-green bg-brand-green-light text-brand-green shadow-[0_8px_20px_-8px_rgba(22,163,74,0.3)]' 
+                            : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:bg-gray-50'
                         }`}
                       >
-                        {d}
-                      </button>
+                        <span className="text-sm leading-none">{d}</span>
+                        <span className="text-[10px] uppercase opacity-60 tracking-wider">{d === 360 ? 'Year' : 'Days'}</span>
+                        {duration === d && (
+                          <motion.div 
+                            layoutId="activeDuration"
+                            className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-brand-green text-white rounded-full flex items-center justify-center shadow-sm"
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                          >
+                            <CheckCircle2 className="h-2.5 w-2.5" />
+                          </motion.div>
+                        )}
+                      </motion.button>
                     ))}
                   </div>
                 </div>
@@ -867,7 +921,7 @@ export function Dashboard() {
                 <button 
                   type="submit"
                   disabled={isCreating || user.balance < (duration * 1)}
-                  className="w-full bg-blue-600 text-white font-bold py-4 px-4 rounded-xl hover:bg-blue-700 transition-all shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none flex justify-center items-center text-base"
+                  className="w-full bg-brand-green text-white font-bold py-4 px-4 rounded-xl hover:bg-brand-green/90 transition-all shadow-lg shadow-brand-green/20 hover:shadow-brand-green/30 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none flex justify-center items-center text-base"
                 >
                   {isCreating ? (
                     <span className="flex items-center gap-2">
@@ -892,7 +946,7 @@ export function Dashboard() {
                   </div>
                   <button 
                     onClick={() => setShowTopUpForm(true)}
-                    className="px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2 w-fit"
+                    className="px-5 py-2.5 bg-brand-green text-white rounded-xl text-sm font-semibold hover:bg-brand-green/90 transition-colors shadow-sm flex items-center gap-2 w-fit"
                   >
                     <Plus className="h-4 w-4" />
                     Top Up Coins
@@ -901,7 +955,7 @@ export function Dashboard() {
 
                 <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-[0_2px_20px_rgba(0,0,0,0.02)] h-fit">
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+                    <div className="w-10 h-10 rounded-xl bg-brand-green-light flex items-center justify-center text-brand-green">
                       <History className="h-5 w-5" />
                     </div>
                     <h2 className="text-lg font-bold text-gray-900">Transaction History</h2>
@@ -920,10 +974,10 @@ export function Dashboard() {
                         <div key={tx.id} className="flex justify-between items-center p-4 bg-gray-50/50 hover:bg-gray-50 rounded-xl transition-colors border border-gray-100/50">
                           <div>
                             <p className="font-bold text-gray-900 text-sm">Top Up via EcoCash</p>
-                            <p className="text-xs text-gray-500 font-medium mt-0.5">{new Date(tx.created_at).toLocaleDateString()} • Paid ${tx.amount.toFixed(2)}</p>
+                            <p className="text-xs text-gray-500 font-medium mt-0.5">{new Date(tx.created_at).toLocaleDateString()} • Paid ZWG {tx.amount.toFixed(2)}</p>
                           </div>
                           <div className="text-right">
-                            <p className="font-black text-green-600">+{(tx.amount * 5).toFixed(0)} Coins</p>
+                            <p className="font-black text-green-600">+{(tx.amount * 3000).toFixed(0)} Coins</p>
                             <span className="inline-block mt-1 px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-bold uppercase tracking-wider rounded-md">
                               {tx.status}
                             </span>
@@ -950,7 +1004,13 @@ export function Dashboard() {
                   </div>
 
                   {topupMessage && (
-                    <div className={`mb-6 p-4 rounded-xl flex items-start gap-3 ${topupMessage.includes('successful') ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-red-50 text-red-700 border border-red-100'}`}>
+                    <div className={`mb-6 p-4 rounded-xl flex items-start gap-3 ${
+                      topupMessage.includes('successful') 
+                        ? 'bg-green-50 text-green-700 border border-green-100' 
+                        : topupMessage.includes('Please complete') || paymentStatus === 'pending'
+                          ? 'bg-blue-50 text-blue-700 border border-blue-100'
+                          : 'bg-red-50 text-red-700 border border-red-100'
+                    }`}>
                       <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
                       <p className="text-sm font-medium">{topupMessage}</p>
                     </div>
@@ -965,22 +1025,22 @@ export function Dashboard() {
                           <div 
                             key={pkg.id}
                             onClick={() => setSelectedPackageId(pkg.id)}
-                            className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all ${selectedPackageId === pkg.id ? 'border-blue-600 bg-blue-50/50' : 'border-gray-100 hover:border-gray-200'}`}
+                            className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all ${selectedPackageId === pkg.id ? 'border-brand-green bg-brand-green-light' : 'border-gray-100 hover:border-gray-200'}`}
                           >
                             <div className="flex items-center gap-4">
-                              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedPackageId === pkg.id ? 'border-blue-600' : 'border-gray-300'}`}>
-                                {selectedPackageId === pkg.id && <div className="w-2.5 h-2.5 rounded-full bg-blue-600"></div>}
+                              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedPackageId === pkg.id ? 'border-brand-green' : 'border-gray-300'}`}>
+                                {selectedPackageId === pkg.id && <div className="w-2.5 h-2.5 rounded-full bg-brand-green"></div>}
                               </div>
-                              <div className="w-10 h-10 rounded-lg bg-blue-100/50 flex items-center justify-center text-blue-600">
+                              <div className="w-10 h-10 rounded-lg bg-brand-green-light flex items-center justify-center text-brand-green">
                                 <pkg.icon className="h-5 w-5" />
                               </div>
                               <div>
                                 <p className="font-bold text-gray-900">{pkg.coins} Coins</p>
-                                <p className="text-xs text-gray-500 font-medium">${pkg.price.toFixed(2)} USD</p>
+                                <p className="text-xs text-gray-500 font-medium">ZWG {pkg.price.toFixed(2)}</p>
                               </div>
                             </div>
-                            <div className="text-lg font-black text-blue-600">
-                              ${pkg.price.toFixed(2)}
+                            <div className="text-lg font-black text-brand-green">
+                              ZWG {pkg.price.toFixed(2)}
                             </div>
                           </div>
                         ))}
@@ -993,9 +1053,9 @@ export function Dashboard() {
                       <div className="grid grid-cols-2 gap-4">
                         <div 
                           onClick={() => setPaymentMethod('ecocash')}
-                          className={`p-4 rounded-xl border-2 cursor-pointer transition-all text-center ${paymentMethod === 'ecocash' ? 'border-blue-600 bg-blue-50/50' : 'border-gray-100 hover:border-gray-200'}`}
+                          className={`p-4 rounded-xl border-2 cursor-pointer transition-all text-center ${paymentMethod === 'ecocash' ? 'border-brand-green bg-brand-green-light' : 'border-gray-100 hover:border-gray-200'}`}
                         >
-                          <div className="w-12 h-12 mx-auto rounded-xl bg-green-100 flex items-center justify-center text-green-600 mb-3">
+                          <div className="w-12 h-12 mx-auto rounded-xl bg-green-100 flex items-center justify-center text-brand-green mb-3 font-bold">
                             <Smartphone className="h-6 w-6" />
                           </div>
                           <h3 className="font-bold text-gray-900">EcoCash</h3>
@@ -1028,7 +1088,7 @@ export function Dashboard() {
                               placeholder="77X XXX XXX"
                               value={phoneNumber}
                               onChange={(e) => setPhoneNumber(e.target.value)}
-                              className="w-full border border-gray-200 rounded-xl pl-14 pr-4 py-3.5 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-medium text-gray-900"
+                              className="w-full border border-gray-200 rounded-xl pl-14 pr-4 py-3.5 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-brand-green/10 focus:border-brand-green outline-none transition-all font-medium text-gray-900"
                               required
                             />
                           </div>
@@ -1045,9 +1105,9 @@ export function Dashboard() {
                           placeholder="ENTER CODE"
                           value={couponCode}
                           onChange={(e) => setCouponCode(e.target.value)}
-                          className="flex-1 min-w-0 border border-gray-200 rounded-xl px-4 py-3.5 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-medium text-gray-900 uppercase"
+                          className="flex-1 min-w-0 border border-gray-200 rounded-xl px-4 py-3.5 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-brand-green/10 focus:border-brand-green outline-none transition-all font-medium text-gray-900 uppercase"
                         />
-                        <button className="shrink-0 px-5 sm:px-6 py-3.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
+                        <button className="shrink-0 px-5 sm:px-6 py-3.5 bg-brand-green text-white font-bold rounded-xl hover:bg-brand-green/90 transition-colors flex items-center justify-center gap-2">
                           <CheckCircle2 className="h-4 w-4 hidden sm:block" /> Apply
                         </button>
                       </div>
@@ -1055,16 +1115,42 @@ export function Dashboard() {
 
                     {/* Proceed to Payment */}
                     <div>
-                      <button 
-                        onClick={handleTopup}
-                        disabled={isToppingUp || (paymentMethod === 'ecocash' && !phoneNumber)}
-                        className="w-full bg-blue-600 text-white font-bold py-4 px-4 rounded-xl hover:bg-blue-700 transition-all shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center text-base gap-2"
-                      >
-                        {isToppingUp ? 'Processing...' : <><Wallet className="h-5 w-5" /> Proceed to Payment</>}
-                      </button>
-                      <p className="text-xs text-gray-500 text-center mt-3 font-medium">
-                        You will be redirected to dischub to process the payment
-                      </p>
+                      {!paymentOrderId ? (
+                        <button 
+                          onClick={handleTopup}
+                          disabled={isToppingUp || (paymentMethod === 'ecocash' && !phoneNumber)}
+                          className="w-full bg-brand-green text-white font-bold py-4 px-4 rounded-xl hover:bg-brand-green/90 transition-all shadow-lg shadow-brand-green/20 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center text-base gap-2"
+                        >
+                          {isToppingUp ? 'Processing...' : <><Wallet className="h-5 w-5" /> Proceed to Payment</>}
+                        </button>
+                      ) : (
+                        <div className="space-y-3">
+                          <button 
+                            onClick={handleCheckStatus}
+                            disabled={isToppingUp}
+                            className="w-full bg-green-600 text-white font-bold py-4 px-4 rounded-xl hover:bg-green-700 transition-all shadow-[0_4px_14px_0_rgba(22,163,74,0.39)] hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center text-base gap-2"
+                          >
+                            {isToppingUp ? 'Checking...' : <><CheckCircle2 className="h-5 w-5" /> I Have Paid (Check Status)</>}
+                          </button>
+                          <button 
+                            onClick={() => {
+                              setPaymentOrderId(null);
+                              setPaymentStatus('idle');
+                              setTopupMessage('');
+                            }}
+                            disabled={isToppingUp}
+                            className="w-full bg-gray-100 text-gray-700 font-bold py-3 px-4 rounded-xl hover:bg-gray-200 transition-all flex justify-center items-center text-sm gap-2"
+                          >
+                            Cancel Payment
+                          </button>
+                        </div>
+                      )}
+                      
+                      {!paymentOrderId && (
+                        <p className="text-xs text-gray-500 text-center mt-3 font-medium">
+                          You will be redirected to the secure portal to process the payment
+                        </p>
+                      )}
                     </div>
 
                     {/* Payment Summary */}
@@ -1073,11 +1159,11 @@ export function Dashboard() {
                       <div className="space-y-3 mb-6">
                         <div className="flex justify-between text-sm">
                           <span className="text-gray-500 font-medium">Original Price</span>
-                          <span className="font-bold text-gray-900">${PACKAGES.find(p => p.id === selectedPackageId)?.price.toFixed(2)}</span>
+                          <span className="font-bold text-gray-900">ZWG {PACKAGES.find(p => p.id === selectedPackageId)?.price.toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-gray-500 font-medium">Payment Fee</span>
-                          <span className="font-bold text-red-500">+$0.00</span>
+                          <span className="font-bold text-red-500">+ZWG 0.00</span>
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-yellow-600 font-bold">Bonus Coins</span>
@@ -1085,7 +1171,7 @@ export function Dashboard() {
                         </div>
                         <div className="pt-3 border-t border-gray-100 flex justify-between items-center">
                           <span className="text-lg font-bold text-gray-900">Total</span>
-                          <span className="text-xl font-black text-blue-600">${PACKAGES.find(p => p.id === selectedPackageId)?.price.toFixed(2)}</span>
+                          <span className="text-xl font-black text-brand-green">ZWG {PACKAGES.find(p => p.id === selectedPackageId)?.price.toFixed(2)}</span>
                         </div>
                       </div>
 
@@ -1093,10 +1179,10 @@ export function Dashboard() {
                         <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Pricing Info</p>
                         <div className="flex items-center gap-3 text-sm text-gray-600 font-medium">
                           <div className="w-6 h-6 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center"><Coins className="h-3 w-3" /></div>
-                          1 USD = 30 Coins
+                          ZWG 0.01 = 30 Coins
                         </div>
                         <div className="flex items-center gap-3 text-sm text-gray-600 font-medium">
-                          <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center"><Infinity className="h-3 w-3" /></div>
+                          <div className="w-6 h-6 rounded-full bg-brand-green-light text-brand-green flex items-center justify-center"><Infinity className="h-3 w-3" /></div>
                           Coins never expire
                         </div>
                         <div className="flex items-center gap-3 text-sm text-gray-600 font-medium">
@@ -1115,13 +1201,13 @@ export function Dashboard() {
           
           {/* Minimal Footer */}
           <footer className="mt-12 pt-8 border-t border-gray-200 flex flex-col items-center gap-4 shrink-0 pb-8">
-            <p className="text-sm text-gray-500 font-medium">© 2026 Zimbo Tunnel. All rights reserved.</p>
-            <Link to="/privacy-policy" className="text-sm font-medium text-gray-500 hover:text-blue-600 transition-colors">Privacy Policy</Link>
-            <Link to="/terms-of-service" className="text-sm font-medium text-gray-500 hover:text-blue-600 transition-colors">Terms of Service</Link>
+            <p className="text-sm text-gray-500 font-medium">© {new Date().getFullYear()} Zimbo Tunnel. All rights reserved.</p>
+            <Link to="/privacy-policy" className="text-sm font-medium text-gray-500 hover:text-brand-green transition-colors">Privacy Policy</Link>
+            <Link to="/terms-of-service" className="text-sm font-medium text-gray-500 hover:text-brand-green transition-colors">Terms of Service</Link>
             <div className="flex items-center gap-6 mt-2">
               <a href="#" className="text-gray-400 hover:text-green-500 transition-colors" title="WhatsApp"><WhatsAppIcon className="h-4 w-4" /></a>
-              <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors" title="Telegram"><Send className="h-4 w-4" /></a>
-              <a href="#" className="text-gray-400 hover:text-blue-600 transition-colors" title="Facebook"><Facebook className="h-4 w-4" /></a>
+              <a href="#" className="text-gray-400 hover:text-brand-green transition-colors" title="Telegram"><Send className="h-4 w-4" /></a>
+              <a href="#" className="text-gray-400 hover:text-brand-green transition-colors" title="Facebook"><Facebook className="h-4 w-4" /></a>
               <a href="#" className="text-gray-400 hover:text-red-600 transition-colors" title="YouTube"><Youtube className="h-4 w-4" /></a>
             </div>
           </footer>

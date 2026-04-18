@@ -68,17 +68,17 @@ export function LandingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-white selection:bg-blue-100 selection:text-blue-900">
+    <div className="min-h-screen bg-white selection:bg-brand-green-light selection:text-brand-green">
       {/* Hero Section */}
       <section className="relative pt-32 md:pt-44 pb-24 overflow-hidden flex flex-col items-center">
         {/* Background Gradients & Pattern */}
         <div className="absolute inset-0 -z-10 bg-white bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-50/50 via-transparent to-transparent"></div>
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-green-light/50 via-transparent to-transparent"></div>
         <div className="absolute top-0 right-0 -translate-y-12 translate-x-1/3">
-          <div className="w-96 h-96 bg-blue-100/50 rounded-full blur-3xl"></div>
+          <div className="w-96 h-96 bg-brand-green-light/50 rounded-full blur-3xl"></div>
         </div>
         <div className="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/3">
-          <div className="w-96 h-96 bg-indigo-100/50 rounded-full blur-3xl"></div>
+          <div className="w-96 h-96 bg-brand-yellow-light/50 rounded-full blur-3xl"></div>
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative w-full">
@@ -92,7 +92,7 @@ export function LandingPage() {
               <motion.div 
                 animate={{ y: [0, -4, 0] }}
                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                className="relative overflow-hidden inline-flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-100 rounded-full shadow-sm"
+                className="relative overflow-hidden inline-flex items-center gap-2 px-4 py-2 bg-brand-green-light border border-brand-green/10 rounded-full shadow-sm"
               >
                 {/* Shimmer effect */}
                 <motion.div 
@@ -100,8 +100,8 @@ export function LandingPage() {
                   transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", repeatDelay: 1.5 }}
                   className="absolute inset-0 w-full bg-gradient-to-r from-transparent via-white/80 to-transparent -skew-x-12"
                 />
-                <Zap className="w-4 h-4 text-blue-600 relative z-10" />
-                <span className="font-semibold text-blue-700 text-sm tracking-wide uppercase relative z-10">
+                <Zap className="w-4 h-4 text-brand-green relative z-10" />
+                <span className="font-semibold text-brand-green text-sm tracking-wide uppercase relative z-10">
                   Fast Tunneling Servers
                 </span>
               </motion.div>
@@ -114,7 +114,7 @@ export function LandingPage() {
               className="text-5xl md:text-7xl font-extrabold text-gray-900 tracking-tighter mb-6 leading-[1.1]"
             >
               Experience seamless & stable <br className="hidden md:block" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-green to-brand-yellow">
                 tunneling technology.
               </span>
             </motion.h1>
@@ -134,7 +134,7 @@ export function LandingPage() {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="flex flex-col sm:flex-row justify-center items-center gap-4"
             >
-              <Link to="/register" className="w-full sm:w-auto px-8 py-4 rounded-full bg-blue-600 text-white font-semibold text-lg hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl shadow-blue-200 hover:shadow-blue-300 flex items-center justify-center gap-2 group">
+              <Link to="/register" className="w-full sm:w-auto px-8 py-4 rounded-full bg-brand-green text-white font-semibold text-lg hover:bg-brand-green/90 transition-all shadow-lg hover:shadow-xl shadow-brand-green/20 hover:shadow-brand-green/30 flex items-center justify-center gap-2 group">
                 Get Started
                 <motion.div
                   animate={{ x: [0, 5, 0] }}
@@ -204,7 +204,7 @@ export function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Why Choose Zimbo Tunnel?</h2>
-            <p className="text-gray-500 max-w-2xl mx-auto">Experience the best tunneling service with enterprise-grade infrastructure and top-notch security.</p>
+            <p className="text-gray-500 max-w-2xl mx-auto">Experience the best digital services with enterprise-grade infrastructure and top-notch security.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -221,7 +221,7 @@ export function LandingPage() {
                 transition={{ delay: idx * 0.1 }}
                 className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
               >
-                <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mb-6 text-blue-600">
+                <div className="w-12 h-12 rounded-xl bg-brand-green-light flex items-center justify-center mb-6 text-brand-green">
                   <feature.icon className="h-6 w-6" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">{feature.title}</h3>
@@ -250,8 +250,8 @@ export function LandingPage() {
               { step: "03", title: "Generate Config", desc: "Select your preferred protocol and create your server instantly." }
             ].map((item, idx) => (
               <div key={idx} className="text-center relative bg-white">
-                <div className="w-24 h-24 mx-auto bg-white border-4 border-blue-50 rounded-full flex items-center justify-center mb-6 shadow-sm">
-                  <span className="text-2xl font-bold text-blue-600">{item.step}</span>
+                <div className="w-24 h-24 mx-auto bg-white border-4 border-brand-green-light rounded-full flex items-center justify-center mb-6 shadow-sm">
+                  <span className="text-2xl font-bold text-brand-green">{item.step}</span>
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">{item.title}</h3>
                 <p className="text-gray-500">{item.desc}</p>
@@ -262,20 +262,20 @@ export function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-blue-600 relative overflow-hidden">
+      <section className="py-20 bg-brand-green relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex flex-col md:flex-row items-center justify-between gap-8">
             <div className="text-white max-w-2xl">
               <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to experience true freedom?</h2>
-              <p className="text-blue-100 text-lg">Join thousands of users enjoying unrestricted internet access today.</p>
+              <p className="text-brand-yellow-light text-lg">Join thousands of users enjoying unrestricted internet access today.</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-4">
-              <button className="px-6 py-3 rounded-xl bg-white text-blue-600 font-semibold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
+              <button className="px-6 py-3 rounded-xl bg-white text-brand-green font-semibold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
                 <Download className="h-5 w-5" />
                 Download App
               </button>
-              <button className="px-6 py-3 rounded-xl bg-blue-700 text-white font-semibold hover:bg-blue-800 transition-colors flex items-center justify-center gap-2 border border-blue-500">
+              <button className="px-6 py-3 rounded-xl bg-brand-green/80 text-white font-semibold hover:bg-brand-green transition-colors flex items-center justify-center gap-2 border border-brand-green/20">
                 <Users className="h-5 w-5" />
                 Join Community
               </button>
