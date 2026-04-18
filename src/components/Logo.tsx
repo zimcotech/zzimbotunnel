@@ -6,17 +6,25 @@ interface LogoProps {
 }
 
 export function Logo({ className = "", size = 32 }: LogoProps) {
+  const [error, setError] = React.useState(false);
+
   return (
-    <div className={`relative flex items-center justify-center overflow-hidden shrink-0 ${className}`} style={{ width: size, height: size }}>
-      <img 
-        src="/logo.png" 
-        alt="Zimbo" 
-        className="w-full h-full object-contain"
-        onError={(e) => {
-          // If the image fails to load, we can at least show a placeholder or hide the broken icon
-          (e.target as HTMLImageElement).style.display = 'none';
-        }}
-      />
+    <div 
+      className={`relative flex items-center justify-center overflow-hidden shrink-0 rounded-xl transition-all ${className}`} 
+      style={{ width: size, height: size }}
+    >
+      {!error ? (
+        <img 
+          src="/logo.png" 
+          alt="Zimbo" 
+          className="w-full h-full object-contain"
+          onError={() => setError(true)}
+        />
+      ) : (
+        <div className="w-full h-full bg-brand-green flex items-center justify-center text-white font-black">
+          <span style={{ fontSize: size * 0.6 }}>Z</span>
+        </div>
+      )}
     </div>
   );
 }
