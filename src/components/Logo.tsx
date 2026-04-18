@@ -6,17 +6,12 @@ interface LogoProps {
 }
 
 export function Logo({ className = "", size = 32 }: LogoProps) {
-  // Ensure we don't have double slashes if BASE_URL ends with one
-  const baseUrl = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL;
-  const logoUrl = `${baseUrl}/logo.png`;
-
   return (
     <div className={`relative flex items-center justify-center ${className}`} style={{ width: size, height: size }}>
       <img 
-        src={logoUrl} 
+        src="/logo.png" 
         alt="Zimbo Tunnel Logo" 
         className="w-full h-full object-contain"
-        referrerPolicy="no-referrer"
       />
     </div>
   );
