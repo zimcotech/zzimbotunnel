@@ -35,24 +35,24 @@ export function Topbar() {
             <Link to="/" className="flex items-center gap-1.5 sm:gap-2 group">
               <Logo size={28} className="group-hover:rotate-12 transition-transform duration-300" />
               <span className="font-bold text-lg sm:text-xl tracking-tight text-gray-900 whitespace-nowrap">Zimbo Tunnel</span>
-              <span className="px-1.5 sm:px-2 py-0.5 rounded-md bg-brand-green-light text-brand-green text-[10px] sm:text-xs font-bold whitespace-nowrap">2.1</span>
+              <span className="px-1.5 sm:px-2 py-0.5 rounded-md bg-brand-yellow-light text-brand-yellow-dark text-[10px] sm:text-xs font-bold whitespace-nowrap border border-brand-yellow/10">2.1</span>
             </Link>
           </div>
 
           {/* Center Links (Desktop) */}
           <nav className="hidden md:flex items-center gap-8">
-            <Link to="/#features" className="text-sm font-medium text-gray-600 hover:text-brand-green transition-colors">Features</Link>
-            <Link to="/#how-it-works" className="text-sm font-medium text-gray-600 hover:text-brand-green transition-colors">How it Works</Link>
+            <Link to="/#features" className="text-sm font-bold text-gray-500 hover:text-brand-green transition-colors">Features</Link>
+            <Link to="/#how-it-works" className="text-sm font-bold text-gray-500 hover:text-brand-green transition-colors">How it Works</Link>
           </nav>
 
           {/* Right side */}
           <div className="flex items-center relative">
             {user ? (
-              <button onClick={() => setShowUserDetails(!showUserDetails)} className="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-green-light to-brand-yellow-light flex items-center justify-center text-brand-green shadow-inner border border-brand-green/20 hover:shadow-md transition-all">
+              <button onClick={() => setShowUserDetails(!showUserDetails)} className="w-10 h-10 rounded-full bg-brand-gradient flex items-center justify-center text-white shadow-lg border border-white/20 hover:scale-105 transition-all">
                 <User className="h-5 w-5" />
               </button>
             ) : (
-              <Link to="/login" className="px-5 py-2.5 rounded-full bg-brand-green text-white text-sm font-medium hover:bg-brand-green/90 transition-colors shadow-sm flex items-center gap-2">
+              <Link to="/login" className="px-5 py-2.5 rounded-full bg-brand-green text-white text-sm font-bold hover:bg-brand-green-dark transition-all shadow-md shadow-brand-green/20 flex items-center gap-2">
                 <span className="hidden sm:inline">Get Started</span>
                 <span className="sm:hidden">Start</span>
               </Link>
@@ -63,19 +63,19 @@ export function Topbar() {
               <>
                 <div className="fixed inset-0 z-[90]" onClick={() => setShowUserDetails(false)}></div>
                 <div className="absolute top-full right-0 mt-3 w-64 sm:w-72 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-[100] animate-in fade-in slide-in-from-top-2">
-                  <div className="bg-gradient-to-br from-brand-green to-brand-yellow p-5 text-white text-center relative">
-                    <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center text-brand-green text-xl font-bold shadow-inner border border-brand-green/10 mx-auto mb-3">
+                  <div className="bg-brand-gradient p-5 text-white text-center relative">
+                    <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-xl font-bold border border-white/30 mx-auto mb-3 shadow-lg">
                       {user.username.charAt(0).toUpperCase()}
                     </div>
-                    <h2 className="text-lg font-bold tracking-tight">{user.username}</h2>
+                    <h2 className="text-lg font-black tracking-tight">{user.username}</h2>
                     <p className="text-white/80 text-xs font-medium truncate">{user.email}</p>
                   </div>
                   
                   <div className="p-4">
-                    <div className="bg-gray-50 rounded-xl p-3 border border-gray-100 mb-4 flex items-center justify-between">
+                    <div className="bg-brand-yellow-light rounded-xl p-3 border border-brand-yellow/10 mb-4 flex items-center justify-between">
                       <div>
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Balance</p>
-                        <p className="text-lg font-black text-gray-900">{user.balance.toFixed(0)} <span className="text-xs font-bold text-gray-400">Coins</span></p>
+                        <p className="text-[10px] font-bold text-brand-yellow-dark uppercase tracking-wider mb-0.5">Balance</p>
+                        <p className="text-lg font-black text-brand-green-dark">{user.balance.toFixed(0)} <span className="text-xs font-bold text-brand-yellow-dark">Coins</span></p>
                       </div>
                     </div>
                     
@@ -113,10 +113,10 @@ export function Topbar() {
           <>
             <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-[100] md:hidden" onClick={() => setIsMobileMenuOpen(false)}></div>
             <div className="fixed inset-y-0 left-0 w-4/5 max-w-sm bg-white shadow-2xl z-[101] md:hidden flex flex-col animate-in slide-in-from-left duration-300">
-              <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+              <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-brand-yellow-light/30">
                 <Link to="/" className="flex items-center gap-3" onClick={() => setIsMobileMenuOpen(false)}>
                   <Logo size={28} />
-                  <span className="font-bold text-xl tracking-tight text-gray-900">Zimbo Tunnel</span>
+                  <span className="font-black text-xl tracking-tight text-gray-900">Zimbo <span className="text-brand-yellow">Tunnel</span></span>
                 </Link>
                 <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
                   <X className="h-5 w-5" />

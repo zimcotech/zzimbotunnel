@@ -100,13 +100,13 @@ export function Register() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <Link to="/" className="flex justify-center items-center gap-2 mb-8 group">
           <Logo size={48} className="drop-shadow-lg group-hover:scale-105 transition-transform" />
-          <span className="font-black text-3xl tracking-tight text-gray-900 text-shadow-sm">Zimbo Tunnel</span>
+          <span className="font-black text-3xl tracking-tight text-gray-900 text-shadow-sm">Zimbo <span className="text-brand-yellow">Tunnel</span></span>
         </Link>
         <h2 className="mt-2 text-center text-3xl font-black text-gray-900 tracking-tight">
           Create an Account
         </h2>
         <p className="mt-3 text-center text-base text-gray-500 font-medium">
-          Join Zimbo Tunnel today
+          Join <span className="text-brand-green font-bold text-sm">Zimbo</span> <span className="text-brand-yellow font-bold text-sm">Tunnel</span> today
         </p>
       </div>
 
@@ -220,7 +220,7 @@ export function Register() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex justify-center items-center py-4 px-4 border border-transparent rounded-xl shadow-lg shadow-brand-green/20 text-base font-bold text-white bg-brand-green hover:bg-brand-green/90 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-green transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                className="w-full flex justify-center items-center py-4 px-4 border border-transparent rounded-xl shadow-lg shadow-brand-green/20 text-base font-bold text-white bg-brand-gradient hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-green transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
               >
                 {isLoading ? (
                   <span className="flex items-center gap-2">
@@ -234,18 +234,18 @@ export function Register() {
 
           <p className="mt-6 text-center text-xs text-gray-500 font-medium leading-relaxed">
             By signing up, you agree to our{' '}
-            <Link to="/terms-of-service" className="font-bold text-brand-green hover:text-brand-green/80 transition-colors">
+            <Link to="/terms-of-service" className="font-bold text-brand-green hover:text-brand-yellow-dark transition-colors">
               Terms of Service
             </Link>{' '}
             and{' '}
-            <Link to="/privacy-policy" className="font-bold text-brand-green hover:text-brand-green/80 transition-colors">
+            <Link to="/privacy-policy" className="font-bold text-brand-green hover:text-brand-yellow-dark transition-colors">
               Privacy Policy
             </Link>.
           </p>
 
           <p className="mt-8 text-center text-sm text-gray-600 font-medium">
             Already have an account?{' '}
-            <Link to="/login" className="font-bold text-brand-green hover:text-brand-green/80 transition-colors">
+            <Link to="/login" className="font-bold text-brand-green hover:text-brand-yellow-dark transition-colors">
               Sign in instead
             </Link>
           </p>

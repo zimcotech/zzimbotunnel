@@ -68,6 +68,9 @@ export function Dashboard() {
   const [paymentMethod, setPaymentMethod] = useState('ecocash');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [couponCode, setCouponCode] = useState('');
+  const [isCouponApplied, setIsCouponApplied] = useState(false);
+  const [couponDiscountPercent, setCouponDiscountPercent] = useState(0);
+  const [couponError, setCouponError] = useState('');
   const [isToppingUp, setIsToppingUp] = useState(false);
   const [topupMessage, setTopupMessage] = useState('');
   const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -238,8 +241,13 @@ export function Dashboard() {
 
       const orderId = Date.now().toString();
       
+      let finalPrice = selectedPkg.price;
+      if (isCouponApplied) {
+        finalPrice = selectedPkg.price * (1 - couponDiscountPercent / 100);
+      }
+      
       // Create Payment Order
-      const response = await createPaymentOrder(orderId, selectedPkg.price, phoneNumber || '+263780070488');
+      const response = await createPaymentOrder(orderId, finalPrice, phoneNumber || '+263780070488');
       
       if (response.status === 'success') {
         setPaymentOrderId(orderId);
@@ -273,6 +281,11 @@ export function Dashboard() {
           coinsToAdd += 10;
         }
 
+        let finalPrice = selectedPkg?.price || 0;
+        if (isCouponApplied) {
+          finalPrice = (selectedPkg?.price || 0) * (1 - couponDiscountPercent / 100);
+        }
+
         const newBalance = (user?.balance || 0) + coinsToAdd;
 
         // 1. Update balance
@@ -288,7 +301,7 @@ export function Dashboard() {
           .from('transactions')
           .insert([{
             user_id: user?.id,
-            amount: selectedPkg?.price || 0,
+            amount: finalPrice,
             phone_number: paymentMethod === 'ecocash' ? phoneNumber : null,
             status: 'completed'
           }]);
@@ -316,6 +329,34 @@ export function Dashboard() {
     }
   };
 
+  const handleApplyCoupon = () => {
+    setIsCouponApplied(false);
+    setCouponDiscountPercent(0);
+    setCouponError('');
+
+    if (!couponCode) {
+      setCouponError('Please enter a coupon code');
+      return;
+    }
+
+    const coupons: { [key: string]: number } = {
+      'ZIMBO5': 5,
+      'SAVE10': 10,
+      'TUNNEL20': 20,
+      'BONUS10': 0, // Bonus coins logic remains separate
+    };
+
+    const code = couponCode.toUpperCase();
+    if (coupons.hasOwnProperty(code)) {
+      setIsCouponApplied(true);
+      setCouponDiscountPercent(coupons[code]);
+      setSnackbarMessage(`Coupon "${code}" applied successfully!`);
+      setTimeout(() => setSnackbarMessage(''), 3000);
+    } else {
+      setCouponError('Invalid or expired coupon code');
+    }
+  };
+
   const copyToClipboard = (text: string, id: number) => {
     navigator.clipboard.writeText(text);
     setCopiedId(id);
@@ -325,10 +366,10 @@ export function Dashboard() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] flex flex-col font-sans">
+    <div className="min-h-screen bg-[#fcfdf2] flex flex-col font-sans">
       {snackbarMessage && (
-        <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-[100] w-[calc(100%-2rem)] max-w-sm bg-gray-900 border border-gray-800 text-white px-4 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 text-sm font-medium animate-in fade-in slide-in-from-top-4">
-          <div className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center flex-shrink-0">
+        <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-[100] w-[calc(100%-2rem)] max-w-sm bg-brand-green-dark border border-white/20 text-white px-4 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 text-sm font-medium animate-in fade-in slide-in-from-top-4">
+          <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center flex-shrink-0">
             <Info className="h-4 w-4 text-brand-yellow" />
           </div>
           <p className="flex-1">{snackbarMessage}</p>
@@ -337,29 +378,29 @@ export function Dashboard() {
       <Topbar />
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         {/* Sidebar */}
-        <aside className="w-full md:w-72 bg-white border-r border-gray-100 flex-shrink-0 shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-10 flex flex-col overflow-y-auto">
+        <aside className="w-full md:w-72 bg-white border-r border-brand-yellow/10 flex-shrink-0 shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-10 flex flex-col overflow-y-auto">
           <div className="p-6">
-            <div className="flex items-center gap-4 mb-8 p-2 rounded-2xl hover:bg-gray-50 transition-colors cursor-pointer">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-brand-green-light to-brand-yellow-light flex items-center justify-center text-brand-green shadow-inner border border-brand-green/20">
+            <div className="flex items-center gap-4 mb-8 p-2 rounded-2xl hover:bg-brand-yellow-light/50 transition-colors cursor-pointer">
+              <div className="w-12 h-12 rounded-full bg-brand-gradient flex items-center justify-center text-white shadow-lg border border-white/20">
                 <User className="h-6 w-6" />
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="font-bold text-gray-900 truncate">{user.username}</h3>
-                <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                <p className="text-xs text-gray-400 truncate">{user.email}</p>
               </div>
             </div>
 
-            <div className="relative overflow-hidden bg-gradient-to-br from-brand-green via-green-600 to-brand-yellow rounded-2xl p-5 text-white mb-8 shadow-[0_8px_30px_rgb(22,163,74,0.15)] border border-brand-green/20 group">
+            <div className="relative overflow-hidden bg-brand-gradient rounded-2xl p-5 text-white mb-8 shadow-lg border border-white/10 group">
               <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-10 rounded-full blur-2xl group-hover:opacity-20 transition-opacity duration-500"></div>
               <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-20 h-20 bg-brand-yellow/30 rounded-full blur-xl"></div>
               
               <div className="relative z-10">
-                <p className="text-white/80 text-xs font-medium tracking-wide uppercase mb-1 flex items-center gap-1.5">
-                  <Wallet className="h-3.5 w-3.5" /> Available Coins
+                <p className="text-white/80 text-[10px] font-black tracking-widest uppercase mb-1 flex items-center gap-1.5">
+                  <Wallet className="h-3.5 w-3.5" /> Available Balance
                 </p>
                 <div className="flex items-baseline gap-1">
                   <h2 className="text-3xl font-black tracking-tight">{user.balance.toFixed(0)}</h2>
-                  <span className="text-sm font-medium text-white/70">Coins</span>
+                  <span className="text-xs font-black text-brand-yellow uppercase tracking-tight">Coins</span>
                 </div>
               </div>
             </div>
@@ -374,13 +415,13 @@ export function Dashboard() {
                 <button 
                   key={item.id}
                   onClick={() => setActiveTab(item.id as any)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-200 ${
                     activeTab === item.id 
-                      ? 'bg-brand-green-light text-brand-green shadow-sm ring-1 ring-brand-green/10' 
-                      : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
+                      ? 'bg-brand-green text-white shadow-md shadow-brand-green/20 scale-[1.02]' 
+                      : 'text-gray-500 hover:bg-brand-yellow-light hover:text-brand-green-dark'
                   }`}
                 >
-                  <item.icon className={`h-5 w-5 ${activeTab === item.id ? 'text-brand-green' : 'text-gray-400'}`} />
+                  <item.icon className={`h-5 w-5 ${activeTab === item.id ? 'text-white' : 'text-gray-400'}`} />
                   {item.label}
                 </button>
               ))}
@@ -424,14 +465,14 @@ export function Dashboard() {
                   <div className="w-12 h-12 rounded-xl bg-brand-yellow-light flex items-center justify-center text-brand-yellow shadow-inner border border-brand-yellow/20">
                     <Clock className="h-6 w-6" />
                   </div>
-                  <span className="px-3 py-1 bg-brand-yellow-light text-brand-yellow text-xs font-bold rounded-full border border-brand-yellow/20 shadow-sm">
+                  <span className="px-3 py-1 bg-brand-yellow/10 text-brand-yellow-dark text-xs font-bold rounded-full border border-brand-yellow/20 shadow-sm">
                     Expired
                   </span>
                 </div>
-                <h3 className="text-gray-600 font-medium mb-1 relative z-10">Expired Servers</h3>
+                <h3 className="text-gray-600 font-bold mb-1 relative z-10 transition-colors group-hover:text-brand-yellow-dark">Expired Servers</h3>
                 <div className="flex items-baseline gap-2 relative z-10">
                   <p className="text-4xl font-black text-gray-900 tracking-tight">{servers.filter(s => new Date(s.expires_at) < new Date()).length}</p>
-                  <p className="text-sm text-gray-500 font-medium">/ {servers.length} total</p>
+                  <p className="text-sm text-gray-400 font-bold uppercase tracking-tight">/ {servers.length} total</p>
                 </div>
               </div>
             </div>
@@ -480,18 +521,18 @@ export function Dashboard() {
                     <button
                       type="button"
                       onClick={() => setIsProtocolDropdownOpen(!isProtocolDropdownOpen)}
-                      className="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-2 focus:ring-brand-green/10 focus:border-brand-green flex items-center justify-between p-2 outline-none min-w-[140px] transition-all"
+                      className="bg-white border border-gray-200 text-gray-700 text-sm rounded-xl hover:border-brand-yellow hover:bg-gray-50 focus:ring-4 focus:ring-brand-green/10 focus:border-brand-green flex items-center justify-between px-4 py-2.5 outline-none min-w-[150px] transition-all shadow-sm"
                     >
-                      <span className="truncate mr-2 font-medium">
+                      <span className="truncate mr-2 font-semibold">
                         {filterProtocols.length === 0 ? 'All Protocols' : `${filterProtocols.length} Selected`}
                       </span>
-                      <ChevronDown className="h-4 w-4 text-gray-500" />
+                      <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${isProtocolDropdownOpen ? 'rotate-180' : ''}`} />
                     </button>
                     
                     {isProtocolDropdownOpen && (
-                      <div className="absolute z-50 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-xl py-2 left-0">
+                      <div className="absolute z-50 mt-2 w-48 bg-white border border-gray-100 rounded-2xl shadow-xl py-3 left-0 animate-in fade-in zoom-in-95 duration-200">
                         {['V2Ray', 'SSH WebSocket', 'Slow DNS', 'OpenVPN', 'WireGuard'].map(p => (
-                          <label key={p} className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer transition-colors">
+                          <label key={p} className={`flex items-center px-4 py-2.5 hover:bg-brand-green-light/30 cursor-pointer transition-colors ${filterProtocols.includes(p) ? 'bg-brand-green-light/20' : ''}`}>
                             <input
                               type="checkbox"
                               checked={filterProtocols.includes(p)}
@@ -504,16 +545,16 @@ export function Dashboard() {
                               }}
                               className="w-4 h-4 rounded border-gray-300 text-brand-green focus:ring-brand-green/20 mr-3"
                             />
-                            <span className="text-sm text-gray-700 font-medium">{p}</span>
+                            <span className={`text-sm font-medium ${filterProtocols.includes(p) ? 'text-brand-green' : 'text-gray-700'}`}>{p}</span>
                           </label>
                         ))}
                         {filterProtocols.length > 0 && (
-                          <div className="px-4 pt-2 mt-2 border-t border-gray-100">
+                          <div className="px-4 pt-3 mt-2 border-t border-gray-100">
                             <button 
                               onClick={() => setFilterProtocols([])}
-                              className="text-xs text-brand-green font-bold hover:text-brand-green/80"
+                              className="text-xs text-brand-green font-bold hover:text-brand-green/80 flex items-center gap-1"
                             >
-                              Clear Selection
+                              <X className="h-3 w-3" /> Clear Selection
                             </button>
                           </div>
                         )}
@@ -534,18 +575,18 @@ export function Dashboard() {
                     <button
                       type="button"
                       onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
-                      className="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-2 focus:ring-brand-green/10 focus:border-brand-green flex items-center justify-between p-2 outline-none min-w-[130px] transition-all"
+                      className="bg-white border border-gray-200 text-gray-700 text-sm rounded-xl hover:border-brand-yellow hover:bg-gray-50 focus:ring-4 focus:ring-brand-green/10 focus:border-brand-green flex items-center justify-between px-4 py-2.5 outline-none min-w-[140px] transition-all shadow-sm"
                     >
-                      <span className="truncate mr-2 font-medium">
+                      <span className="truncate mr-2 font-semibold">
                         {filterStatuses.length === 0 ? 'All Statuses' : `${filterStatuses.length} Selected`}
                       </span>
-                      <ChevronDown className="h-4 w-4 text-gray-500" />
+                      <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${isStatusDropdownOpen ? 'rotate-180' : ''}`} />
                     </button>
                     
                     {isStatusDropdownOpen && (
-                      <div className="absolute z-50 mt-2 w-40 bg-white border border-gray-100 rounded-xl shadow-xl py-2 left-0">
+                      <div className="absolute z-50 mt-2 w-44 bg-white border border-gray-100 rounded-2xl shadow-xl py-3 left-0 animate-in fade-in zoom-in-95 duration-200">
                         {['Active', 'Expired'].map(s => (
-                          <label key={s} className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer transition-colors">
+                          <label key={s} className={`flex items-center px-4 py-2.5 hover:bg-brand-green-light/30 cursor-pointer transition-colors ${filterStatuses.includes(s) ? 'bg-brand-green-light/20' : ''}`}>
                             <input
                               type="checkbox"
                               checked={filterStatuses.includes(s)}
@@ -558,16 +599,16 @@ export function Dashboard() {
                               }}
                               className="w-4 h-4 rounded border-gray-300 text-brand-green focus:ring-brand-green/20 mr-3"
                             />
-                            <span className="text-sm text-gray-700 font-medium">{s}</span>
+                            <span className={`text-sm font-medium ${filterStatuses.includes(s) ? 'text-brand-green' : 'text-gray-700'}`}>{s}</span>
                           </label>
                         ))}
                         {filterStatuses.length > 0 && (
-                          <div className="px-4 pt-2 mt-2 border-t border-gray-100">
+                          <div className="px-4 pt-3 mt-2 border-t border-gray-100">
                             <button 
                               onClick={() => setFilterStatuses([])}
-                              className="text-xs text-brand-green font-bold hover:text-brand-green/80"
+                              className="text-xs text-brand-green font-bold hover:text-brand-green/80 flex items-center gap-1"
                             >
-                              Clear Selection
+                              <X className="h-3 w-3" /> Clear Selection
                             </button>
                           </div>
                         )}
@@ -594,16 +635,16 @@ export function Dashboard() {
                     <button
                       type="button"
                       onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
-                      className="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-2 focus:ring-brand-green/10 focus:border-brand-green flex items-center justify-between p-2 outline-none min-w-[160px] w-full md:w-auto transition-all"
+                      className="bg-white border border-gray-200 text-gray-700 text-sm rounded-xl hover:border-brand-yellow hover:bg-gray-50 focus:ring-4 focus:ring-brand-green/10 focus:border-brand-green flex items-center justify-between px-4 py-2.5 outline-none min-w-[170px] w-full md:w-auto transition-all shadow-sm"
                     >
-                      <span className="truncate mr-2 font-medium">
+                      <span className="truncate mr-2 font-semibold">
                         {sortOptions.find(opt => opt.value === sortBy)?.label || 'Sort By'}
                       </span>
-                      <ChevronDown className="h-4 w-4 text-gray-500" />
+                      <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${isSortDropdownOpen ? 'rotate-180' : ''}`} />
                     </button>
                     
                     {isSortDropdownOpen && (
-                      <div className="absolute z-50 mt-2 w-full md:w-48 bg-white border border-gray-100 rounded-xl shadow-xl py-2 right-0">
+                      <div className="absolute z-50 mt-2 w-full md:w-52 bg-white border border-gray-100 rounded-2xl shadow-xl py-3 right-0 animate-in fade-in zoom-in-95 duration-200">
                         {sortOptions.map(opt => (
                           <button
                             key={opt.value}
@@ -612,12 +653,12 @@ export function Dashboard() {
                               setSortBy(opt.value);
                               setIsSortDropdownOpen(false);
                             }}
-                            className={`w-full text-left flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer transition-colors ${
-                              sortBy === opt.value ? 'bg-brand-green-light/50' : ''
+                            className={`w-full text-left flex items-center px-4 py-2.5 hover:bg-brand-green-light/30 cursor-pointer transition-colors ${
+                              sortBy === opt.value ? 'bg-brand-green-light/20' : ''
                             }`}
                           >
                             <div className={`w-4 h-4 rounded-full border flex items-center justify-center mr-3 ${
-                              sortBy === opt.value ? 'border-brand-green' : 'border-gray-300'
+                              sortBy === opt.value ? 'border-brand-green bg-brand-green-light' : 'border-gray-300'
                             }`}>
                               {sortBy === opt.value && <div className="w-2 h-2 rounded-full bg-brand-green" />}
                             </div>
@@ -805,16 +846,16 @@ export function Dashboard() {
                     <button
                       type="button"
                       onClick={() => setIsLocationDropdownOpen(!isLocationDropdownOpen)}
-                      className="w-full bg-white border border-gray-200 text-gray-900 text-sm rounded-lg hover:border-gray-400 focus:ring-2 focus:ring-brand-green/20 focus:border-brand-green flex items-center justify-between px-4 py-3 outline-none transition-all"
+                      className="w-full bg-white border border-gray-200 text-gray-900 text-sm rounded-xl hover:border-brand-yellow focus:ring-4 focus:ring-brand-green/10 focus:border-brand-green flex items-center justify-between px-4 py-3.5 outline-none transition-all shadow-sm"
                     >
-                      <span className="truncate mr-2 font-medium">
+                      <span className="truncate mr-2 font-semibold">
                         {LOCATION_OPTIONS.find(opt => opt.value === location)?.label || 'Select Location'}
                       </span>
-                      <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${isLocationDropdownOpen ? 'rotate-180' : ''}`} />
+                      <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${isLocationDropdownOpen ? 'rotate-180' : ''}`} />
                     </button>
                     
                     {isLocationDropdownOpen && (
-                      <div className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg py-1 left-0">
+                      <div className="absolute z-50 mt-2 w-full bg-white border border-gray-100 rounded-2xl shadow-xl py-3 left-0 animate-in fade-in zoom-in-95 duration-200">
                         {LOCATION_OPTIONS.map(opt => (
                           <button
                             key={opt.value}
@@ -823,8 +864,8 @@ export function Dashboard() {
                               setLocation(opt.value);
                               setIsLocationDropdownOpen(false);
                             }}
-                            className={`w-full text-left flex items-center px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors ${
-                              location === opt.value ? 'bg-brand-green-light' : ''
+                            className={`w-full text-left flex items-center px-4 py-3 hover:bg-brand-green-light/30 cursor-pointer transition-colors ${
+                              location === opt.value ? 'bg-brand-green-light/20' : ''
                             }`}
                           >
                             <span className={`text-sm font-medium ${location === opt.value ? 'text-brand-green font-bold' : 'text-gray-700'}`}>
@@ -832,7 +873,7 @@ export function Dashboard() {
                             </span>
                             {location === opt.value && (
                               <div className="ml-auto text-brand-green">
-                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                                <CheckCircle2 className="h-4 w-4" />
                               </div>
                             )}
                           </button>
@@ -1098,17 +1139,35 @@ export function Dashboard() {
 
                     {/* Coupon Code */}
                     <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-[0_2px_20px_rgba(0,0,0,0.02)]">
-                      <h2 className="text-lg font-bold text-gray-900 mb-4">Coupon Code</h2>
+                      <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-lg font-bold text-gray-900">Coupon Code</h2>
+                        {isCouponApplied && (
+                          <span className="px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-bold uppercase rounded-md">Applied</span>
+                        )}
+                      </div>
                       <div className="flex gap-2">
-                        <input 
-                          type="text" 
-                          placeholder="ENTER CODE"
-                          value={couponCode}
-                          onChange={(e) => setCouponCode(e.target.value)}
-                          className="flex-1 min-w-0 border border-gray-200 rounded-xl px-4 py-3.5 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-brand-green/10 focus:border-brand-green outline-none transition-all font-medium text-gray-900 uppercase"
-                        />
-                        <button className="shrink-0 px-5 sm:px-6 py-3.5 bg-brand-green text-white font-bold rounded-xl hover:bg-brand-green/90 transition-colors flex items-center justify-center gap-2">
-                          <CheckCircle2 className="h-4 w-4 hidden sm:block" /> Apply
+                        <div className="flex-1 min-w-0">
+                          <input 
+                            type="text" 
+                            placeholder="ENTER CODE"
+                            value={couponCode}
+                            onChange={(e) => {
+                              setCouponCode(e.target.value);
+                              if (isCouponApplied) {
+                                setIsCouponApplied(false);
+                                setCouponDiscountPercent(0);
+                              }
+                            }}
+                            className={`w-full border rounded-xl px-4 py-3.5 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-brand-green/10 focus:border-brand-green outline-none transition-all font-medium text-gray-900 uppercase ${couponError ? 'border-red-300' : 'border-gray-200'}`}
+                          />
+                          {couponError && <p className="text-[10px] text-red-500 font-bold mt-1.5 ml-1">{couponError}</p>}
+                          {isCouponApplied && <p className="text-[10px] text-green-600 font-bold mt-1.5 ml-1">You're saving {couponDiscountPercent}% with this code!</p>}
+                        </div>
+                        <button 
+                          onClick={handleApplyCoupon}
+                          className="shrink-0 h-[50px] px-5 sm:px-6 bg-brand-green text-white font-bold rounded-xl hover:bg-brand-green/90 transition-colors flex items-center justify-center gap-2"
+                        >
+                          {isCouponApplied ? <CheckCircle2 className="h-4 w-4" /> : 'Apply'}
                         </button>
                       </div>
                     </div>
@@ -1161,6 +1220,12 @@ export function Dashboard() {
                           <span className="text-gray-500 font-medium">Original Price</span>
                           <span className="font-bold text-gray-900">ZWG {PACKAGES.find(p => p.id === selectedPackageId)?.price.toFixed(2)}</span>
                         </div>
+                        {isCouponApplied && couponDiscountPercent > 0 && (
+                          <div className="flex justify-between text-sm">
+                            <span className="text-green-600 font-bold">Discount ({couponDiscountPercent}%)</span>
+                            <span className="font-bold text-green-600">-ZWG {((PACKAGES.find(p => p.id === selectedPackageId)?.price || 0) * (couponDiscountPercent / 100)).toFixed(2)}</span>
+                          </div>
+                        )}
                         <div className="flex justify-between text-sm">
                           <span className="text-gray-500 font-medium">Payment Fee</span>
                           <span className="font-bold text-red-500">+ZWG 0.00</span>
@@ -1171,7 +1236,9 @@ export function Dashboard() {
                         </div>
                         <div className="pt-3 border-t border-gray-100 flex justify-between items-center">
                           <span className="text-lg font-bold text-gray-900">Total</span>
-                          <span className="text-xl font-black text-brand-green">ZWG {PACKAGES.find(p => p.id === selectedPackageId)?.price.toFixed(2)}</span>
+                          <span className="text-xl font-black text-brand-green">
+                            ZWG {((PACKAGES.find(p => p.id === selectedPackageId)?.price || 0) * (1 - (isCouponApplied ? couponDiscountPercent / 100 : 0))).toFixed(2)}
+                          </span>
                         </div>
                       </div>
 

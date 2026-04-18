@@ -46,14 +46,14 @@ export function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans relative overflow-hidden">
+    <div className="min-h-screen bg-[#fcfdf2] flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans relative overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-64 bg-brand-green/5 blur-[120px] rounded-full pointer-events-none"></div>
       
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <Link to="/" className="flex justify-center items-center gap-2 mb-8 group">
           <Logo size={48} className="drop-shadow-lg group-hover:scale-105 transition-transform" />
-          <span className="font-black text-3xl tracking-tight text-gray-900 text-shadow-sm">Zimbo Tunnel</span>
+          <span className="font-black text-3xl tracking-tight text-gray-900 text-shadow-sm">Zimbo <span className="text-brand-green">Tunnel</span></span>
         </Link>
         <h2 className="mt-2 text-center text-3xl font-black text-gray-900 tracking-tight">
           Reset your password
@@ -63,24 +63,24 @@ export function ForgotPassword() {
         </p>
       </div>
 
-      <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
+      <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-md relative z-10 px-4 sm:px-0">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white py-10 px-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] sm:rounded-3xl sm:px-12 border border-gray-100"
+          className="bg-white py-10 px-6 shadow-2xl shadow-brand-green/5 sm:rounded-[2rem] sm:px-12 border border-brand-yellow/10"
         >
           {isSuccess ? (
             <div className="text-center">
-              <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-100">
-                <CheckCircle2 className="h-8 w-8 text-green-500" />
+              <div className="w-16 h-16 bg-brand-green-light rounded-full flex items-center justify-center mx-auto mb-4 border border-brand-green/20 shadow-inner">
+                <CheckCircle2 className="h-8 w-8 text-brand-green" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Check your email</h3>
+              <h3 className="text-xl font-black text-gray-900 mb-2">Check your email</h3>
               <p className="text-gray-500 font-medium mb-8">
                 We've sent a password reset link to <span className="font-bold text-gray-900">{email}</span>.
               </p>
               <Link 
                 to="/login"
-                className="w-full flex justify-center items-center py-4 px-4 border border-transparent rounded-xl shadow-lg shadow-brand-green/20 text-base font-bold text-white bg-brand-green hover:bg-brand-green/90 hover:-translate-y-0.5 transition-all"
+                className="w-full flex justify-center items-center py-4 px-4 border border-transparent rounded-2xl shadow-lg shadow-brand-green/20 text-[10px] font-black uppercase tracking-widest text-white bg-brand-gradient hover:scale-[1.02] active:scale-[0.98] transition-all"
               >
                 Return to sign in
               </Link>
@@ -88,7 +88,7 @@ export function ForgotPassword() {
           ) : (
             <>
               {error && (
-                <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-start gap-3 text-red-700">
+                <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-start gap-3 text-red-700">
                   <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
                   <p className="text-sm font-medium">{error}</p>
                 </div>
@@ -96,7 +96,7 @@ export function ForgotPassword() {
 
               <form className="space-y-6" onSubmit={handleSubmit} noValidate>
                 <div>
-                  <label className="block text-sm font-bold text-gray-900 mb-2">
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">
                     Email address
                   </label>
                   <div className="relative">
@@ -110,7 +110,7 @@ export function ForgotPassword() {
                         setEmail(e.target.value);
                         if (error) setError('');
                       }}
-                      className="block w-full pl-11 pr-4 py-3.5 border border-gray-200 rounded-xl bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-brand-green/10 focus:border-brand-green transition-all font-medium text-gray-900 outline-none placeholder:text-gray-400"
+                      className="block w-full pl-11 pr-4 py-4 border border-gray-100 rounded-2xl bg-gray-50/50 focus:bg-white focus:ring-4 focus:ring-brand-green/10 focus:border-brand-green transition-all font-medium text-gray-900 outline-none placeholder:text-gray-400"
                       placeholder="you@example.com"
                     />
                   </div>
@@ -120,12 +120,12 @@ export function ForgotPassword() {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full flex justify-center items-center py-4 px-4 border border-transparent rounded-xl shadow-lg shadow-brand-green/20 text-base font-bold text-white bg-brand-green hover:bg-brand-green/90 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-green/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                    className="w-full flex justify-center items-center py-4 px-4 border border-transparent rounded-2xl shadow-xl shadow-brand-green/20 text-[10px] font-black uppercase tracking-widest text-white bg-brand-gradient hover:scale-[1.02] active:scale-[0.98] focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isLoading ? (
                       <span className="flex items-center gap-2">
-                        <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                        Sending link...
+                        <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        Sending...
                       </span>
                     ) : 'Send reset link'}
                   </button>
@@ -134,19 +134,19 @@ export function ForgotPassword() {
             </>
           )}
 
-          <div className="mt-8 text-center">
-            <Link to="/login" className="inline-flex items-center gap-2 font-bold text-gray-500 hover:text-gray-900 transition-colors">
+          <div className="mt-10 text-center">
+            <Link to="/login" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-brand-green transition-colors">
               <ArrowLeft className="h-4 w-4" />
-              Back to sign in
+              Back to login
             </Link>
           </div>
-          <p className="mt-8 text-center text-xs text-gray-500 font-medium leading-relaxed">
+          <p className="mt-10 text-center text-[10px] text-gray-400 font-bold leading-relaxed uppercase tracking-tighter">
             Protected by reCAPTCHA and subject to our{' '}
-            <Link to="/privacy-policy" className="font-bold text-brand-green hover:text-brand-green/80 transition-colors">
+            <Link to="/privacy-policy" className="text-brand-green hover:text-brand-green/80 transition-colors">
               Privacy Policy
             </Link>{' '}
             and{' '}
-            <Link to="/terms-of-service" className="font-bold text-brand-green hover:text-brand-green/80 transition-colors">
+            <Link to="/terms-of-service" className="text-brand-green hover:text-brand-green/80 transition-colors">
               Terms of Service
             </Link>.
           </p>

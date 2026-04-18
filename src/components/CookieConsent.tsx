@@ -36,12 +36,12 @@ export function CookieConsent() {
         >
           <div className="max-w-4xl mx-auto bg-white border border-gray-200 shadow-2xl rounded-2xl p-5 sm:p-6 pointer-events-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-start sm:items-center gap-4">
-              <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center shrink-0 hidden sm:flex">
+              <div className="w-10 h-10 bg-brand-green-light text-brand-green rounded-full flex items-center justify-center shrink-0 hidden sm:flex">
                 <Cookie className="w-5 h-5" />
               </div>
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <Cookie className="w-4 h-4 text-blue-600 sm:hidden" />
+                  <Cookie className="w-4 h-4 text-brand-green sm:hidden" />
                   <h4 className="text-gray-900 font-semibold">We value your privacy</h4>
                 </div>
                 <p className="text-sm text-gray-500 leading-relaxed">
@@ -58,7 +58,7 @@ export function CookieConsent() {
               </button>
               <button
                 onClick={acceptCookies}
-                className="flex-1 sm:flex-none px-4 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-colors shadow-sm shadow-blue-200"
+                className="flex-1 sm:flex-none px-4 py-2.5 text-sm font-medium text-white bg-brand-green hover:bg-brand-green/90 rounded-xl transition-colors shadow-sm shadow-brand-green/20"
               >
                 Accept All
               </button>

@@ -56,14 +56,14 @@ export function Login() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <Link to="/" className="flex justify-center items-center gap-2 mb-8 group">
           <Logo size={48} className="drop-shadow-lg group-hover:scale-105 transition-transform" />
-          <span className="font-black text-3xl tracking-tight text-gray-900 text-shadow-sm">Zimbo Tunnel</span>
+          <span className="font-black text-3xl tracking-tight text-gray-900 text-shadow-sm">Zimbo <span className="text-brand-yellow">Tunnel</span></span>
         </Link>
         <h2 className="mt-2 text-center text-3xl font-black text-gray-900 tracking-tight">
           Sign in to your account
         </h2>
         <p className="mt-3 text-center text-base text-gray-500 font-medium">
           Or{' '}
-          <Link to="/register" className="font-bold text-brand-green hover:text-brand-green/80 transition-colors">
+          <Link to="/register" className="font-bold text-brand-green hover:text-brand-yellow-dark transition-colors">
             create a new account
           </Link>
         </p>
@@ -146,7 +146,7 @@ export function Login() {
               </div>
 
               <div className="text-sm">
-                <Link to="/forgot-password" className="font-bold text-brand-green hover:text-brand-green/80 transition-colors">
+                <Link to="/forgot-password" title="Recover Password" className="font-bold text-brand-green hover:text-brand-yellow-dark transition-colors">
                   Forgot your password?
                 </Link>
               </div>
@@ -156,7 +156,7 @@ export function Login() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex justify-center items-center py-4 px-4 border border-transparent rounded-xl shadow-lg shadow-brand-green/20 text-base font-bold text-white bg-brand-green hover:bg-brand-green/90 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-green transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                className="w-full flex justify-center items-center py-4 px-4 border border-transparent rounded-xl shadow-lg shadow-brand-green/20 text-base font-bold text-white bg-brand-gradient hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-green transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
               >
                 {isLoading ? (
                   <span className="flex items-center gap-2">
@@ -169,11 +169,11 @@ export function Login() {
           </form>
           <p className="mt-6 text-center text-xs text-gray-500 font-medium leading-relaxed">
             By signing in, you agree to our{' '}
-            <Link to="/terms-of-service" className="font-bold text-brand-green hover:text-brand-green/80 transition-colors">
+            <Link to="/terms-of-service" className="font-bold text-brand-green hover:text-brand-yellow-dark transition-colors">
               Terms of Service
             </Link>{' '}
             and{' '}
-            <Link to="/privacy-policy" className="font-bold text-brand-green hover:text-brand-green/80 transition-colors">
+            <Link to="/privacy-policy" className="font-bold text-brand-green hover:text-brand-yellow-dark transition-colors">
               Privacy Policy
             </Link>.
           </p>

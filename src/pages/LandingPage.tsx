@@ -68,17 +68,17 @@ export function LandingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-white selection:bg-brand-green-light selection:text-brand-green">
+    <div className="min-h-screen bg-white selection:bg-brand-yellow/20 selection:text-brand-green-dark">
       {/* Hero Section */}
       <section className="relative pt-32 md:pt-44 pb-24 overflow-hidden flex flex-col items-center">
         {/* Background Gradients & Pattern */}
         <div className="absolute inset-0 -z-10 bg-white bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-green-light/50 via-transparent to-transparent"></div>
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-yellow-light/60 via-brand-green-light/20 to-transparent"></div>
         <div className="absolute top-0 right-0 -translate-y-12 translate-x-1/3">
-          <div className="w-96 h-96 bg-brand-green-light/50 rounded-full blur-3xl"></div>
+          <div className="w-96 h-96 bg-brand-yellow-light/50 rounded-full blur-3xl"></div>
         </div>
         <div className="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/3">
-          <div className="w-96 h-96 bg-brand-yellow-light/50 rounded-full blur-3xl"></div>
+          <div className="w-96 h-96 bg-brand-green-light/50 rounded-full blur-3xl"></div>
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative w-full">
@@ -92,7 +92,7 @@ export function LandingPage() {
               <motion.div 
                 animate={{ y: [0, -4, 0] }}
                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                className="relative overflow-hidden inline-flex items-center gap-2 px-4 py-2 bg-brand-green-light border border-brand-green/10 rounded-full shadow-sm"
+                className="relative overflow-hidden inline-flex items-center gap-2 px-4 py-2 bg-brand-yellow-light border border-brand-yellow/20 rounded-full shadow-sm"
               >
                 {/* Shimmer effect */}
                 <motion.div 
@@ -100,8 +100,8 @@ export function LandingPage() {
                   transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", repeatDelay: 1.5 }}
                   className="absolute inset-0 w-full bg-gradient-to-r from-transparent via-white/80 to-transparent -skew-x-12"
                 />
-                <Zap className="w-4 h-4 text-brand-green relative z-10" />
-                <span className="font-semibold text-brand-green text-sm tracking-wide uppercase relative z-10">
+                <Zap className="w-4 h-4 text-brand-yellow relative z-10" />
+                <span className="font-semibold text-brand-yellow-dark text-sm tracking-wide uppercase relative z-10">
                   Fast Tunneling Servers
                 </span>
               </motion.div>
@@ -114,7 +114,7 @@ export function LandingPage() {
               className="text-5xl md:text-7xl font-extrabold text-gray-900 tracking-tighter mb-6 leading-[1.1]"
             >
               Experience seamless & stable <br className="hidden md:block" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-green to-brand-yellow">
+              <span className="text-brand-gradient">
                 tunneling technology.
               </span>
             </motion.h1>
@@ -134,7 +134,7 @@ export function LandingPage() {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="flex flex-col sm:flex-row justify-center items-center gap-4"
             >
-              <Link to="/register" className="w-full sm:w-auto px-8 py-4 rounded-full bg-brand-green text-white font-semibold text-lg hover:bg-brand-green/90 transition-all shadow-lg hover:shadow-xl shadow-brand-green/20 hover:shadow-brand-green/30 flex items-center justify-center gap-2 group">
+              <Link to="/register" className="w-full sm:w-auto px-8 py-4 rounded-full bg-brand-green text-white font-semibold text-lg hover:bg-brand-green-dark transition-all shadow-lg hover:shadow-xl shadow-brand-green/20 hover:shadow-brand-green/30 flex items-center justify-center gap-2 group">
                 Get Started
                 <motion.div
                   animate={{ x: [0, 5, 0] }}
@@ -143,7 +143,7 @@ export function LandingPage() {
                   <ArrowRight className="h-5 w-5" />
                 </motion.div>
               </Link>
-              <a href="#features" className="w-full sm:w-auto px-8 py-4 rounded-full bg-white border border-gray-200 text-gray-700 font-semibold text-lg hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm flex items-center justify-center gap-2">
+              <a href="#features" className="w-full sm:w-auto px-8 py-4 rounded-full bg-white border-2 border-brand-yellow/20 text-gray-700 font-semibold text-lg hover:bg-brand-yellow-light hover:border-brand-yellow/40 transition-all shadow-sm flex items-center justify-center gap-2">
                 Explore Features
               </a>
             </motion.div>
@@ -262,23 +262,29 @@ export function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-brand-green relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+      <section className="py-24 bg-brand-green relative overflow-hidden">
+        <div className="absolute inset-0 bg-brand-gradient opacity-100"></div>
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20"></div>
+        
+        {/* Decorative Circles */}
+        <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-[600px] h-[600px] bg-white/10 rounded-full blur-[100px]"></div>
+        <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-brand-yellow/10 rounded-full blur-[100px]"></div>
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-            <div className="text-white max-w-2xl">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to experience true freedom?</h2>
-              <p className="text-brand-yellow-light text-lg">Join thousands of users enjoying unrestricted internet access today.</p>
+          <div className="flex flex-col md:flex-row items-center justify-between gap-12 bg-white/5 backdrop-blur-xl p-8 md:p-16 rounded-[3rem] border border-white/10 shadow-2xl">
+            <div className="text-white text-center md:text-left">
+              <h2 className="text-4xl md:text-6xl font-black mb-6 tracking-tighter leading-none">Ready to experience <br /> <span className="text-brand-yellow">true freedom?</span></h2>
+              <p className="text-white/80 text-xl font-medium max-w-xl">Join thousands of users enjoying unrestricted, military-grade internet access today.</p>
             </div>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <button className="px-6 py-3 rounded-xl bg-white text-brand-green font-semibold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
-                <Download className="h-5 w-5" />
-                Download App
-              </button>
-              <button className="px-6 py-3 rounded-xl bg-brand-green/80 text-white font-semibold hover:bg-brand-green transition-colors flex items-center justify-center gap-2 border border-brand-green/20">
-                <Users className="h-5 w-5" />
-                Join Community
-              </button>
+            <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+              <Link to="/register" className="px-10 py-5 rounded-2xl bg-brand-yellow text-brand-green-dark font-black uppercase tracking-widest text-xs hover:scale-105 active:scale-95 transition-all shadow-xl shadow-brand-yellow/20 flex items-center justify-center gap-2 group">
+                Get Started Now
+                <ArrowRight className="h-4 w-4 transform group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <a href="#" className="px-10 py-5 rounded-2xl bg-white/10 border border-white/20 text-white font-black uppercase tracking-widest text-xs hover:bg-white/20 transition-all flex items-center justify-center gap-2 backdrop-blur-md">
+                <Users className="h-4 w-4" />
+                Our Community
+              </a>
             </div>
           </div>
         </div>
