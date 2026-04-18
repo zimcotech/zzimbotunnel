@@ -6,25 +6,18 @@ interface LogoProps {
 }
 
 export function Logo({ className = "", size = 32 }: LogoProps) {
-  const [error, setError] = React.useState(false);
+  // Ensure we don't have double slashes if BASE_URL ends with one
+  const baseUrl = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL;
+  const logoUrl = `${baseUrl}/logo.png`;
 
   return (
-    <div 
-      className={`relative flex items-center justify-center overflow-hidden shrink-0 rounded-xl transition-all ${className}`} 
-      style={{ width: size, height: size }}
-    >
-      {!error ? (
-        <img 
-          src="/logo.png" 
-          alt="Zimbo" 
-          className="w-full h-full object-contain"
-          onError={() => setError(true)}
-        />
-      ) : (
-        <div className="w-full h-full bg-brand-green flex items-center justify-center text-white font-black">
-          <span style={{ fontSize: size * 0.6 }}>Z</span>
-        </div>
-      )}
+    <div className={`relative flex items-center justify-center ${className}`} style={{ width: size, height: size }}>
+      <img 
+        src={logoUrl} 
+        alt="Zimbo Tunnel Logo" 
+        className="w-full h-full object-contain"
+        referrerPolicy="no-referrer"
+      />
     </div>
   );
 }
