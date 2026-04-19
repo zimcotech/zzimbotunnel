@@ -41,9 +41,9 @@ const AnimatedStatCard = ({ label, endValue, suffix, className = "" }: { label: 
   }, [endValue, isVisible]);
 
   return (
-    <div ref={ref} className={`bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 flex flex-col items-center justify-center text-center ${className}`}>
-      <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">{count}{suffix}</p>
-      <h3 className="text-[10px] sm:text-xs font-semibold text-gray-500 tracking-wider uppercase m-0">{label}</h3>
+    <div ref={ref} className={`bg-white border-2 border-gray-100 rounded-3xl p-6 sm:p-8 shadow-sm hover:shadow-xl hover:shadow-brand-green/5 hover:border-brand-green/30 hover:-translate-y-2 transition-all duration-500 flex flex-col items-center justify-center text-center ${className}`}>
+      <p className="text-3xl sm:text-4xl md:text-5xl font-extrabold font-mono text-gray-950 mb-2">{count}{suffix}</p>
+      <h3 className="text-xs font-bold text-gray-400 tracking-[0.2em] uppercase m-0">{label}</h3>
     </div>
   );
 };

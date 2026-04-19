@@ -11,16 +11,16 @@ interface ScrollingBannerProps {
 export function ScrollingBanner({ items, direction = 'left', className = '', speed = 20 }: ScrollingBannerProps) {
   return (
     <div 
-      className={`overflow-hidden whitespace-nowrap py-2 flex ${className}`}
+      className={`overflow-hidden whitespace-nowrap py-4 flex ${className}`}
       style={{ 
-        maskImage: 'linear-gradient(to right, transparent, black 80px, black calc(100% - 80px), transparent)',
-        WebkitMaskImage: 'linear-gradient(to right, transparent, black 80px, black calc(100% - 80px), transparent)'
+        maskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)',
+        WebkitMaskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)'
       }}
     >
       <motion.div
-        className="flex gap-4 inline-flex"
+        className="flex gap-8 inline-flex items-center"
         animate={{
-          x: direction === 'left' ? [0, -1035] : [-1035, 0],
+          x: direction === 'left' ? ['0%', '-100%'] : ['-100%', '0%'],
         }}
         transition={{
           repeat: Infinity,
@@ -29,7 +29,7 @@ export function ScrollingBanner({ items, direction = 'left', className = '', spe
         }}
       >
         {/* Duplicate items for seamless loop */}
-        {[...items, ...items, ...items, ...items, ...items, ...items].map((item, index) => (
+        {[...items, ...items, ...items, ...items].map((item, index) => (
           <div key={index} className="flex-shrink-0">
             {item}
           </div>
