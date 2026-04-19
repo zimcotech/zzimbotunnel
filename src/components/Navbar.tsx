@@ -17,9 +17,18 @@ export function Navbar() {
   };
 
   const isDashboard = location.pathname === '/dashboard';
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-4xl bg-white/90 backdrop-blur-md border border-gray-200 shadow-lg rounded-full px-4 py-3">
+    <nav className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-4xl border border-gray-200 shadow-lg rounded-full px-4 py-3 transition-all duration-300 ${isScrolled ? 'bg-white/70 backdrop-blur-xl' : 'bg-white/90 backdrop-blur-md'}`}>
       <div className="flex justify-between items-center relative">
         {/* Left side / Mobile menu button */}
         <div className="flex items-center">
@@ -55,7 +64,7 @@ export function Navbar() {
           ) : (
             <Link to="/login" className="px-5 py-2.5 rounded-full bg-brand-green text-white text-sm font-bold hover:bg-brand-green-dark transition-all shadow-md shadow-brand-green/20 flex items-center gap-2">
               <LogIn className="h-4 w-4" />
-              <span>Login</span>
+              <span className="hidden sm:inline">Log in</span>
             </Link>
           )}
 

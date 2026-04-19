@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { Shield, Zap, Globe, Lock, Server, Download, Users, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { ScrollingBanner } from '../components/ScrollingBanner';
+import { FlagIcons } from '../assets/flags';
 
 const AnimatedStatCard = ({ label, endValue, suffix, className = "" }: { label: string, endValue: number, suffix: string, className?: string }) => {
   const [count, setCount] = useState(0);
@@ -50,21 +51,29 @@ const AnimatedStatCard = ({ label, endValue, suffix, className = "" }: { label: 
 
 export function LandingPage() {
   const locations = [
-    <span className="flex items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-white border border-gray-200 rounded-full shadow-sm text-gray-700 font-medium text-sm md:text-base whitespace-nowrap"><span className="text-base md:text-lg">🇸🇬</span> Singapore</span>,
-    <span className="flex items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-white border border-gray-200 rounded-full shadow-sm text-gray-700 font-medium text-sm md:text-base whitespace-nowrap"><span className="text-base md:text-lg">🇪🇸</span> Spain</span>,
-    <span className="flex items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-white border border-gray-200 rounded-full shadow-sm text-gray-700 font-medium text-sm md:text-base whitespace-nowrap"><span className="text-base md:text-lg">🇸🇪</span> Sweden</span>,
-    <span className="flex items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-white border border-gray-200 rounded-full shadow-sm text-gray-700 font-medium text-sm md:text-base whitespace-nowrap"><span className="text-base md:text-lg">🇿🇦</span> South Africa</span>,
-    <span className="flex items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-white border border-gray-200 rounded-full shadow-sm text-gray-700 font-medium text-sm md:text-base whitespace-nowrap"><span className="text-base md:text-lg">🇺🇸</span> United States</span>,
-    <span className="flex items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-white border border-gray-200 rounded-full shadow-sm text-gray-700 font-medium text-sm md:text-base whitespace-nowrap"><span className="text-base md:text-lg">🇬🇧</span> United Kingdom</span>,
+    <span className="flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-200 rounded-full shadow-none text-gray-700 font-semibold text-[10px] whitespace-nowrap"><img src={FlagIcons.ZA} className="w-4 h-4 rounded-sm object-cover" alt="ZA" /> South Africa</span>,
+    <span className="flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-200 rounded-full shadow-none text-gray-700 font-semibold text-[10px] whitespace-nowrap"><img src={FlagIcons.SE} className="w-4 h-4 rounded-sm object-cover" alt="SE" /> Sweden</span>,
+    <span className="flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-200 rounded-full shadow-none text-gray-700 font-semibold text-[10px] whitespace-nowrap"><img src={FlagIcons.UK} className="w-4 h-4 rounded-sm object-cover" alt="UK" /> United Kingdom</span>,
+    <span className="flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-200 rounded-full shadow-none text-gray-700 font-semibold text-[10px] whitespace-nowrap"><img src={FlagIcons.ES} className="w-4 h-4 rounded-sm object-cover" alt="ES" /> Spain</span>,
+    <span className="flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-200 rounded-full shadow-none text-gray-700 font-semibold text-[10px] whitespace-nowrap"><img src={FlagIcons.SG} className="w-4 h-4 rounded-sm object-cover" alt="SG" /> Singapore</span>,
+    <span className="flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-200 rounded-full shadow-none text-gray-700 font-semibold text-[10px] whitespace-nowrap"><img src={FlagIcons.US} className="w-4 h-4 rounded-sm object-cover" alt="US" /> United States</span>,
   ];
 
   const protocols = [
-    <span className="px-4 md:px-5 py-2 md:py-2.5 bg-gray-900 text-white rounded-full shadow-sm font-medium text-sm md:text-base whitespace-nowrap">Vmess</span>,
-    <span className="px-4 md:px-5 py-2 md:py-2.5 bg-gray-900 text-white rounded-full shadow-sm font-medium text-sm md:text-base whitespace-nowrap">Xray</span>,
-    <span className="px-4 md:px-5 py-2 md:py-2.5 bg-gray-900 text-white rounded-full shadow-sm font-medium text-sm md:text-base whitespace-nowrap">Vless</span>,
-    <span className="px-4 md:px-5 py-2 md:py-2.5 bg-gray-900 text-white rounded-full shadow-sm font-medium text-sm md:text-base whitespace-nowrap">TrojanVPN</span>,
-    <span className="px-4 md:px-5 py-2 md:py-2.5 bg-gray-900 text-white rounded-full shadow-sm font-medium text-sm md:text-base whitespace-nowrap">OpenVPN</span>,
-    <span className="px-4 md:px-5 py-2 md:py-2.5 bg-gray-900 text-white rounded-full shadow-sm font-medium text-sm md:text-base whitespace-nowrap">WireGuard</span>,
+    <span className="px-3 py-1 bg-white border border-gray-200 text-gray-700 rounded-full shadow-none font-semibold text-[10px] whitespace-nowrap">Vmess</span>,
+    <span className="px-3 py-1 bg-white border border-gray-200 text-gray-700 rounded-full shadow-none font-semibold text-[10px] whitespace-nowrap">Xray</span>,
+    <span className="px-3 py-1 bg-white border border-gray-200 text-gray-700 rounded-full shadow-none font-semibold text-[10px] whitespace-nowrap">Vless</span>,
+    <span className="px-3 py-1 bg-white border border-gray-200 text-gray-700 rounded-full shadow-none font-semibold text-[10px] whitespace-nowrap">TrojanVPN</span>,
+    <span className="px-3 py-1 bg-white border border-gray-200 text-gray-700 rounded-full shadow-none font-semibold text-[10px] whitespace-nowrap">OpenVPN</span>,
+    <span className="px-3 py-1 bg-white border border-gray-200 text-gray-700 rounded-full shadow-none font-semibold text-[10px] whitespace-nowrap">WireGuard</span>,
+  ];
+
+  const cdns = [
+    <span className="px-3 py-1 bg-white border border-gray-200 text-gray-700 rounded-full shadow-none font-semibold text-[10px] whitespace-nowrap">Cloudflare</span>,
+    <span className="px-3 py-1 bg-white border border-gray-200 text-gray-700 rounded-full shadow-none font-semibold text-[10px] whitespace-nowrap">Sucuri</span>,
+    <span className="px-3 py-1 bg-white border border-gray-200 text-gray-700 rounded-full shadow-none font-semibold text-[10px] whitespace-nowrap">Cloudfront</span>,
+    <span className="px-3 py-1 bg-white border border-gray-200 text-gray-700 rounded-full shadow-none font-semibold text-[10px] whitespace-nowrap">Fastly</span>,
+    <span className="px-3 py-1 bg-white border border-gray-200 text-gray-700 rounded-full shadow-none font-semibold text-[10px] whitespace-nowrap">Akamai</span>,
   ];
 
   return (
@@ -181,6 +190,7 @@ export function LandingPage() {
           >
             <ScrollingBanner items={locations} direction="left" speed={25} />
             <ScrollingBanner items={protocols} direction="right" speed={30} />
+            <ScrollingBanner items={cdns} direction="left" speed={25} />
           </motion.div>
 
           {/* Stats Cards */}

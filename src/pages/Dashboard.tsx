@@ -437,45 +437,49 @@ export function Dashboard() {
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2 tracking-tight">Dashboard Overview</h1>
             <p className="text-gray-500 mb-8">Welcome back, here's what's happening with your account today.</p>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-gradient-to-br from-white to-brand-green-light/50 rounded-2xl border border-brand-green/10 p-6 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden">
-                <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-brand-green-light opacity-50 rounded-full blur-2xl"></div>
-                <div className="flex justify-between items-start mb-4 relative z-10">
-                  <div className="w-12 h-12 rounded-xl bg-brand-green-light flex items-center justify-center text-brand-green shadow-inner border border-brand-green/20">
-                    <Server className="h-6 w-6" />
-                  </div>
-                  <span className="px-3 py-1 bg-green-50 text-green-700 text-xs font-bold rounded-full border border-green-200/50 flex items-center gap-2 shadow-sm">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="group bg-white rounded-3xl border border-gray-100 p-8 shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-all duration-300 hover:shadow-xl hover:border-brand-green/20 relative overflow-hidden">
+                  <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-brand-green/5 rounded-full blur-3xl transition-all duration-500 group-hover:bg-brand-green/10"></div>
+                  <div className="flex justify-between items-start mb-6">
+                    <div className="w-14 h-14 rounded-2xl bg-brand-green/5 flex items-center justify-center text-brand-green shadow-inner border border-brand-green/10 transition-transform duration-300 group-hover:scale-110">
+                      <Server className="h-7 w-7" />
+                    </div>
+                    <span className="px-4 py-1.5 bg-green-50 text-green-700 text-xs font-black uppercase tracking-wider rounded-full border border-green-200/50 flex items-center gap-2 shadow-sm">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                      </span>
+                      {servers.filter(s => new Date(s.expires_at) > new Date()).length} Active
                     </span>
-                    Active
-                  </span>
-                </div>
-                <h3 className="text-gray-600 font-medium mb-1 relative z-10">Active Servers</h3>
-                <div className="flex items-baseline gap-2 relative z-10">
-                  <p className="text-4xl font-black text-gray-900 tracking-tight">{servers.filter(s => new Date(s.expires_at) > new Date()).length}</p>
-                  <p className="text-sm text-gray-500 font-medium">/ {servers.length} total</p>
-                </div>
-              </div>
-
-              <div className="bg-gradient-to-br from-white to-brand-yellow-light/50 rounded-2xl border border-brand-yellow/10 p-6 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden">
-                <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-brand-yellow-light opacity-50 rounded-full blur-2xl"></div>
-                <div className="flex justify-between items-start mb-4 relative z-10">
-                  <div className="w-12 h-12 rounded-xl bg-brand-yellow-light flex items-center justify-center text-brand-yellow shadow-inner border border-brand-yellow/20">
-                    <Clock className="h-6 w-6" />
                   </div>
-                  <span className="px-3 py-1 bg-brand-yellow/10 text-brand-yellow-dark text-xs font-bold rounded-full border border-brand-yellow/20 shadow-sm">
-                    Expired
-                  </span>
+                  <div className="relative z-10">
+                    <h3 className="text-gray-500 font-bold uppercase tracking-wider text-xs mb-1">Active Servers</h3>
+                    <div className="flex items-baseline gap-2">
+                      <p className="text-5xl font-black text-gray-900 tracking-tight">{servers.filter(s => new Date(s.expires_at) > new Date()).length}</p>
+                      <p className="text-sm text-gray-400 font-bold uppercase">/ {servers.length} Total</p>
+                    </div>
+                  </div>
                 </div>
-                <h3 className="text-gray-600 font-bold mb-1 relative z-10 transition-colors group-hover:text-brand-yellow-dark">Expired Servers</h3>
-                <div className="flex items-baseline gap-2 relative z-10">
-                  <p className="text-4xl font-black text-gray-900 tracking-tight">{servers.filter(s => new Date(s.expires_at) < new Date()).length}</p>
-                  <p className="text-sm text-gray-400 font-bold uppercase tracking-tight">/ {servers.length} total</p>
+
+                <div className="group bg-white rounded-3xl border border-gray-100 p-8 shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-all duration-300 hover:shadow-xl hover:border-brand-yellow/20 relative overflow-hidden">
+                  <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-brand-yellow/5 rounded-full blur-3xl transition-all duration-500 group-hover:bg-brand-yellow/10"></div>
+                  <div className="flex justify-between items-start mb-6">
+                    <div className="w-14 h-14 rounded-2xl bg-brand-yellow-light flex items-center justify-center text-brand-yellow-dark shadow-inner border border-brand-yellow/10 transition-transform duration-300 group-hover:scale-110">
+                      <Clock className="h-7 w-7" />
+                    </div>
+                    <span className="px-4 py-1.5 bg-brand-yellow/5 text-brand-yellow-dark text-xs font-black uppercase tracking-wider rounded-full border border-brand-yellow/10 shadow-sm">
+                      {servers.filter(s => new Date(s.expires_at) < new Date()).length} Expired
+                    </span>
+                  </div>
+                  <div className="relative z-10">
+                    <h3 className="text-gray-500 font-bold uppercase tracking-wider text-xs mb-1">Expired Servers</h3>
+                    <div className="flex items-baseline gap-2">
+                      <p className="text-5xl font-black text-gray-900 tracking-tight">{servers.filter(s => new Date(s.expires_at) < new Date()).length}</p>
+                      <p className="text-sm text-gray-400 font-bold uppercase">/ {servers.length} Total</p>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
           </motion.div>
         )}
         {activeTab === 'servers' && (
