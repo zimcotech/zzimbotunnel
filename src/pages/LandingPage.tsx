@@ -282,8 +282,23 @@ export function LandingPage() {
       <section id="features" className="py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Why Choose Zimbo Tunnel?</h2>
-            <p className="text-gray-500 max-w-2xl mx-auto">Experience the best digital services with enterprise-grade infrastructure and top-notch security.</p>
+            <motion.h2 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-3xl font-bold text-gray-900 mb-4"
+            >
+              Why Choose Zimbo Tunnel?
+            </motion.h2>
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="text-gray-500 max-w-2xl mx-auto"
+            >
+              Experience the best digital services with enterprise-grade infrastructure and top-notch security.
+            </motion.p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -294,13 +309,14 @@ export function LandingPage() {
             ].map((feature, idx) => (
               <motion.div 
                 key={idx}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.1 }}
-                className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+                whileHover={{ y: -8, transition: { duration: 0.2 } }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5, delay: idx * 0.15 }}
+                className="bg-white p-8 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-gray-100 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-all"
               >
-                <div className="w-12 h-12 rounded-xl bg-brand-green-light flex items-center justify-center mb-6 text-brand-green">
+                <div className="w-12 h-12 rounded-xl bg-brand-green-light flex items-center justify-center mb-6 text-brand-green transform transition-transform group-hover:scale-110">
                   <feature.icon className="h-6 w-6" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">{feature.title}</h3>
@@ -315,26 +331,56 @@ export function LandingPage() {
       <section id="how-it-works" className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">How It Works</h2>
-            <p className="text-gray-500 max-w-2xl mx-auto">Get connected in three simple steps.</p>
+            <motion.h2 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-3xl font-bold text-gray-900 mb-4"
+            >
+              How It Works
+            </motion.h2>
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="text-gray-500 max-w-2xl mx-auto"
+            >
+              Get connected in three simple steps.
+            </motion.p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
             {/* Connecting line */}
-            <div className="hidden md:block absolute top-12 left-1/6 right-1/6 h-0.5 bg-gray-100 -z-10"></div>
+            <div className="hidden md:block absolute top-12 left-1/6 right-1/6 h-0.5 bg-gray-100 -z-10 overflow-hidden rounded-full">
+              <motion.div 
+                initial={{ x: "-100%" }}
+                whileInView={{ x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 1.5, ease: "easeInOut", delay: 0.2 }}
+                className="w-full h-full bg-brand-green/30"
+              />
+            </div>
 
             {[
               { step: "01", title: "Create Account", desc: "Sign up for free and get access to our dashboard." },
               { step: "02", title: "Top Up Balance", desc: "Add funds easily using EcoCash or other local methods." },
               { step: "03", title: "Generate Config", desc: "Select your preferred protocol and create your server instantly." }
             ].map((item, idx) => (
-              <div key={idx} className="text-center relative bg-white">
-                <div className="w-24 h-24 mx-auto bg-white border-4 border-brand-green-light rounded-full flex items-center justify-center mb-6 shadow-sm">
-                  <span className="text-2xl font-bold text-brand-green">{item.step}</span>
+              <motion.div 
+                key={idx} 
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5, delay: idx * 0.2 }}
+                className="text-center relative bg-white group cursor-default"
+              >
+                <div className="w-24 h-24 mx-auto bg-white border-4 border-gray-100 group-hover:border-brand-green-light rounded-full flex items-center justify-center mb-6 shadow-[0_4px_12px_rgba(0,0,0,0.03)] group-hover:shadow-[0_8px_24px_rgba(0,b6,122,0.15)] transition-all duration-300">
+                  <span className="text-2xl font-bold text-gray-400 group-hover:text-brand-green transition-colors duration-300">{item.step}</span>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">{item.title}</h3>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3 group-hover:text-brand-green transition-colors duration-300">{item.title}</h3>
                 <p className="text-gray-500">{item.desc}</p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
