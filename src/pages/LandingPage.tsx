@@ -133,25 +133,84 @@ export function LandingPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.5 }}
-              className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
+              className="mt-12 flex flex-row items-center justify-center gap-4 sm:gap-6 pt-4 mx-auto max-w-fit w-full overflow-hidden"
             >
-              <div className="flex -space-x-2">
-                {[...Array(4)].map((_, i) => (
-                    <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-[10px] font-bold text-gray-400 uppercase tracking-widest shadow-sm">
-                        U{i+1}
+              {/* Trustpilot */}
+              <div className="flex flex-col items-start gap-1 justify-center shrink-0">
+                <div className="flex items-center gap-1.5 h-5">
+                  <svg className="w-5 h-5 text-[#00b67a]" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M21.2 8.7l-7.3-.6L12 1.3 10 8.1l-7.3.6 5.5 4.7-1.6 7.1L12 16.5l5.5 3.9-1.6-7.1z"/>
+                  </svg>
+                  <span className="font-bold text-gray-900 text-sm sm:text-base tracking-tight leading-none mt-0.5">Trustpilot</span>
+                </div>
+                <div className="flex gap-[1px]">
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} className="bg-[#00b67a] p-[2px] shadow-sm rounded-[1px]">
+                      <svg className="w-3 h-3 text-white fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                     </div>
-                ))}
-                <div className="w-10 h-10 rounded-full border-2 border-white bg-gray-50 flex items-center justify-center text-[10px] font-bold text-gray-400 shadow-sm">
-                    700+
+                  ))}
+                  <div className="bg-[#00b67a] p-[2px] relative overflow-hidden shadow-sm rounded-[1px]">
+                     <div className="absolute inset-0 bg-[#00b67a]/40 w-1/2 left-1/2"></div>
+                     <svg className="w-3 h-3 text-white fill-current relative z-10" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                  </div>
                 </div>
               </div>
-              <div className="text-sm text-gray-600 text-center sm:text-left">
-                <div className="flex items-center justify-center sm:justify-start gap-1 text-yellow-400 mb-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <svg key={i} className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                  ))}
+
+              {/* Vertical Divider 1 */}
+              <div className="w-[1px] h-7 bg-gray-200/80 shrink-0"></div>
+              
+              {/* G2 */}
+              <div className="flex flex-col items-start gap-1 justify-center shrink-0">
+                <div className="flex items-center gap-1.5 h-5">
+                  <div className="w-5 h-5 rounded-full bg-[#ff492c] flex items-center justify-center text-white font-black text-[10px] relative shadow-sm leading-none shrink-0">
+                    G<span className="text-[7px] font-bold absolute top-[3px] right-[2.5px]">2</span>
+                  </div>
+                  <span className="font-bold text-gray-900 text-sm sm:text-base tracking-tight leading-none mt-0.5">G2</span>
                 </div>
-                Trusted by <span className="font-semibold text-gray-900">700+</span> active users
+                <div className="flex text-[#ff492c] gap-0.5">
+                  {[...Array(4)].map((_, i) => (
+                      <svg key={i} className="w-[14px] h-[14px] sm:w-[15px] sm:h-[15px] fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                  ))}
+                  <svg className="w-[14px] h-[14px] sm:w-[15px] sm:h-[15px] text-[#ff492c]" viewBox="0 0 20 20">
+                     <defs>
+                        <linearGradient id="halfG2Star2">
+                           <stop offset="50%" stopColor="#ff492c" />
+                           <stop offset="50%" stopColor="transparent" />
+                        </linearGradient>
+                     </defs>
+                     <path stroke="currentColor" strokeWidth="1" fill="url(#halfG2Star2)" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                  </svg>
+                </div>
+              </div>
+
+              {/* Vertical Divider 2 */}
+              <div className="w-[1px] h-7 bg-gray-200/80 shrink-0"></div>
+
+              {/* Capterra */}
+              <div className="flex flex-col items-start gap-1 justify-center shrink-0">
+                <div className="flex items-center gap-1.5 h-5">
+                   <svg viewBox="0 0 100 100" fill="none" className="rotate-[-10deg] w-5 h-5">
+                     <path d="M10 30 L50 50 L50 100 Z" fill="#E84855" />
+                     <path d="M10 30 L50 50 L90 10 Z" fill="#F9A436" />
+                     <path d="M90 10 L50 50 L50 100 Z" fill="#024D7B" />
+                     <path d="M90 10 L50 50 L90 50 Z" fill="#50B4DD" />
+                   </svg>
+                   <span className="font-bold text-gray-900 text-sm sm:text-base tracking-tight leading-none mt-0.5">Capterra</span>
+                </div>
+                <div className="flex gap-0.5 text-[#F49C1E]">
+                  {[...Array(4)].map((_, i) => (
+                      <svg key={i} className="w-[14px] h-[14px] sm:w-[15px] sm:h-[15px] fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                  ))}
+                  <svg className="w-[14px] h-[14px] sm:w-[15px] sm:h-[15px] text-[#F49C1E]" viewBox="0 0 20 20">
+                     <defs>
+                        <linearGradient id="halfCapterraStar">
+                           <stop offset="50%" stopColor="#F49C1E" />
+                           <stop offset="50%" stopColor="transparent" />
+                        </linearGradient>
+                     </defs>
+                     <path stroke="currentColor" strokeWidth="1" fill="url(#halfCapterraStar)" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                  </svg>
+                </div>
               </div>
             </motion.div>
           </div>
