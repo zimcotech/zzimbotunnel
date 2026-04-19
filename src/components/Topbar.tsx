@@ -35,7 +35,7 @@ export function Topbar() {
             <Link to="/" className="flex items-center gap-1.5 sm:gap-2 group">
               <Logo size={28} className="group-hover:rotate-12 transition-transform duration-300" />
               <span className="font-bold text-lg sm:text-xl tracking-tight text-gray-900 whitespace-nowrap">Zimbo Tunnel</span>
-              <span className="px-1.5 sm:px-2 py-0.5 rounded-md bg-brand-yellow-light text-brand-yellow-dark text-[10px] sm:text-xs font-bold whitespace-nowrap border border-brand-yellow/10">2.1</span>
+              <span className="px-1.5 sm:px-2 py-0.5 rounded-md bg-brand-yellow-light text-brand-yellow-dark text-[10px] sm:text-xs font-bold whitespace-nowrap border border-brand-yellow/10">1.0</span>
             </Link>
           </div>
 

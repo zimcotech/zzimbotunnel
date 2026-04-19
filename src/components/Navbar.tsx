@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Menu, X, User } from 'lucide-react';
+import { Menu, X, User, LogIn } from 'lucide-react';
 import { Logo } from './Logo';
 
 export function Navbar() {
@@ -36,7 +36,7 @@ export function Navbar() {
           <Link to="/" className="flex items-center gap-1.5 sm:gap-2 group">
             <Logo size={28} className="group-hover:rotate-12 transition-transform duration-300" />
             <span className="font-bold text-lg sm:text-xl tracking-tight text-gray-900 whitespace-nowrap">Zimbo Tunnel</span>
-            <span className="px-1.5 sm:px-2 py-0.5 rounded-md bg-brand-yellow-light text-brand-yellow-dark text-[10px] sm:text-xs font-bold whitespace-nowrap border border-brand-yellow/10">2.1</span>
+            <span className="px-1.5 sm:px-2 py-0.5 rounded-md bg-brand-yellow-light text-brand-yellow-dark text-[10px] sm:text-xs font-bold whitespace-nowrap border border-brand-yellow/10">1.0</span>
           </Link>
         </div>
 
@@ -54,8 +54,8 @@ export function Navbar() {
             )
           ) : (
             <Link to="/login" className="px-5 py-2.5 rounded-full bg-brand-green text-white text-sm font-bold hover:bg-brand-green-dark transition-all shadow-md shadow-brand-green/20 flex items-center gap-2">
-              <span className="hidden sm:inline">Get Started</span>
-              <span className="sm:hidden">Start</span>
+              <LogIn className="h-4 w-4" />
+              <span>Login</span>
             </Link>
           )}
 
