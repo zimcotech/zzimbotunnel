@@ -1,79 +1,51 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
-import { Shield, Zap, Globe, Lock, Server, Download, Users, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Shield, Zap, Globe, Lock, Server, Download, Users, ArrowRight, CheckCircle2, ChevronDown, Gamepad2, ShieldCheck } from 'lucide-react';
 import { ScrollingBanner } from '../components/ScrollingBanner';
 import { FlagIcons } from '../assets/flags';
 
-const AnimatedStatCard = ({ label, endValue, suffix, className = "" }: { label: string, endValue: number, suffix: string, className?: string }) => {
-  const [count, setCount] = useState(0);
-  const ref = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (!isVisible) return;
-    let startTime: number | null = null;
-    const duration = 1500; // 1.5s
-    const animate = (timestamp: number) => {
-      if (!startTime) startTime = timestamp;
-      const progress = Math.min((timestamp - startTime) / duration, 1);
-      // easeOutExpo for smooth deceleration
-      const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-      setCount(Math.floor(easeProgress * endValue));
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      }
-    };
-    requestAnimationFrame(animate);
-  }, [endValue, isVisible]);
-
+const FaqItem = ({ question, answer }: { question: string, answer: string }) => {
   return (
-    <div ref={ref} className={`bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 flex flex-col items-center justify-center text-center ${className}`}>
-      <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">{count}{suffix}</p>
-      <h3 className="text-[10px] sm:text-xs font-semibold text-gray-500 tracking-wider uppercase m-0">{label}</h3>
+    <div className="bg-white border border-gray-100 rounded-[2rem] p-8 shadow-sm hover:shadow-md transition-all duration-300 h-full flex flex-col">
+      <div className="flex items-start gap-4 mb-4">
+        <div className="w-8 h-8 rounded-full bg-brand-green-light flex items-center justify-center flex-shrink-0 mt-1">
+          <span className="text-brand-green font-bold text-sm">?</span>
+        </div>
+        <h3 className="font-semibold text-gray-900 text-lg leading-snug">{question}</h3>
+      </div>
+      <p className="text-gray-500 leading-relaxed max-w-none pl-12 flex-grow">
+        {answer}
+      </p>
     </div>
   );
 };
 
 export function LandingPage() {
   const locations = [
-    <span className="flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-200 rounded-full shadow-none text-gray-700 font-semibold text-[10px] whitespace-nowrap"><img src={FlagIcons.ZA} className="w-4 h-4 rounded-sm object-cover" alt="ZA" /> South Africa</span>,
-    <span className="flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-200 rounded-full shadow-none text-gray-700 font-semibold text-[10px] whitespace-nowrap"><img src={FlagIcons.SE} className="w-4 h-4 rounded-sm object-cover" alt="SE" /> Sweden</span>,
-    <span className="flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-200 rounded-full shadow-none text-gray-700 font-semibold text-[10px] whitespace-nowrap"><img src={FlagIcons.UK} className="w-4 h-4 rounded-sm object-cover" alt="UK" /> United Kingdom</span>,
-    <span className="flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-200 rounded-full shadow-none text-gray-700 font-semibold text-[10px] whitespace-nowrap"><img src={FlagIcons.ES} className="w-4 h-4 rounded-sm object-cover" alt="ES" /> Spain</span>,
-    <span className="flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-200 rounded-full shadow-none text-gray-700 font-semibold text-[10px] whitespace-nowrap"><img src={FlagIcons.SG} className="w-4 h-4 rounded-sm object-cover" alt="SG" /> Singapore</span>,
-    <span className="flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-200 rounded-full shadow-none text-gray-700 font-semibold text-[10px] whitespace-nowrap"><img src={FlagIcons.US} className="w-4 h-4 rounded-sm object-cover" alt="US" /> United States</span>,
+    <span className="flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-100 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] text-gray-800 font-semibold text-[11px] whitespace-nowrap"><img src={FlagIcons.ZA} className="w-4 h-4 rounded-sm object-cover" alt="ZA" /> South Africa</span>,
+    <span className="flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-100 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] text-gray-800 font-semibold text-[11px] whitespace-nowrap"><img src={FlagIcons.SE} className="w-4 h-4 rounded-sm object-cover" alt="SE" /> Sweden</span>,
+    <span className="flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-100 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] text-gray-800 font-semibold text-[11px] whitespace-nowrap"><img src={FlagIcons.UK} className="w-4 h-4 rounded-sm object-cover" alt="UK" /> United Kingdom</span>,
+    <span className="flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-100 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] text-gray-800 font-semibold text-[11px] whitespace-nowrap"><img src={FlagIcons.ES} className="w-4 h-4 rounded-sm object-cover" alt="ES" /> Spain</span>,
+    <span className="flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-100 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] text-gray-800 font-semibold text-[11px] whitespace-nowrap"><img src={FlagIcons.SG} className="w-4 h-4 rounded-sm object-cover" alt="SG" /> Singapore</span>,
+    <span className="flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-100 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] text-gray-800 font-semibold text-[11px] whitespace-nowrap"><img src={FlagIcons.US} className="w-4 h-4 rounded-sm object-cover" alt="US" /> United States</span>,
   ];
 
   const protocols = [
-    <span className="px-3 py-1 bg-white border border-gray-200 text-gray-700 rounded-full shadow-none font-semibold text-[10px] whitespace-nowrap">Vmess</span>,
-    <span className="px-3 py-1 bg-white border border-gray-200 text-gray-700 rounded-full shadow-none font-semibold text-[10px] whitespace-nowrap">Xray</span>,
-    <span className="px-3 py-1 bg-white border border-gray-200 text-gray-700 rounded-full shadow-none font-semibold text-[10px] whitespace-nowrap">Vless</span>,
-    <span className="px-3 py-1 bg-white border border-gray-200 text-gray-700 rounded-full shadow-none font-semibold text-[10px] whitespace-nowrap">TrojanVPN</span>,
-    <span className="px-3 py-1 bg-white border border-gray-200 text-gray-700 rounded-full shadow-none font-semibold text-[10px] whitespace-nowrap">OpenVPN</span>,
-    <span className="px-3 py-1 bg-white border border-gray-200 text-gray-700 rounded-full shadow-none font-semibold text-[10px] whitespace-nowrap">WireGuard</span>,
+    <span className="px-3 py-1 bg-brand-green/5 border border-brand-green/20 text-brand-green-dark rounded-xl font-semibold text-[11px] whitespace-nowrap">Vmess</span>,
+    <span className="px-3 py-1 bg-brand-green/5 border border-brand-green/20 text-brand-green-dark rounded-xl font-semibold text-[11px] whitespace-nowrap">Xray</span>,
+    <span className="px-3 py-1 bg-brand-green/5 border border-brand-green/20 text-brand-green-dark rounded-xl font-semibold text-[11px] whitespace-nowrap">Vless</span>,
+    <span className="px-3 py-1 bg-brand-green/5 border border-brand-green/20 text-brand-green-dark rounded-xl font-semibold text-[11px] whitespace-nowrap">TrojanVPN</span>,
+    <span className="px-3 py-1 bg-brand-green/5 border border-brand-green/20 text-brand-green-dark rounded-xl font-semibold text-[11px] whitespace-nowrap">OpenVPN</span>,
+    <span className="px-3 py-1 bg-brand-green/5 border border-brand-green/20 text-brand-green-dark rounded-xl font-semibold text-[11px] whitespace-nowrap">WireGuard</span>,
   ];
 
   const cdns = [
-    <span className="px-3 py-1 bg-white border border-gray-200 text-gray-700 rounded-full shadow-none font-semibold text-[10px] whitespace-nowrap">Cloudflare</span>,
-    <span className="px-3 py-1 bg-white border border-gray-200 text-gray-700 rounded-full shadow-none font-semibold text-[10px] whitespace-nowrap">Sucuri</span>,
-    <span className="px-3 py-1 bg-white border border-gray-200 text-gray-700 rounded-full shadow-none font-semibold text-[10px] whitespace-nowrap">Cloudfront</span>,
-    <span className="px-3 py-1 bg-white border border-gray-200 text-gray-700 rounded-full shadow-none font-semibold text-[10px] whitespace-nowrap">Fastly</span>,
-    <span className="px-3 py-1 bg-white border border-gray-200 text-gray-700 rounded-full shadow-none font-semibold text-[10px] whitespace-nowrap">Akamai</span>,
+    <span className="px-3 py-1 bg-orange-50 border border-orange-100 text-orange-900 rounded-xl font-semibold text-[11px] whitespace-nowrap">Cloudflare</span>,
+    <span className="px-3 py-1 bg-orange-50 border border-orange-100 text-orange-900 rounded-xl font-semibold text-[11px] whitespace-nowrap">Sucuri</span>,
+    <span className="px-3 py-1 bg-orange-50 border border-orange-100 text-orange-900 rounded-xl font-semibold text-[11px] whitespace-nowrap">Cloudfront</span>,
+    <span className="px-3 py-1 bg-orange-50 border border-orange-100 text-orange-900 rounded-xl font-semibold text-[11px] whitespace-nowrap">Fastly</span>,
+    <span className="px-3 py-1 bg-orange-50 border border-orange-100 text-orange-900 rounded-xl font-semibold text-[11px] whitespace-nowrap">Akamai</span>,
   ];
 
   return (
@@ -163,12 +135,15 @@ export function LandingPage() {
               transition={{ duration: 0.5, delay: 0.5 }}
               className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
             >
-              <div className="flex -space-x-3">
-                <img className="w-10 h-10 rounded-full border-2 border-white object-cover" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" alt="User" />
-                <img className="w-10 h-10 rounded-full border-2 border-white object-cover" src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=100&q=80" alt="User" />
-                <img className="w-10 h-10 rounded-full border-2 border-white object-cover" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80" alt="User" />
-                <img className="w-10 h-10 rounded-full border-2 border-white object-cover" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80" alt="User" />
-                <div className="w-10 h-10 rounded-full border-2 border-white bg-gray-50 flex items-center justify-center text-xs font-bold text-gray-600 shadow-sm">+</div>
+              <div className="flex -space-x-2">
+                {[...Array(4)].map((_, i) => (
+                    <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-[10px] font-bold text-gray-400 uppercase tracking-widest shadow-sm">
+                        U{i+1}
+                    </div>
+                ))}
+                <div className="w-10 h-10 rounded-full border-2 border-white bg-gray-50 flex items-center justify-center text-[10px] font-bold text-gray-400 shadow-sm">
+                    700+
+                </div>
               </div>
               <div className="text-sm text-gray-600 text-center sm:text-left">
                 <div className="flex items-center justify-center sm:justify-start gap-1 text-yellow-400 mb-0.5">
@@ -193,17 +168,52 @@ export function LandingPage() {
             <ScrollingBanner items={cdns} direction="left" speed={25} />
           </motion.div>
 
-          {/* Stats Cards */}
+          {/* Services Section (Replacing Stats) */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.5 }}
-            className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6 max-w-4xl mx-auto w-full px-2 sm:px-0"
+            className="max-w-6xl mx-auto w-full mt-12"
           >
-            <AnimatedStatCard label="Supported Protocols" endValue={6} suffix="+" className="w-full" />
-            <AnimatedStatCard label="Server Speed" endValue={10} suffix=" Gbps" className="w-full" />
-            <div className="col-span-2 md:col-span-1 flex justify-center md:block">
-              <AnimatedStatCard label="Active Users" endValue={700} suffix="+" className="w-full sm:w-[calc(50%-0.5rem)] md:w-full" />
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12 text-left">
+              <div className="lg:col-span-2 flex flex-col justify-center">
+                <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">Zimbo Tunnel <span className="text-brand-green">Services</span></h2>
+                <p className="text-gray-500 mb-6 leading-relaxed text-lg">
+                  We provide a variety of high-quality tunneling services for your network needs. With the latest technology and 24/7 support, we're committed to providing the best experience for accessing devices and routers from anywhere.
+                </p>
+                <p className="text-gray-500 leading-relaxed text-lg">
+                  With reliable server infrastructure and a stable network, we guarantee the best connection quality for every service. Enjoy easy access and optimal performance for your networking needs.
+                </p>
+              </div>
+              <div className="lg:col-span-3 flex flex-col gap-4">
+                <div className="bg-white border border-gray-100 rounded-2xl p-6 flex gap-4 sm:gap-6 items-start shadow-sm hover:shadow-md transition-shadow">
+                  <div className="bg-brand-green-light w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Gamepad2 className="w-6 h-6 text-brand-green" strokeWidth={2} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">VPN Game</h3>
+                    <p className="text-gray-500 leading-relaxed">L2TP/IPSec VPN service routing to game servers for better gaming experience.</p>
+                  </div>
+                </div>
+                <div className="bg-white border border-gray-100 rounded-2xl p-6 flex gap-4 sm:gap-6 items-start shadow-sm hover:shadow-md transition-shadow">
+                  <div className="bg-brand-yellow-light w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <ShieldCheck className="w-6 h-6 text-brand-yellow-dark" strokeWidth={2} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">VPN Remote</h3>
+                    <p className="text-gray-500 leading-relaxed">VPN service (SSTP or L2TP) to access your devices and routers anywhere anytime.</p>
+                  </div>
+                </div>
+                <div className="bg-white border border-gray-100 rounded-2xl p-6 flex gap-4 sm:gap-6 items-start shadow-sm hover:shadow-md transition-shadow">
+                  <div className="bg-orange-50 w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Server className="w-6 h-6 text-orange-500" strokeWidth={2} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">Mikhmon Online</h3>
+                    <p className="text-gray-500 leading-relaxed">Mikhmon Online Hosting Service for monitoring and printing vouchers anywhere.</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </motion.div>
         </div>
@@ -267,6 +277,55 @@ export function LandingPage() {
                 <p className="text-gray-500">{item.desc}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section id="faq" className="py-32 bg-gray-50 border-t border-gray-100 relative overflow-hidden">
+        {/* Subtle background decoration */}
+        <div className="absolute top-0 right-0 -translate-y-12 translate-x-1/3 w-96 h-96 bg-brand-green-light/30 rounded-full blur-[100px] pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 translate-y-12 -translate-x-1/3 w-96 h-96 bg-brand-yellow-light/30 rounded-full blur-[100px] pointer-events-none"></div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-16 md:mb-24">
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="inline-block px-4 py-1.5 bg-brand-green/10 border border-brand-green/20 rounded-full text-brand-green font-semibold text-xs tracking-widest uppercase mb-4"
+            >
+              Support & Answers
+            </motion.div>
+            <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 tracking-tight">Frequently Asked Questions</h2>
+            <p className="text-lg text-gray-500 max-w-2xl mx-auto leading-relaxed">Everything you need to know about Zimbo Tunnel, our services, and how we keep your connection secure.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+            <FaqItem 
+              question="What makes Zimbo Tunnel different from other VPNs?" 
+              answer="We offer highly optimized, enterprise-grade servers specifically tailored for low latency and stability. Our focus is on providing reliable tunneling protocols like V2Ray and OpenVPN with military-grade encryption." 
+            />
+            <FaqItem 
+              question="Which payment methods do you accept?" 
+              answer="For your convenience, we support local payment solutions including EcoCash, InnBucks, Telecash, O'mari, and One Money, meaning you don't need international credit cards to top up." 
+            />
+            <FaqItem 
+              question="Can I use my configuration on multiple devices?" 
+              answer="Yes, but not at the exact same time using the same configuration. You will need to generate unique configs for each device to maintain a stable, high-quality connection." 
+            />
+            <FaqItem 
+              question="Are my browsing activities logged?" 
+              answer="No. Your privacy is our priority. We maintain a strict no-logs policy, meaning we do not track, store, or share your browsing history or data." 
+            />
+            <FaqItem 
+              question="How long does it take for my deposit to reflect?" 
+              answer="Deposits made via our supported mobile money platforms are typically processed instantly and reflect in your dashboard balance within a few seconds." 
+            />
+            <FaqItem 
+              question="Do you offer customer support if I run into issues?" 
+              answer="Absolutely. Our dedicated support team is available 24/7 via WhatsApp and Telegram to help you configure your devices or troubleshoot any connection problems you might face." 
+            />
           </div>
         </div>
       </section>
