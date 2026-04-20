@@ -22,6 +22,32 @@ const FaqItem = ({ question, answer }: { question: string, answer: string }) => 
 };
 
 export function LandingPage() {
+  useEffect(() => {
+    // Inject Tawk.to Script
+    if (!window.Tawk_API) {
+      const s1 = document.createElement("script");
+      const s0 = document.getElementsByTagName("script")[0];
+      s1.async = true;
+      s1.src = 'https://embed.tawk.to/69d40f572bcfb31c3daa2b10/1jli5ns9h';
+      s1.charset = 'UTF-8';
+      s1.setAttribute('crossorigin', '*');
+      if (s0 && s0.parentNode) {
+        s0.parentNode.insertBefore(s1, s0);
+      } else {
+        document.head.appendChild(s1);
+      }
+    } else if (window.Tawk_API && window.Tawk_API.showWidget) {
+      window.Tawk_API.showWidget();
+    }
+
+    return () => {
+      // Hide the widget when navigating away from the Landing Page
+      if (window.Tawk_API && window.Tawk_API.hideWidget) {
+        window.Tawk_API.hideWidget();
+      }
+    };
+  }, []);
+
   const locations = [
     <span className="flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-100 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] text-gray-800 font-semibold text-[11px] whitespace-nowrap"><img src={FlagIcons.ZA} className="w-4 h-4 rounded-sm object-cover" alt="ZA" /> South Africa</span>,
     <span className="flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-100 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] text-gray-800 font-semibold text-[11px] whitespace-nowrap"><img src={FlagIcons.SE} className="w-4 h-4 rounded-sm object-cover" alt="SE" /> Sweden</span>,
