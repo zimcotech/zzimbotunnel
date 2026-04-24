@@ -62,6 +62,7 @@ export function Footer() {
               <li><Link to="/terms-of-service" className="text-gray-500 hover:text-brand-green transition-colors">Terms of Service</Link></li>
               <li><Link to="/privacy-policy" className="text-gray-500 hover:text-brand-green transition-colors">Privacy Policy</Link></li>
               <li><a href="https://www.trustpilot.com/review/nengoz.co.zw" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-brand-green transition-colors">Rate us on Trustpilot</a></li>
+              <li><a href="https://zimbotunnel.betteruptime.com" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-brand-green transition-colors">System Status</a></li>
             </ul>
           </div>
 
@@ -69,23 +70,23 @@ export function Footer() {
             <h3 className="font-semibold text-gray-900 mb-4">Contact Us</h3>
             <ul className="space-y-3">
               <li>
-                <a href="#" className="group flex items-center gap-2 text-gray-500 hover:text-blue-500 transition-colors">
-                  <Send className="h-4 w-4 text-gray-400 group-hover:text-blue-500 transition-colors" /> Telegram
+                <a href="#" className="group flex items-center gap-2 text-gray-500 hover:text-brand-green transition-colors">
+                  <Send className="h-4 w-4 text-gray-400 group-hover:text-brand-green transition-colors" /> Telegram
                 </a>
               </li>
               <li>
-                <a href="#" className="group flex items-center gap-2 text-gray-500 hover:text-green-500 transition-colors">
-                  <WhatsAppIcon className="h-4 w-4 text-gray-400 group-hover:text-green-500 transition-colors" /> WhatsApp
+                <a href="#" className="group flex items-center gap-2 text-gray-500 hover:text-brand-green transition-colors">
+                  <WhatsAppIcon className="h-4 w-4 text-gray-400 group-hover:text-brand-green transition-colors" /> WhatsApp
                 </a>
               </li>
               <li>
-                <a href="#" className="group flex items-center gap-2 text-gray-500 hover:text-blue-600 transition-colors">
-                  <Phone className="h-4 w-4 text-gray-400 group-hover:text-blue-600 transition-colors" /> Call Us
+                <a href="#" className="group flex items-center gap-2 text-gray-500 hover:text-brand-green transition-colors">
+                  <Phone className="h-4 w-4 text-gray-400 group-hover:text-brand-green transition-colors" /> Call Us
                 </a>
               </li>
               <li>
-                <a href="#" className="group flex items-center gap-2 text-gray-500 hover:text-blue-600 transition-colors">
-                  <Mail className="h-4 w-4 text-gray-400 group-hover:text-blue-600 transition-colors" /> Email
+                <a href="#" className="group flex items-center gap-2 text-gray-500 hover:text-brand-green transition-colors">
+                  <Mail className="h-4 w-4 text-gray-400 group-hover:text-brand-green transition-colors" /> Email
                 </a>
               </li>
             </ul>

@@ -97,6 +97,15 @@ export function Navbar() {
                     >
                       Dashboard
                     </Link>
+                    {user.role === 'admin' && (
+                      <Link 
+                        to="/admin" 
+                        onClick={() => setShowUserDetails(false)}
+                        className="w-full flex items-center justify-center gap-2 bg-gray-900 text-white font-bold py-2.5 rounded-xl hover:bg-gray-800 transition-all text-sm shadow-sm"
+                      >
+                        Admin Panel
+                      </Link>
+                    )}
                     <button 
                       onClick={() => { handleLogout(); setShowUserDetails(false); }} 
                       className="w-full flex items-center justify-center gap-2 bg-white text-red-600 font-bold py-2.5 rounded-xl hover:bg-red-50 transition-colors border border-gray-100 text-sm"

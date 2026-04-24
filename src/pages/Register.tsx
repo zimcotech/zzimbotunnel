@@ -74,7 +74,7 @@ export function Register() {
         const { error: profileError } = await supabase
           .from('profiles')
           .insert([
-            { id: authData.user.id, username, balance: 0, role: 'user' }
+            { id: authData.user.id, username, email, balance: 0, role: 'user' }
           ]);
 
         if (profileError && profileError.code !== '23505') {

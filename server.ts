@@ -14,6 +14,11 @@ async function startServer() {
   app.use(cors());
   app.use(express.json());
 
+  // Health check endpoint for Uptime monitoring (BetterStack, UptimeRobot, etc.)
+  app.get('/api/health', (req, res) => {
+    res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+  });
+
   // Payment API Proxy Routes
   app.post('/api/payment/create', async (req, res) => {
     try {

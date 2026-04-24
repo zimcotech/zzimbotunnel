@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Menu, X, User, Star, Info, Activity, LayoutDashboard, LogOut, Headset, Bot } from 'lucide-react';
+import { Menu, X, User, Star, Info, Activity, LayoutDashboard, LogOut, Headset, Bot, Settings } from 'lucide-react';
 import { Logo } from './Logo';
 
 export function Topbar() {
@@ -94,6 +94,15 @@ export function Topbar() {
                       >
                         Profile
                       </Link>
+                      {user.role === 'admin' && (
+                        <Link 
+                          to="/admin" 
+                          onClick={() => setShowUserDetails(false)}
+                          className={`w-full flex items-center justify-center gap-2 font-bold py-2.5 rounded-xl transition-colors text-sm ${location.pathname === '/admin' ? 'bg-gray-800 text-white' : 'bg-gray-900 text-white hover:bg-gray-800'}`}
+                        >
+                          Admin Panel
+                        </Link>
+                      )}
                       <button 
                         onClick={() => { handleLogout(); setShowUserDetails(false); }} 
                         className="w-full flex items-center justify-center gap-2 bg-gray-50 text-red-600 font-bold py-2.5 rounded-xl hover:bg-red-50 transition-colors border border-gray-100 text-sm"
@@ -165,6 +174,14 @@ export function Topbar() {
                       </div>
                       Profile
                     </Link>
+                    {user.role === 'admin' && (
+                      <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)} className={`group flex items-center gap-3.5 px-3 py-3 text-sm font-bold rounded-xl transition-all ${location.pathname === '/admin' ? 'bg-gray-800 text-white shadow-md shadow-gray-900/20' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}>
+                        <div className={`w-9 h-9 rounded-lg flex items-center justify-center shadow-sm transition-colors ${location.pathname === '/admin' ? 'bg-white/20 text-white' : 'bg-white border border-gray-200 text-gray-400 group-hover:border-gray-900/20 group-hover:text-gray-900 group-hover:bg-gray-100'}`}>
+                          <Settings className="h-4 w-4" />
+                        </div>
+                        Admin Panel
+                      </Link>
+                    )}
                   </>
                 )}
               </div>

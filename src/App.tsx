@@ -21,6 +21,7 @@ import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { TermsOfService } from './pages/TermsOfService';
 import { AboutUs } from './pages/AboutUs';
 import { ForgotPassword } from './pages/ForgotPassword';
+import { AdminPanel } from './pages/AdminPanel';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
@@ -57,6 +58,11 @@ function AppContent() {
           <Route path="/server/:id" element={
             <ProtectedRoute>
               <ServerDetails />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin" element={
+            <ProtectedRoute>
+              <AdminPanel />
             </ProtectedRoute>
           } />
           <Route path="/*" element={

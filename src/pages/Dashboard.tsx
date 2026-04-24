@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Server, Plus, Clock, Copy, CheckCircle2, AlertCircle, Wallet, History, LogOut, User, LayoutDashboard, Facebook, Send, Youtube, Filter, ArrowUpDown, Coins, DollarSign, Bitcoin, Briefcase, Smartphone, Infinity, ArrowRightLeft, Info, X, ChevronDown } from 'lucide-react';
+import { Server, Plus, Clock, Copy, CheckCircle2, AlertCircle, Wallet, History, LogOut, User, LayoutDashboard, Facebook, Send, Youtube, Filter, ArrowUpDown, Coins, DollarSign, Bitcoin, Briefcase, Smartphone, Infinity, ArrowRightLeft, Info, X, ChevronDown, Bell } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Topbar } from '../components/Topbar';
 import { WhatsAppIcon } from '../components/icons/WhatsAppIcon';
@@ -78,13 +78,44 @@ export function Dashboard() {
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'pending' | 'success' | 'failed'>('idle');
 
   const [copiedId, setCopiedId] = useState<number | null>(null);
+  
+  const [globalNotification, setGlobalNotification] = useState<any>(null);
 
   useEffect(() => {
     if (user) {
       fetchServers();
       fetchTransactions();
+      fetchGlobalNotification();
     }
   }, [user]);
+
+  const fetchGlobalNotification = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('type', 'global')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+        
+      if (!error && data) {
+        const dismissed = localStorage.getItem(`dismissed_notification_${data.id}`);
+        if (!dismissed) {
+          setGlobalNotification(data);
+        }
+      }
+    } catch (error) {
+      // It's ok if no notification is found
+    }
+  };
+
+  const handleDismissNotification = () => {
+    if (globalNotification) {
+      localStorage.setItem(`dismissed_notification_${globalNotification.id}`, 'true');
+      setGlobalNotification(null);
+    }
+  };
 
   const fetchServers = async () => {
     try {
@@ -329,7 +360,7 @@ export function Dashboard() {
     }
   };
 
-  const handleApplyCoupon = () => {
+  const handleApplyCoupon = async () => {
     setIsCouponApplied(false);
     setCouponDiscountPercent(0);
     setCouponError('');
@@ -339,21 +370,51 @@ export function Dashboard() {
       return;
     }
 
-    const coupons: { [key: string]: number } = {
-      'ZIMBO5': 5,
-      'SAVE10': 10,
-      'TUNNEL20': 20,
-      'BONUS10': 0, // Bonus coins logic remains separate
-    };
-
     const code = couponCode.toUpperCase();
-    if (coupons.hasOwnProperty(code)) {
-      setIsCouponApplied(true);
-      setCouponDiscountPercent(coupons[code]);
-      setSnackbarMessage(`Coupon "${code}" applied successfully!`);
-      setTimeout(() => setSnackbarMessage(''), 3000);
-    } else {
-      setCouponError('Invalid or expired coupon code');
+    
+    try {
+      // First check predefined coupons
+      const coupons: { [key: string]: number } = {
+        'ZIMBO5': 5,
+        'SAVE10': 10,
+        'TUNNEL20': 20,
+        'BONUS10': 0, // Bonus coins logic remains separate
+      };
+
+      if (coupons.hasOwnProperty(code)) {
+        setIsCouponApplied(true);
+        setCouponDiscountPercent(coupons[code]);
+        setSnackbarMessage(`Coupon "${code}" applied successfully!`);
+        setTimeout(() => setSnackbarMessage(''), 3000);
+        return;
+      }
+
+      // Check database
+      const { data, error } = await supabase
+        .from('coupons')
+        .select('*')
+        .eq('code', code)
+        .single();
+        
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+
+      if (data) {
+        if (data.uses >= data.max_uses) {
+          setCouponError('This coupon usage limit has been reached');
+          return;
+        }
+        setIsCouponApplied(true);
+        setCouponDiscountPercent(data.discount_percent);
+        setSnackbarMessage(`Coupon "${code}" applied successfully!`);
+        setTimeout(() => setSnackbarMessage(''), 3000);
+      } else {
+        setCouponError('Invalid or expired coupon code');
+      }
+    } catch (err) {
+      console.error(err);
+      setCouponError('Error validating coupon. Please try again.');
     }
   };
 
@@ -431,6 +492,26 @@ export function Dashboard() {
 
         {/* Main Content */}
         <main className="flex-1 p-6 md:p-8 overflow-y-auto flex flex-col">
+          {globalNotification && (
+            <div className="mb-6 bg-[#001D1A] border-l-4 border-[#FFAE00] text-white p-5 rounded-2xl shadow-xl relative overflow-hidden flex items-start gap-4 animate-in fade-in slide-in-from-top-2">
+              <div className="absolute right-0 top-0 w-40 h-40 bg-white opacity-[0.03] blur-2xl rounded-full -translate-y-1/2 translate-x-1/2" />
+              <div className="absolute left-0 bottom-0 w-20 h-20 bg-[#FFAE00] opacity-[0.05] blur-xl rounded-full translate-y-1/2 -translate-x-1/2" />
+              <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center shrink-0 border border-white/5 relative z-10 backdrop-blur-sm">
+                <Bell className="w-6 h-6 text-[#FFAE00]" />
+              </div>
+              <div className="flex-1 pt-1 relative z-10">
+                <h4 className="font-extrabold text-[17px] tracking-tight text-white mb-1.5">{globalNotification.title}</h4>
+                <p className="text-[14px] text-white/80 leading-relaxed font-medium">{globalNotification.message}</p>
+              </div>
+              <button 
+                onClick={handleDismissNotification} 
+                className="p-2 text-white/40 hover:text-white hover:bg-white/10 rounded-xl transition-all relative z-10"
+                aria-label="Dismiss notification"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          )}
           <div className="flex-1">
         {activeTab === 'overview' && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="max-w-5xl mx-auto">
