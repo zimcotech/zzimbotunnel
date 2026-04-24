@@ -652,8 +652,8 @@ function CoinsTab() {
       await supabase.from('transactions').insert([{
         user_id: user.id,
         amount: parseFloat(amount),
+        phone_number: 'admin_topup',
         status: 'completed',
-        type: 'admin_topup',
         created_at: new Date().toISOString()
       }]);
       

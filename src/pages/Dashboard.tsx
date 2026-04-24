@@ -301,6 +301,25 @@ export function Dashboard() {
     setTopupMessage('');
     
     try {
+      // Prevent double crediting by checking if transaction already exists
+      const { data: existingTx } = await supabase
+        .from('transactions')
+        .select('id')
+        .like('phone_number', `%|ord:${paymentOrderId}`)
+        .single();
+
+      if (existingTx) {
+        setPaymentStatus('success');
+        setTopupMessage('Payment already processed. Coins added.');
+        setPaymentOrderId(null);
+        setTimeout(() => {
+          setShowTopUpForm(false);
+          setPaymentStatus('idle');
+        }, 3000);
+        setIsToppingUp(false);
+        return;
+      }
+
       const response = await checkPaymentStatus(paymentOrderId);
       
       if (response.status === 'success') {
@@ -327,13 +346,14 @@ export function Dashboard() {
 
         if (updateError) throw updateError;
 
-        // 2. Record transaction
+        // 2. Record transaction (append ord:paymentOrderId to prevent duplicates)
+        const txPhoneNumber = `${paymentMethod}:${phoneNumber || 'N/A'}|ord:${paymentOrderId}`;
         const { error: txError } = await supabase
           .from('transactions')
           .insert([{
             user_id: user?.id,
             amount: finalPrice,
-            phone_number: paymentMethod === 'ecocash' ? phoneNumber : null,
+            phone_number: txPhoneNumber,
             status: 'completed'
           }]);
 
@@ -493,19 +513,19 @@ export function Dashboard() {
         {/* Main Content */}
         <main className="flex-1 p-6 md:p-8 overflow-y-auto flex flex-col">
           {globalNotification && (
-            <div className="mb-6 bg-[#001D1A] border-l-4 border-[#FFAE00] text-white p-5 rounded-2xl shadow-xl relative overflow-hidden flex items-start gap-4 animate-in fade-in slide-in-from-top-2">
-              <div className="absolute right-0 top-0 w-40 h-40 bg-white opacity-[0.03] blur-2xl rounded-full -translate-y-1/2 translate-x-1/2" />
-              <div className="absolute left-0 bottom-0 w-20 h-20 bg-[#FFAE00] opacity-[0.05] blur-xl rounded-full translate-y-1/2 -translate-x-1/2" />
-              <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center shrink-0 border border-white/5 relative z-10 backdrop-blur-sm">
-                <Bell className="w-6 h-6 text-[#FFAE00]" />
+            <div className="mb-6 bg-brand-green/10 border-l-4 border-brand-green p-5 rounded-2xl relative overflow-hidden flex items-start gap-4 animate-in fade-in slide-in-from-top-2">
+              <div className="absolute right-0 top-0 w-40 h-40 bg-brand-green opacity-[0.03] blur-2xl rounded-full -translate-y-1/2 translate-x-1/2" />
+              <div className="absolute left-0 bottom-0 w-20 h-20 bg-brand-green opacity-[0.05] blur-xl rounded-full translate-y-1/2 -translate-x-1/2" />
+              <div className="w-12 h-12 rounded-xl bg-brand-green/20 flex items-center justify-center shrink-0 border border-brand-green/10 relative z-10 backdrop-blur-sm">
+                <Bell className="w-6 h-6 text-brand-green" />
               </div>
               <div className="flex-1 pt-1 relative z-10">
-                <h4 className="font-extrabold text-[17px] tracking-tight text-white mb-1.5">{globalNotification.title}</h4>
-                <p className="text-[14px] text-white/80 leading-relaxed font-medium">{globalNotification.message}</p>
+                <h4 className="font-extrabold text-[17px] tracking-tight text-brand-green mb-1.5">{globalNotification.title}</h4>
+                <p className="text-[14px] text-gray-700 leading-relaxed font-medium">{globalNotification.message}</p>
               </div>
               <button 
                 onClick={handleDismissNotification} 
-                className="p-2 text-white/40 hover:text-white hover:bg-white/10 rounded-xl transition-all relative z-10"
+                className="p-2 text-gray-400 hover:text-brand-green hover:bg-brand-green/10 rounded-xl transition-all relative z-10"
                 aria-label="Dismiss notification"
               >
                 <X className="w-5 h-5" />
@@ -628,7 +648,7 @@ export function Dashboard() {
                                   setFilterProtocols([...filterProtocols, p]);
                                 }
                               }}
-                              className="w-4 h-4 rounded border-gray-300 text-brand-green focus:ring-brand-green/20 mr-3"
+                              className="w-4 h-4 rounded border-gray-300 accent-brand-green cursor-pointer mr-3"
                             />
                             <span className={`text-sm font-medium ${filterProtocols.includes(p) ? 'text-brand-green' : 'text-gray-700'}`}>{p}</span>
                           </label>
@@ -682,7 +702,7 @@ export function Dashboard() {
                                   setFilterStatuses([...filterStatuses, s]);
                                 }
                               }}
-                              className="w-4 h-4 rounded border-gray-300 text-brand-green focus:ring-brand-green/20 mr-3"
+                              className="w-4 h-4 rounded border-gray-300 accent-brand-green cursor-pointer mr-3"
                             />
                             <span className={`text-sm font-medium ${filterStatuses.includes(s) ? 'text-brand-green' : 'text-gray-700'}`}>{s}</span>
                           </label>
