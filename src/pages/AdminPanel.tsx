@@ -122,9 +122,32 @@ function PaymentsTab() {
   const fetchPayments = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.from('transactions').select('*, profiles(username, email)').order('created_at', { ascending: false }).limit(50);
+      const { data, error } = await supabase.from('transactions').select('*, profiles(username, email)').order('created_at', { ascending: false }).limit(100);
       if (error) throw error;
-      setPayments(data || []);
+      
+      if (data) {
+        // Deduplicate payments by orderId if present in phone_number
+        const grouped = data.reduce((acc: Record<string, any>, item: any) => {
+          const ordMatch = item.phone_number?.match(/\|ord:(.+)$/);
+          const key = ordMatch ? ordMatch[1] : item.id;
+          
+          if (!acc[key]) {
+            acc[key] = item;
+          } else {
+            // Prefer completed/failed statuses over pending if duplicate order ID found
+            if (acc[key].status === 'pending' && item.status !== 'pending') {
+              acc[key] = item;
+            }
+          }
+          return acc;
+        }, {});
+        
+        const deduplicated = Object.values(grouped).sort((a: any, b: any) => 
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+        
+        setPayments(deduplicated);
+      }
     } catch (err) {
       console.error(err);
     } finally {

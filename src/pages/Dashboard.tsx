@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Server, Plus, Clock, Copy, CheckCircle2, AlertCircle, Wallet, History, LogOut, User, LayoutDashboard, Facebook, Send, Youtube, Filter, ArrowUpDown, Coins, DollarSign, Bitcoin, Briefcase, Smartphone, Infinity, ArrowRightLeft, Info, X, ChevronDown, Bell } from 'lucide-react';
+import { Server, Plus, Clock, Copy, CheckCircle2, AlertCircle, Wallet, History, LogOut, User, LayoutDashboard, Facebook, Send, Youtube, Filter, ArrowUpDown, Coins, DollarSign, Bitcoin, Briefcase, Smartphone, Infinity, ArrowRightLeft, Info, X, ChevronDown, Bell, ExternalLink, RefreshCw, Loader2, PlayCircle } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Topbar } from '../components/Topbar';
 import { WhatsAppIcon } from '../components/icons/WhatsAppIcon';
@@ -13,6 +13,7 @@ export function Dashboard() {
   const navigate = useNavigate();
   const [servers, setServers] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<any[]>([]);
+  const [verifiedTxs, setVerifiedTxs] = useState<Record<string, boolean>>({});
   const [activeTab, setActiveTab] = useState<'overview' | 'servers' | 'create' | 'billing'>('overview');
   
   // Create Server Form State
@@ -76,6 +77,7 @@ export function Dashboard() {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [paymentOrderId, setPaymentOrderId] = useState<string | null>(null);
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'pending' | 'success' | 'failed'>('idle');
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   const [copiedId, setCopiedId] = useState<number | null>(null);
   
@@ -141,7 +143,29 @@ export function Dashboard() {
         .order('created_at', { ascending: false });
         
       if (error) throw error;
-      if (data) setTransactions(data);
+      if (data) {
+        // Deduplicate: if an ord:id has a 'completed' or 'failed' status, use that instead of pending
+        const grouped = data.reduce((acc: Record<string, any>, tx: any) => {
+          const match = tx.phone_number?.match(/\|ord:(.+)$/);
+          const key = match ? match[1] : tx.id;
+          
+          if (!acc[key]) {
+            acc[key] = tx;
+          } else {
+            // Prioritize completed/failed over pending
+            if (acc[key].status === 'pending' && tx.status !== 'pending') {
+              acc[key] = tx;
+            }
+          }
+          return acc;
+        }, {});
+        
+        const deduplicated = Object.values(grouped).sort((a: any, b: any) => 
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+        
+        setTransactions(deduplicated);
+      }
     } catch (error) {
       console.error('Failed to fetch transactions', error);
     }
@@ -266,8 +290,8 @@ export function Dashboard() {
       const selectedPkg = PACKAGES.find(p => p.id === selectedPackageId);
       if (!selectedPkg) throw new Error('Invalid package selected');
 
-      if (paymentMethod === 'ecocash' && !phoneNumber) {
-        throw new Error('Please enter your EcoCash number');
+      if ((paymentMethod === 'ecocash' || paymentMethod === 'innbucks') && !phoneNumber) {
+        throw new Error(`Please enter your ${paymentMethod === 'ecocash' ? 'EcoCash' : 'Innbucks'} number`);
       }
 
       const orderId = Date.now().toString();
@@ -277,13 +301,43 @@ export function Dashboard() {
         finalPrice = selectedPkg.price * (1 - couponDiscountPercent / 100);
       }
       
+      let formattedPhone = phoneNumber || '+263780070488';
+      if (phoneNumber) {
+        // Strip out non-digits just in case
+        const digitsOnly = phoneNumber.replace(/\D/g, '');
+        if (digitsOnly.startsWith('0')) {
+          formattedPhone = '+263' + digitsOnly.substring(1);
+        } else if (digitsOnly.startsWith('263')) {
+          formattedPhone = '+' + digitsOnly;
+        } else {
+          formattedPhone = '+263' + digitsOnly;
+        }
+      }
+
       // Create Payment Order
-      const response = await createPaymentOrder(orderId, finalPrice, phoneNumber || '+263780070488');
+      const currency = paymentMethod === 'innbucks' ? 'USD' : 'ZWG';
+      const response = await createPaymentOrder(orderId, finalPrice, formattedPhone, currency);
       
       if (response.status === 'success') {
         setPaymentOrderId(orderId);
+        
+        // Record pending transaction immediately
+        const txPhoneNumber = `${paymentMethod}:${phoneNumber || 'N/A'}|pkg:${selectedPkg.id}|ord:${orderId}`;
+        const { error: txError } = await supabase
+          .from('transactions')
+          .insert([{
+            user_id: user?.id,
+            amount: finalPrice,
+            phone_number: txPhoneNumber,
+            status: 'pending'
+          }]);
+        if (!txError) fetchTransactions();
+        
         window.open(`https://dischub.co.zw/api/make/payment/to/${orderId}`, '_blank');
         setTopupMessage('Please complete the payment in the new tab.');
+        setTimeout(() => {
+          setShowPaymentModal(true);
+        }, 6000);
       } else {
         throw new Error(response.message || 'Failed to initiate payment');
       }
@@ -295,48 +349,108 @@ export function Dashboard() {
     }
   };
 
-  const handleCheckStatus = async () => {
-    if (!paymentOrderId) return;
+  const handleCheckStatus = async (txObj?: any) => {
+    let activeOrderId = paymentOrderId;
+    let expectedCoinsToAdd = 0;
+    let isHistoryVerify = false;
+    let currentTxId = null;
+
+    if (txObj && typeof txObj === 'object' && txObj.id) {
+      isHistoryVerify = true;
+      currentTxId = txObj.id;
+      
+      const ordMatch = txObj.phone_number?.match(/\|ord:(.+)$/);
+      if (ordMatch) activeOrderId = ordMatch[1];
+      
+      const pkgMatch = txObj.phone_number?.match(/\|pkg:([^|]+)/);
+      if (pkgMatch) {
+         const pkgInfo = PACKAGES.find(p => p.id === pkgMatch[1]);
+         expectedCoinsToAdd = pkgInfo?.coins || Math.floor(txObj.amount * 3000);
+      } else {
+         expectedCoinsToAdd = Math.floor(txObj.amount * 3000); 
+      }
+    } else {
+      const pkgInfo = PACKAGES.find(p => p.id === selectedPackageId);
+      expectedCoinsToAdd = pkgInfo?.coins || 0;
+      if (couponCode && couponCode.toUpperCase() === 'BONUS10') {
+        expectedCoinsToAdd += 10;
+      }
+    }
+
+    if (!activeOrderId) return;
+    
     setIsToppingUp(true);
-    setTopupMessage('');
+    if (!isHistoryVerify) setTopupMessage('');
+    else setSnackbarMessage('Verifying payment status...');
     
     try {
-      // Prevent double crediting by checking if transaction already exists
-      const { data: existingTx } = await supabase
-        .from('transactions')
-        .select('id')
-        .like('phone_number', `%|ord:${paymentOrderId}`)
-        .single();
+      // Check if transaction exists and its status
+      let existingTx = null;
+      if (currentTxId) {
+        const { data } = await supabase.from('transactions').select('*').eq('id', currentTxId).single();
+        existingTx = data;
+      } else {
+        const { data } = await supabase
+          .from('transactions')
+          .select('*')
+          .like('phone_number', `%|ord:${activeOrderId}`)
+          .order('created_at', { ascending: false })
+          .limit(1);
+        if (data && data.length > 0) {
+          existingTx = data[0];
+        }
+      }
 
-      if (existingTx) {
-        setPaymentStatus('success');
-        setTopupMessage('Payment already processed. Coins added.');
-        setPaymentOrderId(null);
-        setTimeout(() => {
-          setShowTopUpForm(false);
-          setPaymentStatus('idle');
-        }, 3000);
+      // STRICT PROTECTION against double crediting: check if ANY transaction with this ordId is completed
+      const { data: anyCompleted } = await supabase
+        .from('transactions')
+        .select('*')
+        .like('phone_number', `%|ord:${activeOrderId}`)
+        .eq('status', 'completed')
+        .limit(1);
+
+      if (anyCompleted && anyCompleted.length > 0) {
+        if (!isHistoryVerify) {
+          setPaymentStatus('success');
+          setTopupMessage('Payment already processed. Coins added.');
+          setPaymentOrderId(null);
+          setShowPaymentModal(false);
+          setTimeout(() => {
+            setShowTopUpForm(false);
+            setPaymentStatus('idle');
+          }, 3000);
+        } else {
+          setSnackbarMessage('Payment already completed.');
+        }
+        setIsToppingUp(false);
+        return;
+      }
+      
+      // fallback case if we didn't find the exact one in early check but the existing is completed
+      if (existingTx && existingTx.status === 'completed') {
+        if (!isHistoryVerify) {
+          setPaymentStatus('success');
+          setTopupMessage('Payment already processed. Coins added.');
+          setPaymentOrderId(null);
+          setShowPaymentModal(false);
+          setTimeout(() => {
+            setShowTopUpForm(false);
+            setPaymentStatus('idle');
+          }, 3000);
+        } else {
+          setSnackbarMessage('Payment already completed.');
+        }
         setIsToppingUp(false);
         return;
       }
 
-      const response = await checkPaymentStatus(paymentOrderId);
+      const response = await checkPaymentStatus(activeOrderId);
+      const respStatus = (response.status || '').toLowerCase().trim();
       
-      if (response.status === 'success') {
-        setPaymentStatus('success');
+      if (['success', 'paid', 'completed'].includes(respStatus)) {
+        if (!isHistoryVerify) setPaymentStatus('success');
         
-        const selectedPkg = PACKAGES.find(p => p.id === selectedPackageId);
-        let coinsToAdd = selectedPkg?.coins || 0;
-        if (couponCode && couponCode.toUpperCase() === 'BONUS10') {
-          coinsToAdd += 10;
-        }
-
-        let finalPrice = selectedPkg?.price || 0;
-        if (isCouponApplied) {
-          finalPrice = (selectedPkg?.price || 0) * (1 - couponDiscountPercent / 100);
-        }
-
-        const newBalance = (user?.balance || 0) + coinsToAdd;
+        const newBalance = (user?.balance || 0) + expectedCoinsToAdd;
 
         // 1. Update balance
         const { error: updateError } = await supabase
@@ -346,35 +460,92 @@ export function Dashboard() {
 
         if (updateError) throw updateError;
 
-        // 2. Record transaction (append ord:paymentOrderId to prevent duplicates)
-        const txPhoneNumber = `${paymentMethod}:${phoneNumber || 'N/A'}|ord:${paymentOrderId}`;
-        const { error: txError } = await supabase
-          .from('transactions')
-          .insert([{
-            user_id: user?.id,
-            amount: finalPrice,
-            phone_number: txPhoneNumber,
-            status: 'completed'
-          }]);
-
-        if (txError) throw txError;
+        // 2. Output and Update transaction to completed
+        let updatedSuccess = false;
+        if (existingTx) {
+          const { data: updatedData, error: txError } = await supabase
+            .from('transactions')
+            .update({ status: 'completed' })
+            .eq('id', existingTx.id)
+            .select();
+            
+          if (txError) throw txError;
+          if (updatedData && updatedData.length > 0) {
+            updatedSuccess = true;
+          }
+        }
+        
+        if (!updatedSuccess) {
+          // Fallback if not found or RLS prevented update
+          const finalPrice = existingTx?.amount || 0;
+          const fallbackPkgId = selectedPackageId;
+          const txPhoneNumber = `${paymentMethod}:${phoneNumber || 'N/A'}|pkg:${fallbackPkgId}|ord:${activeOrderId}`;
+          const { error: txError } = await supabase
+            .from('transactions')
+            .insert([{
+              user_id: user?.id,
+              amount: finalPrice,
+              phone_number: txPhoneNumber,
+              status: 'completed'
+            }]);
+          if (txError) throw txError;
+        }
 
         updateBalance(newBalance);
-        fetchTransactions();
-        setTopupMessage('Payment successful! Coins added.');
-        setPaymentOrderId(null);
-        setTimeout(() => {
-          setShowTopUpForm(false);
-          setPaymentStatus('idle');
-        }, 3000);
-      } else if (response.status === 'pending') {
-        setTopupMessage('Payment is still pending. Please complete it or try again later.');
+        await fetchTransactions();
+        
+        if (!isHistoryVerify) {
+          setTopupMessage('Payment successful! Coins added.');
+          setPaymentOrderId(null);
+          setShowPaymentModal(false);
+          setTimeout(() => {
+            setShowTopUpForm(false);
+            setPaymentStatus('idle');
+          }, 3000);
+        } else {
+          setSnackbarMessage('Payment verified successfully! Coins added.');
+          setTimeout(() => setSnackbarMessage(''), 3000);
+        }
+      } else if (respStatus === 'pending') {
+        if (!isHistoryVerify) setTopupMessage('Payment is still pending. Please complete it or try again later.');
+        else {
+          setSnackbarMessage('Payment is still pending on DiscHub.');
+          setTimeout(() => setSnackbarMessage(''), 3000);
+        }
       } else {
-        setPaymentStatus('failed');
-        setTopupMessage('Payment failed. Please try again.');
+        if (!isHistoryVerify) {
+          setPaymentStatus('failed');
+          setTopupMessage('Payment failed. Please try again.');
+        } else {
+          setSnackbarMessage('Payment failed or cancelled.');
+          setTimeout(() => setSnackbarMessage(''), 3000);
+          
+          if (existingTx) {
+             const { data: updatedData, error: updateError } = await supabase.from('transactions').update({ status: 'failed' }).eq('id', existingTx.id).select();
+             if (!updatedData || updatedData.length === 0) {
+                // RLS blocked update, let's insert failed
+                const finalPrice = existingTx?.amount || 0;
+                await supabase.from('transactions').insert([{
+                  user_id: user?.id,
+                  amount: finalPrice,
+                  phone_number: `${existingTx.phone_number}`,
+                  status: 'failed'
+                }]);
+             }
+             await fetchTransactions();
+          }
+        }
+      }
+
+      if (existingTx && existingTx.id) {
+        setVerifiedTxs(prev => ({ ...prev, [existingTx.id]: true }));
       }
     } catch (err: any) {
-      setTopupMessage(err.message || 'Failed to check status');
+      if (!isHistoryVerify) setTopupMessage(err.message || 'Failed to check status');
+      else {
+        setSnackbarMessage(err.message || 'Error checking payment status.');
+        setTimeout(() => setSnackbarMessage(''), 3000);
+      }
     } finally {
       setIsToppingUp(false);
     }
@@ -1106,14 +1277,60 @@ export function Dashboard() {
                       {transactions.map(tx => (
                         <div key={tx.id} className="flex justify-between items-center p-4 bg-gray-50/50 hover:bg-gray-50 rounded-xl transition-colors border border-gray-100/50">
                           <div>
-                            <p className="font-bold text-gray-900 text-sm">Top Up via EcoCash</p>
+                            <p className="font-bold text-gray-900 text-sm">
+                              {tx.phone_number?.includes('innbucks') ? 'Top Up via Innbucks' : 'Top Up via EcoCash'}
+                            </p>
                             <p className="text-xs text-gray-500 font-medium mt-0.5">{new Date(tx.created_at).toLocaleDateString()} • Paid ZWG {tx.amount.toFixed(2)}</p>
                           </div>
                           <div className="text-right">
                             <p className="font-black text-green-600">+{(tx.amount * 3000).toFixed(0)} Coins</p>
-                            <span className="inline-block mt-1 px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-bold uppercase tracking-wider rounded-md">
-                              {tx.status}
-                            </span>
+                            
+                            <div className="flex flex-col items-end gap-2 mt-2 relative z-10">
+                              <span className={`inline-flex items-center px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md ${
+                                tx.status === 'completed' ? 'bg-green-100 text-green-700' : 
+                                tx.status === 'pending' ? 'bg-amber-100 text-amber-700' : 
+                                'bg-red-100 text-red-700'
+                              }`}>
+                                {tx.status === 'completed' && <CheckCircle2 className="w-3 h-3 mr-1" />}
+                                {tx.status === 'pending' && <Clock className="w-3 h-3 mr-1" />}
+                                {tx.status === 'failed' && <AlertCircle className="w-3 h-3 mr-1" />}
+                                {tx.status}
+                              </span>
+                              
+                              {['pending', 'failed'].includes(tx.status) && (
+                                <div className="flex gap-2 mt-0.5">
+                                  {(tx.status === 'failed' || (tx.status === 'pending' && verifiedTxs[tx.id])) && (
+                                    <button
+                                      onClick={() => {
+                                        const matchOpts = tx.phone_number?.match(/\|ord:(.+)$/);
+                                        if (matchOpts && matchOpts[1]) {
+                                          window.open(`https://dischub.co.zw/api/make/payment/to/${matchOpts[1]}`, '_blank');
+                                        }
+                                      }}
+                                      className={`text-[11px] font-bold px-3 py-1.5 rounded-lg shadow-sm transition-all flex items-center gap-1.5 active:scale-95 ${
+                                        tx.status === 'failed' 
+                                          ? 'bg-red-100 text-red-700 hover:bg-red-200' 
+                                          : 'bg-amber-100 text-amber-900 hover:bg-amber-200'
+                                      }`}
+                                    >
+                                      <ExternalLink className="w-3.5 h-3.5" />
+                                      {tx.status === 'failed' ? 'Try Again' : 'Proceed'}
+                                    </button>
+                                  )}
+
+                                  {tx.status === 'pending' && (
+                                    <button
+                                      onClick={() => handleCheckStatus(tx)}
+                                      disabled={isToppingUp}
+                                      className="text-[11px] font-bold text-white bg-blue-500 hover:bg-blue-600 px-3 py-1.5 rounded-lg shadow-sm transition-all flex items-center gap-1.5 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+                                    >
+                                      {isToppingUp ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+                                      Verify
+                                    </button>
+                                  )}
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
                       ))}
@@ -1195,11 +1412,8 @@ export function Dashboard() {
                           <p className="text-xs text-gray-500 mt-1">Mobile Money</p>
                         </div>
                         <div 
-                          onClick={() => {
-                            setSnackbarMessage('Innbucks not yet supported');
-                            setTimeout(() => setSnackbarMessage(''), 3000);
-                          }}
-                          className={`p-4 rounded-xl border-2 cursor-pointer transition-all text-center border-gray-100 hover:border-gray-200 opacity-60`}
+                          onClick={() => setPaymentMethod('innbucks')}
+                          className={`p-4 rounded-xl border-2 cursor-pointer transition-all text-center ${paymentMethod === 'innbucks' ? 'border-brand-green bg-brand-green-light' : 'border-gray-100 hover:border-gray-200'}`}
                         >
                           <div className="w-12 h-12 mx-auto rounded-xl bg-purple-100 flex items-center justify-center text-purple-600 mb-3">
                             <Wallet className="h-6 w-6" />
@@ -1209,16 +1423,16 @@ export function Dashboard() {
                         </div>
                       </div>
 
-                      {paymentMethod === 'ecocash' && (
+                      {(paymentMethod === 'ecocash' || paymentMethod === 'innbucks') && (
                         <div className="mt-6 pt-6 border-t border-gray-100">
-                          <label className="block text-sm font-bold text-gray-900 mb-2">EcoCash Number</label>
+                          <label className="block text-sm font-bold text-gray-900 mb-2">{paymentMethod === 'ecocash' ? 'EcoCash Number' : 'Innbucks Number'}</label>
                           <div className="relative">
                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                               <span className="text-gray-500 sm:text-sm font-medium">+263</span>
                             </div>
                             <input 
                               type="text" 
-                              placeholder="77X XXX XXX"
+                              placeholder={paymentMethod === 'ecocash' ? "77X XXX XXX" : "71X XXX XXX"}
                               value={phoneNumber}
                               onChange={(e) => setPhoneNumber(e.target.value)}
                               className="w-full border border-gray-200 rounded-xl pl-14 pr-4 py-3.5 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-brand-green/10 focus:border-brand-green outline-none transition-all font-medium text-gray-900"
@@ -1266,42 +1480,17 @@ export function Dashboard() {
 
                     {/* Proceed to Payment */}
                     <div>
-                      {!paymentOrderId ? (
-                        <button 
-                          onClick={handleTopup}
-                          disabled={isToppingUp || (paymentMethod === 'ecocash' && !phoneNumber)}
-                          className="w-full bg-brand-green text-white font-bold py-4 px-4 rounded-xl hover:bg-brand-green/90 transition-all shadow-lg shadow-brand-green/20 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center text-base gap-2"
-                        >
-                          {isToppingUp ? 'Processing...' : <><Wallet className="h-5 w-5" /> Proceed to Payment</>}
-                        </button>
-                      ) : (
-                        <div className="space-y-3">
-                          <button 
-                            onClick={handleCheckStatus}
-                            disabled={isToppingUp}
-                            className="w-full bg-green-600 text-white font-bold py-4 px-4 rounded-xl hover:bg-green-700 transition-all shadow-[0_4px_14px_0_rgba(22,163,74,0.39)] hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center text-base gap-2"
-                          >
-                            {isToppingUp ? 'Checking...' : <><CheckCircle2 className="h-5 w-5" /> I Have Paid (Check Status)</>}
-                          </button>
-                          <button 
-                            onClick={() => {
-                              setPaymentOrderId(null);
-                              setPaymentStatus('idle');
-                              setTopupMessage('');
-                            }}
-                            disabled={isToppingUp}
-                            className="w-full bg-gray-100 text-gray-700 font-bold py-3 px-4 rounded-xl hover:bg-gray-200 transition-all flex justify-center items-center text-sm gap-2"
-                          >
-                            Cancel Payment
-                          </button>
-                        </div>
-                      )}
+                      <button 
+                        onClick={handleTopup}
+                        disabled={isToppingUp || ((paymentMethod === 'ecocash' || paymentMethod === 'innbucks') && !phoneNumber)}
+                        className="w-full bg-brand-green text-white font-bold py-4 px-4 rounded-xl hover:bg-brand-green/90 transition-all shadow-lg shadow-brand-green/20 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center text-base gap-2"
+                      >
+                        {isToppingUp ? 'Processing...' : <><Wallet className="h-5 w-5" /> Proceed to Payment</>}
+                      </button>
                       
-                      {!paymentOrderId && (
-                        <p className="text-xs text-gray-500 text-center mt-3 font-medium">
-                          You will be redirected to the secure portal to process the payment
-                        </p>
-                      )}
+                      <p className="text-xs text-gray-500 text-center mt-3 font-medium">
+                        You will be redirected to Dischub to process the payment securely
+                      </p>
                     </div>
 
                     {/* Payment Summary */}
@@ -1372,6 +1561,55 @@ export function Dashboard() {
           </footer>
         </main>
       </div>
+
+      {/* Payment Waiting Modal */}
+      {paymentOrderId && showPaymentModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+              <h3 className="font-bold text-gray-900 text-center flex-1">Order Status</h3>
+              <button onClick={() => { setPaymentOrderId(null); setShowPaymentModal(false); setPaymentStatus('idle'); }} className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded-full transition-colors absolute right-4">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 flex flex-col items-center text-center">
+              <p className="text-sm text-gray-500 font-medium mb-6">Order #{paymentOrderId}</p>
+              
+              <div className="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mb-6">
+                <Clock className="w-10 h-10 text-amber-500" />
+              </div>
+              
+              <h2 className="text-xl font-bold text-gray-900 mb-2">Waiting for Payment</h2>
+              <p className="text-sm text-gray-600 mb-8 font-medium">Complete payment in the DiscHub tab</p>
+              
+              <div className="w-full bg-gray-50/80 rounded-2xl p-4 text-left space-y-3 mb-6 border border-gray-100">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500 font-medium">Service:</span>
+                  <span className="font-bold text-gray-900">Coins Top Up</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500 font-medium">Quantity:</span>
+                  <span className="font-bold text-gray-900">{(selectedPackageId ? PACKAGES.find(p => p.id === selectedPackageId)?.coins : 0) || 0} Coins</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500 font-medium">Amount:</span>
+                  <span className="font-bold text-gray-900">ZWG {((PACKAGES.find(p => p.id === selectedPackageId)?.price || 0) * (1 - (isCouponApplied ? couponDiscountPercent / 100 : 0))).toFixed(2)}</span>
+                </div>
+              </div>
+              
+              <button 
+                onClick={handleCheckStatus}
+                disabled={isToppingUp}
+                className="w-full bg-white border-2 border-gray-200 text-gray-800 font-bold py-3.5 px-4 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm flex justify-center items-center text-sm gap-2"
+              >
+                {isToppingUp ? <Loader2 className="w-5 h-5 animate-spin text-brand-green" /> : <RefreshCw className="w-5 h-5 text-gray-500" />}
+                {isToppingUp ? 'Checking...' : 'Check Payment Status'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -75,3 +75,7 @@ CREATE POLICY "Users can view their own transactions."
 CREATE POLICY "Users can insert their own transactions."
   ON public.transactions FOR INSERT
   WITH CHECK ( auth.uid() = user_id );
+
+CREATE POLICY "Users can update their own transactions."
+  ON public.transactions FOR UPDATE
+  USING ( auth.uid() = user_id );

@@ -1,7 +1,7 @@
 export const PAYMENT_API_KEY = import.meta.env.VITE_PAYMENT_API_KEY || 'd0d945b8684f414ea3fe363944e9c474';
 export const PAYMENT_RECIPIENT = import.meta.env.VITE_PAYMENT_RECIPIENT || 'susankufakunesu@gmail.com';
 
-export async function createPaymentOrder(orderId: string, amount: number, sender: string = '+263780070488') {
+export async function createPaymentOrder(orderId: string, amount: number, sender: string = '+263780070488', currency: string = 'ZWG') {
   const response = await fetch('/api/payment/create', {
     method: 'POST',
     headers: {
@@ -13,7 +13,7 @@ export async function createPaymentOrder(orderId: string, amount: number, sender
       sender: sender,
       recipient: PAYMENT_RECIPIENT,
       amount: amount,
-      currency: 'ZWG',
+      currency: currency,
     }),
   });
 
