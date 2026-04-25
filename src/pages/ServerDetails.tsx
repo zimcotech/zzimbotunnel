@@ -108,7 +108,13 @@ export function ServerDetails() {
                 {isExpired ? (
                   <span className="px-3 py-1 rounded-full bg-red-50 text-red-600 text-[10px] font-black uppercase tracking-widest border border-red-100">Expired</span>
                 ) : (
-                  <span className="px-3 py-1 rounded-full bg-brand-yellow text-brand-green-dark text-[10px] font-black uppercase tracking-widest border border-brand-yellow/20">Active</span>
+                  <span className="px-4 py-1.5 bg-green-50 text-green-700 text-xs font-black uppercase tracking-wider rounded-full border border-green-200/50 flex items-center gap-2 shadow-sm">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                    </span>
+                    Active
+                  </span>
                 )}
               </div>
               <div className="flex items-center justify-center gap-2 text-sm font-bold text-gray-400 bg-gray-50 px-4 py-2 rounded-full border border-gray-100">

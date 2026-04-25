@@ -162,7 +162,7 @@ export function LandingPage() {
               className="mt-12 flex flex-row items-center justify-center gap-4 sm:gap-6 pt-4 mx-auto max-w-fit w-full overflow-hidden"
             >
               {/* Trustpilot */}
-              <div className="flex flex-col items-start gap-1 justify-center shrink-0">
+              <a href="https://www.trustpilot.com/review/zimbotunnel.co.zw" target="_blank" rel="noopener noreferrer" className="flex flex-col items-start gap-1 justify-center shrink-0 hover:opacity-80 transition-opacity">
                 <div className="flex items-center gap-1.5 h-5">
                   <svg className="w-5 h-5 text-[#00b67a]" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M21.2 8.7l-7.3-.6L12 1.3 10 8.1l-7.3.6 5.5 4.7-1.6 7.1L12 16.5l5.5 3.9-1.6-7.1z"/>
@@ -180,7 +180,7 @@ export function LandingPage() {
                      <svg className="w-3 h-3 text-white fill-current relative z-10" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                   </div>
                 </div>
-              </div>
+              </a>
 
               {/* Vertical Divider 1 */}
               <div className="w-[1px] h-7 bg-gray-200/80 shrink-0"></div>

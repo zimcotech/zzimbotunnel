@@ -30,16 +30,16 @@ export function Footer() {
               Your Reliable Partner for Digital Services and Stable Tunneling. Experience unrestricted access with our premium servers.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-green-500 transition-colors" title="WhatsApp">
+              <a href="https://whatsapp.com/channel/0029VbCn5uAIiRovjBrSbx44" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-brand-green transition-colors" title="WhatsApp">
                 <WhatsAppIcon className="h-5 w-5" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors" title="Telegram">
+              <a href="https://t.me/zimbotunnel" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-brand-green transition-colors" title="Telegram">
                 <Send className="h-5 w-5" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-blue-600 transition-colors" title="Facebook">
+              <a href="#" className="text-gray-400 hover:text-brand-green transition-colors" title="Facebook">
                 <Facebook className="h-5 w-5" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-red-600 transition-colors" title="YouTube">
+              <a href="#" className="text-gray-400 hover:text-brand-green transition-colors" title="YouTube">
                 <Youtube className="h-5 w-5" />
               </a>
             </div>
@@ -61,8 +61,8 @@ export function Footer() {
               <li><Link to="/about-us" className="text-gray-500 hover:text-brand-green transition-colors">About Us</Link></li>
               <li><Link to="/terms-of-service" className="text-gray-500 hover:text-brand-green transition-colors">Terms of Service</Link></li>
               <li><Link to="/privacy-policy" className="text-gray-500 hover:text-brand-green transition-colors">Privacy Policy</Link></li>
-              <li><a href="https://www.trustpilot.com/review/nengoz.co.zw" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-brand-green transition-colors">Rate us on Trustpilot</a></li>
-              <li><a href="https://zimbotunnel.betteruptime.com" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-brand-green transition-colors">System Status</a></li>
+              <li><a href="https://www.trustpilot.com/review/zimbotunnel.co.zw" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-brand-green transition-colors">Rate us on Trustpilot</a></li>
+              <li><a href="https://status.zimbotunnel.co.zw/" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-brand-green transition-colors">System Status</a></li>
             </ul>
           </div>
 
@@ -80,12 +80,12 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <a href="#" className="group flex items-center gap-2 text-gray-500 hover:text-brand-green transition-colors">
+                <a href="tel:+263710452725" className="group flex items-center gap-2 text-gray-500 hover:text-brand-green transition-colors">
                   <Phone className="h-4 w-4 text-gray-400 group-hover:text-brand-green transition-colors" /> Call Us
                 </a>
               </li>
               <li>
-                <a href="#" className="group flex items-center gap-2 text-gray-500 hover:text-brand-green transition-colors">
+                <a href="mailto:support@zimbotunnel.co.zw" className="group flex items-center gap-2 text-gray-500 hover:text-brand-green transition-colors">
                   <Mail className="h-4 w-4 text-gray-400 group-hover:text-brand-green transition-colors" /> Email
                 </a>
               </li>

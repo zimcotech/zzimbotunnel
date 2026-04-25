@@ -1023,33 +1023,20 @@ export function Dashboard() {
 
                 <div>
                   <label className="block text-sm font-bold text-gray-900 mb-3">Duration</label>
-                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {[1, 3, 7, 14, 30, 360].map(d => (
-                      <motion.button
+                      <button
                         key={d}
                         type="button"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
                         onClick={() => setDuration(d)}
-                        className={`relative px-3 py-3 rounded-xl border text-xs font-bold transition-all duration-300 flex flex-col items-center justify-center gap-0.5 ${
+                        className={`px-4 py-3 rounded-lg border text-sm font-medium transition-all duration-200 ${
                           duration === d 
-                            ? 'border-brand-green bg-brand-green-light text-brand-green shadow-[0_8px_20px_-8px_rgba(22,163,74,0.3)]' 
-                            : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:bg-gray-50'
+                            ? 'border-brand-green bg-brand-green-light text-brand-green ring-1 ring-brand-green' 
+                            : 'border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'
                         }`}
                       >
-                        <span className="text-sm leading-none">{d}</span>
-                        <span className="text-[10px] uppercase opacity-60 tracking-wider">{d === 360 ? 'Year' : 'Days'}</span>
-                        {duration === d && (
-                          <motion.div 
-                            layoutId="activeDuration"
-                            className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-brand-green text-white rounded-full flex items-center justify-center shadow-sm"
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                          >
-                            <CheckCircle2 className="h-2.5 w-2.5" />
-                          </motion.div>
-                        )}
-                      </motion.button>
+                        {d} {d === 360 ? 'Year' : 'Days'}
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -1377,10 +1364,10 @@ export function Dashboard() {
             <Link to="/privacy-policy" className="text-sm font-medium text-gray-500 hover:text-brand-green transition-colors">Privacy Policy</Link>
             <Link to="/terms-of-service" className="text-sm font-medium text-gray-500 hover:text-brand-green transition-colors">Terms of Service</Link>
             <div className="flex items-center gap-6 mt-2">
-              <a href="#" className="text-gray-400 hover:text-green-500 transition-colors" title="WhatsApp"><WhatsAppIcon className="h-4 w-4" /></a>
-              <a href="#" className="text-gray-400 hover:text-brand-green transition-colors" title="Telegram"><Send className="h-4 w-4" /></a>
+              <a href="https://whatsapp.com/channel/0029VbCn5uAIiRovjBrSbx44" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-brand-green transition-colors" title="WhatsApp"><WhatsAppIcon className="h-4 w-4" /></a>
+              <a href="https://t.me/zimbotunnel" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-brand-green transition-colors" title="Telegram"><Send className="h-4 w-4" /></a>
               <a href="#" className="text-gray-400 hover:text-brand-green transition-colors" title="Facebook"><Facebook className="h-4 w-4" /></a>
-              <a href="#" className="text-gray-400 hover:text-red-600 transition-colors" title="YouTube"><Youtube className="h-4 w-4" /></a>
+              <a href="#" className="text-gray-400 hover:text-brand-green transition-colors" title="YouTube"><Youtube className="h-4 w-4" /></a>
             </div>
           </footer>
         </main>
