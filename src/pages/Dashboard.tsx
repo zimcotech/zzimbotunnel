@@ -72,12 +72,12 @@ export function Dashboard() {
   ];
 
   const [showTopUpForm, setShowTopUpForm] = useState(() => sessionStorage.getItem('dischub_showTopUpForm') === 'true');
-  const [selectedPackageId, setSelectedPackageId] = useState('pkg_30');
+  const [selectedPackageId, setSelectedPackageId] = useState(() => sessionStorage.getItem('dischub_selectedPkg') || 'pkg_30');
   const [paymentMethod, setPaymentMethod] = useState('ecocash');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [couponCode, setCouponCode] = useState('');
-  const [isCouponApplied, setIsCouponApplied] = useState(false);
-  const [couponDiscountPercent, setCouponDiscountPercent] = useState(0);
+  const [couponCode, setCouponCode] = useState(() => sessionStorage.getItem('dischub_couponCode') || '');
+  const [isCouponApplied, setIsCouponApplied] = useState(() => sessionStorage.getItem('dischub_couponApplied') === 'true');
+  const [couponDiscountPercent, setCouponDiscountPercent] = useState(() => parseInt(sessionStorage.getItem('dischub_couponPercent') || '0', 10));
   const [couponError, setCouponError] = useState('');
   const [isToppingUp, setIsToppingUp] = useState(false);
   const [verifyingTxId, setVerifyingTxId] = useState<string | null>(null);
@@ -107,6 +107,22 @@ export function Dashboard() {
   useEffect(() => {
     sessionStorage.setItem('dischub_paymentStatus', paymentStatus);
   }, [paymentStatus]);
+
+  useEffect(() => {
+    sessionStorage.setItem('dischub_selectedPkg', selectedPackageId);
+  }, [selectedPackageId]);
+
+  useEffect(() => {
+    sessionStorage.setItem('dischub_couponCode', couponCode);
+  }, [couponCode]);
+
+  useEffect(() => {
+    sessionStorage.setItem('dischub_couponApplied', isCouponApplied.toString());
+  }, [isCouponApplied]);
+
+  useEffect(() => {
+    sessionStorage.setItem('dischub_couponPercent', couponDiscountPercent.toString());
+  }, [couponDiscountPercent]);
 
   useEffect(() => {
     if (user) {
@@ -1387,7 +1403,7 @@ export function Dashboard() {
                     </div>
                   </div>
 
-                  {topupMessage && (
+                  {topupMessage && !showPaymentModal && (
                     <div className={`mb-6 p-4 rounded-xl flex items-start gap-3 ${
                       topupMessage.includes('successful') 
                         ? 'bg-green-50 text-green-700 border border-green-100' 
@@ -1643,22 +1659,43 @@ export function Dashboard() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500 font-medium">Quantity:</span>
-                  <span className="font-bold text-gray-900">{(selectedPackageId ? PACKAGES.find(p => p.id === selectedPackageId)?.coins : 0) || 0} Coins</span>
+                  <span className="font-bold text-gray-900">
+                    {PACKAGES.find(p => p.id === selectedPackageId)?.coins || 0} Coins
+                    {couponCode.toUpperCase() === 'BONUS10' && <span className="text-brand-green ml-1">(+10 Bonus)</span>}
+                  </span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500 font-medium">Amount:</span>
-                  <span className="font-bold text-gray-900">ZWG {((PACKAGES.find(p => p.id === selectedPackageId)?.price || 0) * (1 - (isCouponApplied ? couponDiscountPercent / 100 : 0))).toFixed(2)}</span>
+                {isCouponApplied && couponDiscountPercent > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500 font-medium">Discount Applied:</span>
+                    <span className="font-bold text-brand-green">{couponDiscountPercent}% Off</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-sm items-center border-t border-gray-200 pt-2 mt-2">
+                  <span className="text-gray-500 font-medium">Total Amount:</span>
+                  <span className="font-black text-brand-green text-lg">ZWG {((PACKAGES.find(p => p.id === selectedPackageId)?.price || 0) * (1 - (isCouponApplied ? couponDiscountPercent / 100 : 0))).toFixed(2)}</span>
                 </div>
               </div>
               
-              <button 
-                onClick={handleCheckStatus}
-                disabled={isToppingUp}
-                className="w-full bg-white border-2 border-gray-200 text-gray-800 font-bold py-3.5 px-4 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm flex justify-center items-center text-sm gap-2"
-              >
-                {isToppingUp ? <Loader2 className="w-5 h-5 animate-spin text-brand-green" /> : <RefreshCw className="w-5 h-5 text-gray-500" />}
-                {isToppingUp ? 'Checking...' : 'Check Payment Status'}
-              </button>
+              <div className="w-full space-y-3">
+                <button 
+                  onClick={handleCheckStatus}
+                  disabled={isToppingUp}
+                  className="w-full bg-white border-2 border-gray-200 text-gray-800 font-bold py-3.5 px-4 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm flex justify-center items-center text-sm gap-2"
+                >
+                  {isToppingUp ? <Loader2 className="w-5 h-5 animate-spin text-brand-green" /> : <RefreshCw className="w-5 h-5 text-gray-500" />}
+                  {isToppingUp ? 'Checking...' : 'Check Payment Status'}
+                </button>
+
+                {(paymentStatus === 'pending' || paymentStatus === 'failed') && (
+                  <button 
+                    onClick={() => window.location.href = `https://dischub.co.zw/api/make/payment/to/${paymentOrderId}`}
+                    className="w-full bg-brand-green text-white font-bold py-3.5 px-4 rounded-xl hover:bg-brand-green/90 transition-all shadow-sm flex justify-center items-center text-sm gap-2"
+                  >
+                    <Wallet className="w-5 h-5" />
+                    Proceed to Payment
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>

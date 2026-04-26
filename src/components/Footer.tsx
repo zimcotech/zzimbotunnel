@@ -20,8 +20,8 @@ export function Footer() {
   return (
     <footer className="bg-gray-50 border-t border-gray-200 pt-16 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-12 mb-12">
-          <div className="col-span-1 md:col-span-2">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 mb-12">
+          <div className="lg:col-span-5 xl:col-span-4">
             <div className="flex items-center gap-2 mb-4">
               <Logo size={40} className="drop-shadow-sm" />
               <span className="font-bold text-xl tracking-tight text-gray-900">Zimbo Tunnel</span>
@@ -45,51 +45,53 @@ export function Footer() {
             </div>
           </div>
           
-          <div>
-            <h3 className="font-semibold text-gray-900 mb-4">Services</h3>
-            <ul className="space-y-3">
-              <li><a href="#" className="text-gray-500 hover:text-brand-green transition-colors">V2Ray Servers</a></li>
-              <li><a href="#" className="text-gray-500 hover:text-brand-green transition-colors">SSH WebSocket</a></li>
-              <li><a href="#" className="text-gray-500 hover:text-brand-green transition-colors">Slow DNS</a></li>
-              <li><a href="#" className="text-gray-500 hover:text-brand-green transition-colors">OpenVPN</a></li>
-            </ul>
-          </div>
+          <div className="lg:col-span-7 xl:col-span-8 grid grid-cols-1 sm:grid-cols-3 gap-8">
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-4">Services</h3>
+              <ul className="space-y-3">
+                <li><a href="#" className="text-gray-500 hover:text-brand-green transition-colors">V2Ray Servers</a></li>
+                <li><a href="#" className="text-gray-500 hover:text-brand-green transition-colors">SSH WebSocket</a></li>
+                <li><a href="#" className="text-gray-500 hover:text-brand-green transition-colors">Slow DNS</a></li>
+                <li><a href="#" className="text-gray-500 hover:text-brand-green transition-colors">OpenVPN</a></li>
+              </ul>
+            </div>
 
-          <div>
-            <h3 className="font-semibold text-gray-900 mb-4">Company</h3>
-            <ul className="space-y-3">
-              <li><Link to="/about-us" className="text-gray-500 hover:text-brand-green transition-colors">About Us</Link></li>
-              <li><Link to="/terms-of-service" className="text-gray-500 hover:text-brand-green transition-colors">Terms of Service</Link></li>
-              <li><Link to="/privacy-policy" className="text-gray-500 hover:text-brand-green transition-colors">Privacy Policy</Link></li>
-              <li><a href="https://www.trustpilot.com/review/zimbotunnel.co.zw" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-brand-green transition-colors">Rate us on Trustpilot</a></li>
-              <li><a href="https://status.zimbotunnel.co.zw/" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-brand-green transition-colors">System Status</a></li>
-            </ul>
-          </div>
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-4">Company</h3>
+              <ul className="space-y-3">
+                <li><Link to="/about-us" className="text-gray-500 hover:text-brand-green transition-colors">About Us</Link></li>
+                <li><Link to="/terms-of-service" className="text-gray-500 hover:text-brand-green transition-colors">Terms of Service</Link></li>
+                <li><Link to="/privacy-policy" className="text-gray-500 hover:text-brand-green transition-colors">Privacy Policy</Link></li>
+                <li><a href="https://www.trustpilot.com/review/zimbotunnel.co.zw" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-brand-green transition-colors">Rate us on Trustpilot</a></li>
+                <li><a href="https://status.zimbotunnel.co.zw/" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-brand-green transition-colors">System Status</a></li>
+              </ul>
+            </div>
 
-          <div>
-            <h3 className="font-semibold text-gray-900 mb-4">Contact Us</h3>
-            <ul className="space-y-3">
-              <li>
-                <a href="#" className="group flex items-center gap-2 text-gray-500 hover:text-brand-green transition-colors">
-                  <Send className="h-4 w-4 text-gray-400 group-hover:text-brand-green transition-colors" /> Telegram
-                </a>
-              </li>
-              <li>
-                <a href="#" className="group flex items-center gap-2 text-gray-500 hover:text-brand-green transition-colors">
-                  <WhatsAppIcon className="h-4 w-4 text-gray-400 group-hover:text-brand-green transition-colors" /> WhatsApp
-                </a>
-              </li>
-              <li>
-                <a href="tel:+263710452725" className="group flex items-center gap-2 text-gray-500 hover:text-brand-green transition-colors">
-                  <Phone className="h-4 w-4 text-gray-400 group-hover:text-brand-green transition-colors" /> Call Us
-                </a>
-              </li>
-              <li>
-                <a href="mailto:support@zimbotunnel.co.zw" className="group flex items-center gap-2 text-gray-500 hover:text-brand-green transition-colors">
-                  <Mail className="h-4 w-4 text-gray-400 group-hover:text-brand-green transition-colors" /> Email
-                </a>
-              </li>
-            </ul>
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-4">Contact Us</h3>
+              <ul className="space-y-3">
+                <li>
+                  <a href="#" className="group flex items-center gap-2 text-gray-500 hover:text-brand-green transition-colors">
+                    <Send className="h-4 w-4 text-gray-400 group-hover:text-brand-green transition-colors" /> Telegram
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="group flex items-center gap-2 text-gray-500 hover:text-brand-green transition-colors">
+                    <WhatsAppIcon className="h-4 w-4 text-gray-400 group-hover:text-brand-green transition-colors" /> WhatsApp
+                  </a>
+                </li>
+                <li>
+                  <a href="tel:+263710452725" className="group flex items-center gap-2 text-gray-500 hover:text-brand-green transition-colors">
+                    <Phone className="h-4 w-4 text-gray-400 group-hover:text-brand-green transition-colors" /> Call Us
+                  </a>
+                </li>
+                <li>
+                  <a href="mailto:support@zimbotunnel.co.zw" className="group flex items-center gap-2 text-gray-500 hover:text-brand-green transition-colors">
+                    <Mail className="h-4 w-4 text-gray-400 group-hover:text-brand-green transition-colors" /> Email
+                  </a>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
         
