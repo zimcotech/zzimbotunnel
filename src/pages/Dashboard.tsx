@@ -692,35 +692,18 @@ export function Dashboard() {
               </div>
             </div>
 
-            <div className="relative overflow-hidden bg-brand-gradient rounded-2xl p-5 text-white mb-8 shadow-lg border border-white/10 group flex flex-col gap-3">
+            <div className="relative overflow-hidden bg-brand-gradient rounded-2xl p-5 text-white mb-8 shadow-lg border border-white/10 group">
               <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-10 rounded-full blur-2xl group-hover:opacity-20 transition-opacity duration-500"></div>
               <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-20 h-20 bg-brand-yellow/30 rounded-full blur-xl"></div>
               
-              <div className="relative z-10 flex justify-between items-center w-full">
-                <div>
-                  <p className="text-white/80 text-[10px] font-black tracking-widest uppercase mb-1 flex items-center gap-1.5">
-                    <Wallet className="h-3.5 w-3.5" /> Available Balance
-                  </p>
-                  <div className="flex items-baseline gap-1">
-                    <h2 className="text-3xl font-black tracking-tight">{user.balance.toFixed(0)}</h2>
-                    <span className="text-xs font-black text-brand-yellow uppercase tracking-tight">Coins</span>
-                  </div>
+              <div className="relative z-10">
+                <p className="text-white/80 text-[10px] font-black tracking-widest uppercase mb-1 flex items-center gap-1.5">
+                  <Wallet className="h-3.5 w-3.5" /> Available Balance
+                </p>
+                <div className="flex items-baseline gap-1">
+                  <h2 className="text-3xl font-black tracking-tight">{user.balance.toFixed(0)}</h2>
+                  <span className="text-xs font-black text-brand-yellow uppercase tracking-tight">Coins</span>
                 </div>
-              </div>
-              
-              <div className="relative z-10 w-full pt-3 border-t border-white/10">
-                <button
-                  onClick={() => {
-                    setActiveTab('billing');
-                    setTimeout(() => {
-                      document.getElementById('main-content')?.scrollTo({ top: 0, behavior: 'smooth' });
-                    }, 50);
-                  }}
-                  className="w-full bg-white text-brand-green px-4 py-2.5 rounded-xl font-bold text-sm shadow hover:bg-gray-50 flex items-center justify-center gap-2 transition-colors duration-200"
-                >
-                  <Plus className="h-4 w-4" />
-                  Topup Account
-                </button>
               </div>
             </div>
 
