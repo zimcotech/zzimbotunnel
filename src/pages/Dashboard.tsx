@@ -359,17 +359,12 @@ export function Dashboard() {
           }]);
         if (!txError) fetchTransactions();
         
-        setShowPaymentModal(true);
-        // Force synchronous session storage update to guarantee survival
         sessionStorage.setItem('dischub_paymentOrderId', orderId);
         sessionStorage.setItem('dischub_showPaymentModal', 'true');
         sessionStorage.setItem('dischub_paymentStatus', 'pending');
         sessionStorage.setItem('dischub_showTopUpForm', 'true');
 
-        // Let React render the modal for 1.5 seconds so BFCache has the exact proper state when they hit back
-        setTimeout(() => {
-          window.location.href = `https://dischub.co.zw/api/make/payment/to/${orderId}`;
-        }, 1500);
+        window.location.href = `https://dischub.co.zw/api/make/payment/to/${orderId}`;
       } else {
         throw new Error(response.message || 'Failed to initiate payment');
       }
@@ -449,12 +444,12 @@ export function Dashboard() {
         if (!isHistoryVerify) {
           setPaymentStatus('success');
           setTopupMessage('Payment already processed. Coins added.');
-          setPaymentOrderId(null);
-          setShowPaymentModal(false);
           setTimeout(() => {
+            setPaymentOrderId(null);
+            setShowPaymentModal(false);
             setShowTopUpForm(false);
             setPaymentStatus('idle');
-          }, 3000);
+          }, 4000);
         } else {
           setSnackbarMessage('Payment already completed.');
         }
@@ -468,12 +463,12 @@ export function Dashboard() {
         if (!isHistoryVerify) {
           setPaymentStatus('success');
           setTopupMessage('Payment already processed. Coins added.');
-          setPaymentOrderId(null);
-          setShowPaymentModal(false);
           setTimeout(() => {
+            setPaymentOrderId(null);
+            setShowPaymentModal(false);
             setShowTopUpForm(false);
             setPaymentStatus('idle');
-          }, 3000);
+          }, 4000);
         } else {
           setSnackbarMessage('Payment already completed.');
         }
@@ -534,12 +529,12 @@ export function Dashboard() {
         
         if (!isHistoryVerify) {
           setTopupMessage('Payment successful! Coins added.');
-          setPaymentOrderId(null);
-          setShowPaymentModal(false);
           setTimeout(() => {
+            setPaymentOrderId(null);
+            setShowPaymentModal(false);
             setShowTopUpForm(false);
             setPaymentStatus('idle');
-          }, 3000);
+          }, 4000);
         } else {
           setSnackbarMessage('Payment verified successfully! Coins added.');
           setTimeout(() => setSnackbarMessage(''), 3000);
@@ -1615,12 +1610,31 @@ export function Dashboard() {
             <div className="p-6 flex flex-col items-center text-center">
               <p className="text-sm text-gray-500 font-medium mb-6">Order #{paymentOrderId}</p>
               
-              <div className="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mb-6">
-                <Clock className="w-10 h-10 text-amber-500" />
-              </div>
-              
-              <h2 className="text-xl font-bold text-gray-900 mb-2">Waiting for Payment</h2>
-              <p className="text-sm text-gray-600 mb-8 font-medium">Complete payment in the DiscHub tab</p>
+              {paymentStatus === 'success' ? (
+                <>
+                  <div className="w-20 h-20 bg-brand-green/10 rounded-full flex items-center justify-center mb-6">
+                    <CheckCircle2 className="w-10 h-10 text-brand-green" />
+                  </div>
+                  <h2 className="text-xl font-bold text-gray-900 mb-2">Payment Successful!</h2>
+                  <p className="text-sm text-gray-600 mb-8 font-medium">Your coins have been added.</p>
+                </>
+              ) : paymentStatus === 'failed' ? (
+                <>
+                  <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mb-6">
+                    <AlertCircle className="w-10 h-10 text-red-500" />
+                  </div>
+                  <h2 className="text-xl font-bold text-gray-900 mb-2">Payment Failed</h2>
+                  <p className="text-sm text-gray-600 mb-8 font-medium">{topupMessage || 'Your payment was not successful.'}</p>
+                </>
+              ) : (
+                <>
+                  <div className="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mb-6">
+                    <Clock className="w-10 h-10 text-amber-500" />
+                  </div>
+                  <h2 className="text-xl font-bold text-gray-900 mb-2">Waiting for Payment</h2>
+                  <p className="text-sm text-gray-600 mb-8 font-medium">{topupMessage || 'Complete payment in the DiscHub tab'}</p>
+                </>
+              )}
               
               <div className="w-full bg-gray-50/80 rounded-2xl p-4 text-left space-y-3 mb-6 border border-gray-100">
                 <div className="flex justify-between text-sm">
