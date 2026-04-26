@@ -86,6 +86,7 @@ export function Dashboard() {
   const [paymentOrderId, setPaymentOrderId] = useState<string | null>(() => sessionStorage.getItem('dischub_paymentOrderId'));
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'pending' | 'success' | 'failed'>(() => (sessionStorage.getItem('dischub_paymentStatus') as any) || 'idle');
   const [showPaymentModal, setShowPaymentModal] = useState(() => sessionStorage.getItem('dischub_showPaymentModal') === 'true');
+  const [hasCheckedStatus, setHasCheckedStatus] = useState(() => sessionStorage.getItem('dischub_hasCheckedStatus') === 'true');
 
   const [copiedId, setCopiedId] = useState<number | null>(null);
   
@@ -107,6 +108,10 @@ export function Dashboard() {
   useEffect(() => {
     sessionStorage.setItem('dischub_paymentStatus', paymentStatus);
   }, [paymentStatus]);
+
+  useEffect(() => {
+    sessionStorage.setItem('dischub_hasCheckedStatus', hasCheckedStatus.toString());
+  }, [hasCheckedStatus]);
 
   useEffect(() => {
     sessionStorage.setItem('dischub_selectedPkg', selectedPackageId);
@@ -379,6 +384,9 @@ export function Dashboard() {
         sessionStorage.setItem('dischub_showPaymentModal', 'true');
         sessionStorage.setItem('dischub_paymentStatus', 'pending');
         sessionStorage.setItem('dischub_showTopUpForm', 'true');
+        sessionStorage.setItem('dischub_hasCheckedStatus', 'false');
+        setHasCheckedStatus(false);
+        setShowPaymentModal(true);
 
         window.location.href = `https://dischub.co.zw/api/make/payment/to/${orderId}`;
       } else {
@@ -397,6 +405,10 @@ export function Dashboard() {
     let expectedCoinsToAdd = 0;
     let isHistoryVerify = false;
     let currentTxId = null;
+
+    if (!txObj || typeof txObj !== 'object') {
+      setHasCheckedStatus(true);
+    }
 
     if (txObj && typeof txObj === 'object' && txObj.id) {
       isHistoryVerify = true;
@@ -696,14 +708,27 @@ export function Dashboard() {
               <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-10 rounded-full blur-2xl group-hover:opacity-20 transition-opacity duration-500"></div>
               <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-20 h-20 bg-brand-yellow/30 rounded-full blur-xl"></div>
               
-              <div className="relative z-10">
-                <p className="text-white/80 text-[10px] font-black tracking-widest uppercase mb-1 flex items-center gap-1.5">
-                  <Wallet className="h-3.5 w-3.5" /> Available Balance
-                </p>
-                <div className="flex items-baseline gap-1">
-                  <h2 className="text-3xl font-black tracking-tight">{user.balance.toFixed(0)}</h2>
-                  <span className="text-xs font-black text-brand-yellow uppercase tracking-tight">Coins</span>
+              <div className="relative z-10 flex items-center justify-between">
+                <div>
+                  <p className="text-white/80 text-[10px] font-black tracking-widest uppercase mb-1 flex items-center gap-1.5">
+                    <Wallet className="h-3.5 w-3.5" /> Available Balance
+                  </p>
+                  <div className="flex items-baseline gap-1">
+                    <h2 className="text-3xl font-black tracking-tight">{user.balance.toFixed(0)}</h2>
+                    <span className="text-xs font-black text-brand-yellow uppercase tracking-tight">Coins</span>
+                  </div>
                 </div>
+                
+                <button 
+                  onClick={() => {
+                    navigate('/dashboard?tab=billing');
+                    setActiveTab('billing');
+                  }}
+                  className="bg-white/20 hover:bg-white/30 text-white text-xs font-bold py-2 px-3 rounded-xl backdrop-blur-md transition-all flex items-center gap-1.5 border border-white/20 active:scale-95"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  Add Coins
+                </button>
               </div>
             </div>
 
@@ -1535,7 +1560,7 @@ export function Dashboard() {
                         disabled={isToppingUp || ((paymentMethod === 'ecocash' || paymentMethod === 'innbucks') && !phoneNumber)}
                         className="w-full bg-brand-green text-white font-bold py-4 px-4 rounded-xl hover:bg-brand-green/90 transition-all shadow-lg shadow-brand-green/20 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center text-base gap-2"
                       >
-                        {isToppingUp ? 'Processing...' : <><Wallet className="h-5 w-5" /> Proceed to Payment</>}
+                        {isToppingUp ? 'Processing...' : <><Wallet className="h-5 w-5" /> Proceed to Payment <ExternalLink className="h-4 w-4 ml-0.5" /></>}
                       </button>
                       
                       <p className="text-xs text-gray-500 text-center mt-3 font-medium">
@@ -1686,13 +1711,14 @@ export function Dashboard() {
                   {isToppingUp ? 'Checking...' : 'Check Payment Status'}
                 </button>
 
-                {(paymentStatus === 'pending' || paymentStatus === 'failed') && (
+                {(paymentStatus === 'pending' || paymentStatus === 'failed') && hasCheckedStatus && (
                   <button 
                     onClick={() => window.location.href = `https://dischub.co.zw/api/make/payment/to/${paymentOrderId}`}
                     className="w-full bg-brand-green text-white font-bold py-3.5 px-4 rounded-xl hover:bg-brand-green/90 transition-all shadow-sm flex justify-center items-center text-sm gap-2"
                   >
                     <Wallet className="w-5 h-5" />
                     Proceed to Payment
+                    <ExternalLink className="w-4 h-4 ml-1" />
                   </button>
                 )}
               </div>
