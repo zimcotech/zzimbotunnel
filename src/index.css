@@ -10,14 +10,24 @@
   --color-brand-yellow-dark: #ca8a04;
   --color-brand-yellow-light: #fefce8;
 
+  /* Material 3 Surface Palette */
+  --color-surface: #eef0e3;
+  --color-surface-variant: #fdfdf5;
+  --color-on-surface: #1a1c18;
+  --color-on-surface-variant: #44483e;
+
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
 @layer base {
   body {
-    @apply antialiased font-sans text-[#6B7280] text-[14px] sm:text-[16px] leading-[1.6] sm:leading-[1.8];
+    @apply antialiased font-sans text-on-surface-variant bg-surface text-[14px] sm:text-[16px] leading-[1.6] sm:leading-[1.8];
   }
+
+  h1 { @apply text-[32px] sm:text-[36px] font-bold tracking-[-0.5px] leading-[1.2] text-on-surface; }
+  h2 { @apply text-[24px] sm:text-[26px] font-semibold leading-[1.3] text-on-surface; }
+  h3 { @apply text-[18px] sm:text-[20px] font-semibold leading-[1.4] text-on-surface; }
 
   .bg-brand-gradient {
     @apply bg-gradient-to-br from-brand-green via-brand-green-dark to-brand-yellow;
