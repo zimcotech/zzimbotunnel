@@ -22,9 +22,25 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    try {
+      const savedUser = localStorage.getItem('tun_user_cache');
+      return savedUser ? JSON.parse(savedUser) : null;
+    } catch {
+      return null;
+    }
+  });
   const [token, setToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!user);
+
+  // Update cache whenever user changes
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem('tun_user_cache', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('tun_user_cache');
+    }
+  }, [user]);
 
   useEffect(() => {
     // Check active sessions and sets the user
@@ -35,6 +51,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setToken(session.access_token);
         await fetchProfile(session.user.id, session.user.email || '', session.user.user_metadata?.username);
       } else {
+        setToken(null);
+        setUser(null);
         setIsLoading(false);
       }
     };
@@ -45,7 +63,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
         setToken(session.access_token);
-        setIsLoading(true);
+        // Let the profile update in the background if we already have the user details
+        if (!localStorage.getItem('tun_user_cache')) {
+          setIsLoading(true);
+        }
         // Use setTimeout to escape the Supabase auth lock context and prevent deadlocks
         setTimeout(() => {
           fetchProfile(session.user.id, session.user.email || '', session.user.user_metadata?.username);

@@ -57,7 +57,7 @@ export function ServerDetails() {
         .eq('user_id', user?.id);
 
       if (error) throw error;
-      navigate('/dashboard');
+      navigate('/dashboard?tab=servers');
     } catch (err: any) {
       alert(err.message || 'Failed to delete server');
     }
@@ -66,7 +66,9 @@ export function ServerDetails() {
   if (loading) return (
     <div className="min-h-screen bg-[#f8fafc] flex flex-col font-sans">
       <Topbar />
-      <div className="flex-1 p-8 flex items-center justify-center">Loading...</div>
+      <div className="flex-1 p-8 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-green"></div>
+      </div>
     </div>
   );
   
@@ -174,7 +176,7 @@ export function ServerDetails() {
             {/* Action Buttons */}
             <div className="grid grid-cols-2 gap-3">
               <button 
-                onClick={() => navigate('/dashboard')} 
+                onClick={() => navigate('/dashboard?tab=servers')} 
                 className="py-4 bg-white text-gray-500 rounded-2xl font-black text-[10px] uppercase tracking-widest border border-gray-200 hover:bg-gray-50 transition-all flex items-center justify-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" /> Back

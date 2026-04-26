@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Server, Plus, Clock, Copy, CheckCircle2, AlertCircle, Wallet, History, LogOut, User, LayoutDashboard, Facebook, Send, Youtube, Filter, ArrowUpDown, Coins, DollarSign, Bitcoin, Briefcase, Smartphone, Infinity, ArrowRightLeft, Info, X, ChevronDown, Bell, ExternalLink, RefreshCw, Loader2, PlayCircle } from 'lucide-react';
 import { motion } from 'motion/react';
@@ -11,10 +11,17 @@ import { createPaymentOrder, checkPaymentStatus } from '../lib/payment';
 export function Dashboard() {
   const { user, token, updateBalance, logout } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [servers, setServers] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [verifiedTxs, setVerifiedTxs] = useState<Record<string, boolean>>({});
-  const [activeTab, setActiveTab] = useState<'overview' | 'servers' | 'create' | 'billing'>('overview');
+  
+  const tabParam = searchParams.get('tab') as 'overview' | 'servers' | 'create' | 'billing' | null;
+  const activeTab = tabParam || 'overview';
+  
+  const setActiveTab = (tab: 'overview' | 'servers' | 'create' | 'billing') => {
+    setSearchParams({ tab });
+  };
   
   // Create Server Form State
   const [protocol, setProtocol] = useState('V2Ray');
@@ -64,7 +71,7 @@ export function Dashboard() {
     { id: 'pkg_500', coins: 500, price: 0.17, icon: Coins },
   ];
 
-  const [showTopUpForm, setShowTopUpForm] = useState(false);
+  const [showTopUpForm, setShowTopUpForm] = useState(() => sessionStorage.getItem('dischub_showTopUpForm') === 'true');
   const [selectedPackageId, setSelectedPackageId] = useState('pkg_30');
   const [paymentMethod, setPaymentMethod] = useState('ecocash');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -73,15 +80,33 @@ export function Dashboard() {
   const [couponDiscountPercent, setCouponDiscountPercent] = useState(0);
   const [couponError, setCouponError] = useState('');
   const [isToppingUp, setIsToppingUp] = useState(false);
+  const [verifyingTxId, setVerifyingTxId] = useState<string | null>(null);
   const [topupMessage, setTopupMessage] = useState('');
   const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [paymentOrderId, setPaymentOrderId] = useState<string | null>(null);
-  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'pending' | 'success' | 'failed'>('idle');
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentOrderId, setPaymentOrderId] = useState<string | null>(() => sessionStorage.getItem('dischub_paymentOrderId'));
+  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'pending' | 'success' | 'failed'>(() => (sessionStorage.getItem('dischub_paymentStatus') as any) || 'idle');
+  const [showPaymentModal, setShowPaymentModal] = useState(() => sessionStorage.getItem('dischub_showPaymentModal') === 'true');
 
   const [copiedId, setCopiedId] = useState<number | null>(null);
   
   const [globalNotification, setGlobalNotification] = useState<any>(null);
+
+  useEffect(() => {
+    sessionStorage.setItem('dischub_showTopUpForm', showTopUpForm.toString());
+  }, [showTopUpForm]);
+
+  useEffect(() => {
+    if (paymentOrderId) sessionStorage.setItem('dischub_paymentOrderId', paymentOrderId);
+    else sessionStorage.removeItem('dischub_paymentOrderId');
+  }, [paymentOrderId]);
+
+  useEffect(() => {
+    sessionStorage.setItem('dischub_showPaymentModal', showPaymentModal.toString());
+  }, [showPaymentModal]);
+
+  useEffect(() => {
+    sessionStorage.setItem('dischub_paymentStatus', paymentStatus);
+  }, [paymentStatus]);
 
   useEffect(() => {
     if (user) {
@@ -316,7 +341,8 @@ export function Dashboard() {
 
       // Create Payment Order
       const currency = paymentMethod === 'innbucks' ? 'USD' : 'ZWG';
-      const response = await createPaymentOrder(orderId, finalPrice, formattedPhone, currency);
+      const returnUrl = window.location.origin + window.location.pathname + '?tab=billing';
+      const response = await createPaymentOrder(orderId, finalPrice, formattedPhone, currency, returnUrl);
       
       if (response.status === 'success') {
         setPaymentOrderId(orderId);
@@ -333,11 +359,17 @@ export function Dashboard() {
           }]);
         if (!txError) fetchTransactions();
         
-        window.open(`https://dischub.co.zw/api/make/payment/to/${orderId}`, '_blank');
-        setTopupMessage('Please complete the payment in the new tab.');
+        setShowPaymentModal(true);
+        // Force synchronous session storage update to guarantee survival
+        sessionStorage.setItem('dischub_paymentOrderId', orderId);
+        sessionStorage.setItem('dischub_showPaymentModal', 'true');
+        sessionStorage.setItem('dischub_paymentStatus', 'pending');
+        sessionStorage.setItem('dischub_showTopUpForm', 'true');
+
+        // Let React render the modal for 1.5 seconds so BFCache has the exact proper state when they hit back
         setTimeout(() => {
-          setShowPaymentModal(true);
-        }, 6000);
+          window.location.href = `https://dischub.co.zw/api/make/payment/to/${orderId}`;
+        }, 1500);
       } else {
         throw new Error(response.message || 'Failed to initiate payment');
       }
@@ -379,7 +411,11 @@ export function Dashboard() {
 
     if (!activeOrderId) return;
     
-    setIsToppingUp(true);
+    if (isHistoryVerify && currentTxId) {
+      setVerifyingTxId(currentTxId);
+    } else {
+      setIsToppingUp(true);
+    }
     if (!isHistoryVerify) setTopupMessage('');
     else setSnackbarMessage('Verifying payment status...');
     
@@ -422,7 +458,8 @@ export function Dashboard() {
         } else {
           setSnackbarMessage('Payment already completed.');
         }
-        setIsToppingUp(false);
+        if (isHistoryVerify) setVerifyingTxId(null);
+        else setIsToppingUp(false);
         return;
       }
       
@@ -440,7 +477,8 @@ export function Dashboard() {
         } else {
           setSnackbarMessage('Payment already completed.');
         }
-        setIsToppingUp(false);
+        if (isHistoryVerify) setVerifyingTxId(null);
+        else setIsToppingUp(false);
         return;
       }
 
@@ -547,7 +585,8 @@ export function Dashboard() {
         setTimeout(() => setSnackbarMessage(''), 3000);
       }
     } finally {
-      setIsToppingUp(false);
+      if (isHistoryVerify) setVerifyingTxId(null);
+      else setIsToppingUp(false);
     }
   };
 
@@ -1322,9 +1361,9 @@ export function Dashboard() {
                                     <button
                                       onClick={() => handleCheckStatus(tx)}
                                       disabled={isToppingUp}
-                                      className="text-[11px] font-bold text-white bg-blue-500 hover:bg-blue-600 px-3 py-1.5 rounded-lg shadow-sm transition-all flex items-center gap-1.5 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+                                      className={`text-[11px] font-bold text-white bg-blue-500 hover:bg-blue-600 px-3 py-1.5 rounded-lg shadow-sm transition-all flex items-center gap-1.5 active:scale-95 disabled:cursor-not-allowed ${isToppingUp && verifyingTxId !== tx.id ? 'opacity-40 grayscale' : 'opacity-100'}`}
                                     >
-                                      {isToppingUp ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+                                      {verifyingTxId === tx.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
                                       Verify
                                     </button>
                                   )}
