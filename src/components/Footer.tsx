@@ -10,36 +10,36 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const PaymentBadge = ({ children, className = "bg-white" }: { children: React.ReactNode, className?: string }) => (
-  <div className={`h-7 px-2 border border-gray-200 rounded flex items-center justify-center shadow-sm select-none grayscale opacity-60 hover:grayscale-0 hover:opacity-100 hover:-translate-y-0.5 hover:shadow-md transition-all duration-300 cursor-default ${className}`}>
+const PaymentBadge = ({ children, className = "bg-[#e5e5e5]" }: { children: React.ReactNode, className?: string }) => (
+  <div className={`h-8 px-2.5 rounded-lg flex items-center justify-center select-none transition-all duration-300 cursor-default ${className}`}>
     {children}
   </div>
 );
 
 export function Footer() {
   return (
-    <footer className="bg-gray-50 border-t border-gray-200 pt-16 pb-8">
+    <footer className="bg-surface-container border-t border-surface-variant pt-16 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 mb-12">
           <div className="lg:col-span-5 xl:col-span-4">
             <div className="flex items-center gap-2 mb-4">
               <Logo size={40} className="drop-shadow-sm" />
-              <span className="font-bold text-xl tracking-tight text-gray-900">Zimbo Tunnel</span>
+              <span className="font-bold text-xl tracking-tight text-on-surface">Zimbo Tunnel</span>
             </div>
-            <p className="text-gray-500 max-w-sm mb-6">
+            <p className="text-on-surface-variant max-w-sm mb-6">
               Your Reliable Partner for Digital Services and Stable Tunneling. Experience unrestricted access with our premium servers.
             </p>
             <div className="flex space-x-4">
-              <a href="https://whatsapp.com/channel/0029VbCn5uAIiRovjBrSbx44" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-brand-green transition-colors" title="WhatsApp">
+              <a href="https://whatsapp.com/channel/0029VbCn5uAIiRovjBrSbx44" target="_blank" rel="noopener noreferrer" className="text-on-surface-variant/80 hover:text-primary transition-colors" title="WhatsApp">
                 <WhatsAppIcon className="h-5 w-5" />
               </a>
-              <a href="https://t.me/zimbotunnel" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-brand-green transition-colors" title="Telegram">
+              <a href="https://t.me/zimbotunnel" target="_blank" rel="noopener noreferrer" className="text-on-surface-variant/80 hover:text-primary transition-colors" title="Telegram">
                 <Send className="h-5 w-5" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-brand-green transition-colors" title="Facebook">
+              <a href="#" className="text-on-surface-variant/80 hover:text-primary transition-colors" title="Facebook">
                 <Facebook className="h-5 w-5" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-brand-green transition-colors" title="YouTube">
+              <a href="#" className="text-on-surface-variant/80 hover:text-primary transition-colors" title="YouTube">
                 <Youtube className="h-5 w-5" />
               </a>
             </div>
@@ -47,47 +47,47 @@ export function Footer() {
           
           <div className="lg:col-span-7 xl:col-span-8 grid grid-cols-1 sm:grid-cols-3 gap-8">
             <div>
-              <h3 className="font-semibold text-gray-900 mb-4">Services</h3>
+              <h3 className="font-semibold text-on-surface mb-4">Services</h3>
               <ul className="space-y-3">
-                <li><a href="#" className="text-gray-500 hover:text-brand-green transition-colors">V2Ray Servers</a></li>
-                <li><a href="#" className="text-gray-500 hover:text-brand-green transition-colors">SSH WebSocket</a></li>
-                <li><a href="#" className="text-gray-500 hover:text-brand-green transition-colors">Slow DNS</a></li>
-                <li><a href="#" className="text-gray-500 hover:text-brand-green transition-colors">OpenVPN</a></li>
+                <li><a href="#" className="text-on-surface-variant hover:text-primary transition-colors">V2Ray Servers</a></li>
+                <li><a href="#" className="text-on-surface-variant hover:text-primary transition-colors">SSH WebSocket</a></li>
+                <li><a href="#" className="text-on-surface-variant hover:text-primary transition-colors">Slow DNS</a></li>
+                <li><a href="#" className="text-on-surface-variant hover:text-primary transition-colors">OpenVPN</a></li>
               </ul>
             </div>
 
             <div>
-              <h3 className="font-semibold text-gray-900 mb-4">Company</h3>
+              <h3 className="font-semibold text-on-surface mb-4">Company</h3>
               <ul className="space-y-3">
-                <li><Link to="/about-us" className="text-gray-500 hover:text-brand-green transition-colors">About Us</Link></li>
-                <li><Link to="/terms-of-service" className="text-gray-500 hover:text-brand-green transition-colors">Terms of Service</Link></li>
-                <li><Link to="/privacy-policy" className="text-gray-500 hover:text-brand-green transition-colors">Privacy Policy</Link></li>
-                <li><a href="https://www.trustpilot.com/review/zimbotunnel.co.zw" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-brand-green transition-colors">Rate us on Trustpilot</a></li>
-                <li><a href="https://status.zimbotunnel.co.zw/" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-brand-green transition-colors">System Status</a></li>
+                <li><Link to="/about-us" className="text-on-surface-variant hover:text-primary transition-colors">About Us</Link></li>
+                <li><Link to="/terms-of-service" className="text-on-surface-variant hover:text-primary transition-colors">Terms of Service</Link></li>
+                <li><Link to="/privacy-policy" className="text-on-surface-variant hover:text-primary transition-colors">Privacy Policy</Link></li>
+                <li><a href="https://www.trustpilot.com/review/zimbotunnel.co.zw" target="_blank" rel="noopener noreferrer" className="text-on-surface-variant hover:text-primary transition-colors">Rate us on Trustpilot</a></li>
+                <li><a href="https://status.zimbotunnel.co.zw/" target="_blank" rel="noopener noreferrer" className="text-on-surface-variant hover:text-primary transition-colors">System Status</a></li>
               </ul>
             </div>
 
             <div>
-              <h3 className="font-semibold text-gray-900 mb-4">Contact Us</h3>
+              <h3 className="font-semibold text-on-surface mb-4">Contact Us</h3>
               <ul className="space-y-3">
                 <li>
-                  <a href="#" className="group flex items-center gap-2 text-gray-500 hover:text-brand-green transition-colors">
-                    <Send className="h-4 w-4 text-gray-400 group-hover:text-brand-green transition-colors" /> Telegram
+                  <a href="#" className="group flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors">
+                    <Send className="h-4 w-4 text-on-surface-variant/80 group-hover:text-primary transition-colors" /> Telegram
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="group flex items-center gap-2 text-gray-500 hover:text-brand-green transition-colors">
-                    <WhatsAppIcon className="h-4 w-4 text-gray-400 group-hover:text-brand-green transition-colors" /> WhatsApp
+                  <a href="#" className="group flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors">
+                    <WhatsAppIcon className="h-4 w-4 text-on-surface-variant/80 group-hover:text-primary transition-colors" /> WhatsApp
                   </a>
                 </li>
                 <li>
-                  <a href="tel:+263710452725" className="group flex items-center gap-2 text-gray-500 hover:text-brand-green transition-colors">
-                    <Phone className="h-4 w-4 text-gray-400 group-hover:text-brand-green transition-colors" /> Call Us
+                  <a href="tel:+263710452725" className="group flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors">
+                    <Phone className="h-4 w-4 text-on-surface-variant/80 group-hover:text-primary transition-colors" /> Call Us
                   </a>
                 </li>
                 <li>
-                  <a href="mailto:support@zimbotunnel.co.zw" className="group flex items-center gap-2 text-gray-500 hover:text-brand-green transition-colors">
-                    <Mail className="h-4 w-4 text-gray-400 group-hover:text-brand-green transition-colors" /> Email
+                  <a href="mailto:support@zimbotunnel.co.zw" className="group flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors">
+                    <Mail className="h-4 w-4 text-on-surface-variant/80 group-hover:text-primary transition-colors" /> Email
                   </a>
                 </li>
               </ul>
@@ -95,25 +95,25 @@ export function Footer() {
           </div>
         </div>
         
-        <div className="border-t border-gray-200 pt-8 flex flex-col xl:flex-row justify-between items-center gap-6">
-          <p className="text-gray-400 text-sm whitespace-nowrap">
+        <div className="border-t border-surface-variant pt-8 flex flex-col xl:flex-row justify-between items-center gap-6">
+          <p className="text-on-surface-variant/80 text-sm whitespace-nowrap">
             &copy; {new Date().getFullYear()} Zimbo Tunnel. All rights reserved.
           </p>
           
           <div className="flex flex-col sm:flex-row items-center gap-3 w-full xl:w-auto justify-center">
-            <span className="text-sm text-gray-500 font-medium whitespace-nowrap">Accepted Payments:</span>
+            <span className="text-sm text-on-surface-variant font-medium whitespace-nowrap">Accepted Payments:</span>
             <div className="flex flex-wrap justify-center items-center gap-2">
               <PaymentBadge>
                 <span className="font-bold text-xs tracking-tight"><span className="text-[#005b9f]">Eco</span><span className="text-[#e3182d]">Cash</span></span>
               </PaymentBadge>
 
               <PaymentBadge>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1.5">
                   <div className="grid grid-cols-2 gap-[1.5px]">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#eeb715]"></div>
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#8b529d]"></div>
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#46b788]"></div>
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#d91e27]"></div>
+                    <div className="w-[5px] h-[5px] rounded-full bg-[#eeb715]"></div>
+                    <div className="w-[5px] h-[5px] rounded-full bg-[#8b529d]"></div>
+                    <div className="w-[5px] h-[5px] rounded-full bg-[#46b788]"></div>
+                    <div className="w-[5px] h-[5px] rounded-full bg-[#d91e27]"></div>
                   </div>
                   <span className="font-bold text-[#0b214a] text-xs tracking-tight">InnBucks<sup className="text-[6px] font-normal">®</sup></span>
                 </div>
@@ -124,25 +124,25 @@ export function Footer() {
               </PaymentBadge>
 
               <PaymentBadge>
-                <div className="flex flex-col items-center justify-center leading-none gap-0.5">
-                  <div className="w-3 h-3 rounded-full border-[2px] border-[#4cb848]"></div>
-                  <span className="font-medium text-[#203c89] text-[7px]">O'mari</span>
+                <div className="flex flex-col items-center justify-center leading-none gap-0.5 mt-0.5">
+                  <div className="w-3.5 h-3.5 rounded-full border-[2px] border-[#4cb848]"></div>
+                  <span className="font-medium text-[#203c89] text-[7.5px] mb-0.5">O'mari</span>
                 </div>
               </PaymentBadge>
 
               <PaymentBadge>
-                <div className="flex flex-col items-center justify-center leading-none">
-                  <span className="font-black italic text-xs leading-none">1</span>
-                  <div className="flex font-black italic text-[6px] tracking-tighter mt-0.5">
-                    <span className="text-black">M</span><span className="text-[#f38b22]">O</span><span className="text-black">NEY</span>
+                <div className="flex flex-col items-center justify-center leading-none mt-0.5">
+                  <span className="font-extrabold italic text-xs leading-none text-black">1</span>
+                  <div className="flex font-bold italic text-[6.5px] tracking-tighter mt-[1px]">
+                    <span className="text-black">M</span><span className="text-[#e31837]">O</span><span className="text-black">NEY</span>
                   </div>
                 </div>
               </PaymentBadge>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 text-sm text-gray-400 whitespace-nowrap">
-            <span>Supported by <a href="https://zigssh.com" target="_blank" rel="noopener noreferrer" className="hover:text-gray-500 hover:underline transition-colors font-medium">ZiG SSH</a></span>
+          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 text-sm text-on-surface-variant/80 whitespace-nowrap">
+            <span>Supported by <a href="https://zigssh.com" target="_blank" rel="noopener noreferrer" className="hover:text-on-surface-variant hover:underline transition-colors font-medium">ZiG SSH</a></span>
           </div>
         </div>
       </div>

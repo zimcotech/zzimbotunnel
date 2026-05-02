@@ -1,0 +1,16 @@
+{
+  "name": "Zimbo Tunnel",
+  "short_name": "Zimbo Tunnel",
+  "description": "Premium Secure Digital Services",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
+  ]
+}

@@ -15,7 +15,7 @@ export function Register() {
   const [error, setError] = useState('');
 
   const calculateStrength = (pwd: string) => {
-    if (pwd.length === 0) return { score: 0, label: '', color: 'bg-gray-200' };
+    if (pwd.length === 0) return { score: 0, label: '', color: 'bg-surface-container-highest' };
     
     let score = 0;
     if (pwd.length >= 6) score++;
@@ -93,20 +93,20 @@ export function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans relative overflow-hidden">
+    <div className="min-h-screen bg-background flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans relative overflow-hidden">
       {/* Background decorative elements */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-64 bg-brand-green/5 blur-[120px] rounded-full pointer-events-none"></div>
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-64 bg-primary/5 blur-[120px] rounded-full pointer-events-none"></div>
       
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <Link to="/" className="flex justify-center items-center gap-2 mb-8 group">
-          <Logo size={48} className="drop-shadow-lg group-hover:scale-105 transition-transform" />
-          <span className="font-black text-3xl tracking-tight text-gray-900 text-shadow-sm">Zimbo <span className="text-brand-yellow">Tunnel</span></span>
+          <Logo size={48} className="drop-shadow-md group-hover:scale-105 transition-transform" />
+          <span className="font-bold text-3xl tracking-tight text-on-surface text-shadow-sm">Zimbo <span className="text-secondary">Tunnel</span></span>
         </Link>
-        <h2 className="mt-2 text-center text-3xl font-black text-gray-900 tracking-tight">
+        <h2 className="mt-2 text-center text-3xl font-bold text-on-surface tracking-tight">
           Create an Account
         </h2>
-        <p className="mt-3 text-center text-base text-gray-500 font-medium">
-          Join <span className="text-brand-green font-bold text-sm">Zimbo</span> <span className="text-brand-yellow font-bold text-sm">Tunnel</span> today
+        <p className="mt-3 text-center text-base text-on-surface-variant font-medium">
+          Join <span className="text-primary font-bold text-sm">Zimbo</span> <span className="text-secondary font-bold text-sm">Tunnel</span> today
         </p>
       </div>
 
@@ -114,10 +114,10 @@ export function Register() {
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white py-10 px-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] sm:rounded-3xl sm:px-12 border border-gray-100"
+          className="bg-surface hover:bg-surface-container-high transition-colors py-10 px-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] sm:rounded-3xl sm:px-12 border border-surface-container-highest"
         >
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-start gap-3 text-red-700">
+            <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-full flex items-start gap-3 text-red-700">
               <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
               <p className="text-sm font-medium">{error}</p>
             </div>
@@ -125,12 +125,12 @@ export function Register() {
 
           <form className="space-y-6" onSubmit={handleSubmit} noValidate>
             <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">
+              <label className="block text-sm font-bold text-on-surface mb-2">
                 Username
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <User className="h-5 w-5 text-gray-400" />
+                  <User className="h-5 w-5 text-on-surface-variant/80" />
                 </div>
                 <input
                   type="text"
@@ -140,19 +140,19 @@ export function Register() {
                     setUsername(e.target.value);
                     if (error) setError('');
                   }}
-                  className="block w-full pl-11 pr-4 py-3.5 border border-gray-200 rounded-xl bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-brand-green/10 focus:border-brand-green transition-all font-medium text-gray-900 outline-none placeholder:text-gray-400"
+                  className="block w-full pl-11 pr-4 py-3.5 border border-surface-variant rounded-full bg-surface-container/50 focus:bg-surface hover:bg-surface-container-high transition-colors focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all font-medium text-on-surface outline-none placeholder:text-on-surface-variant/80"
                   placeholder="johndoe"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">
+              <label className="block text-sm font-bold text-on-surface mb-2">
                 Email address
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-gray-400" />
+                  <Mail className="h-5 w-5 text-on-surface-variant/80" />
                 </div>
                 <input
                   type="email"
@@ -162,19 +162,19 @@ export function Register() {
                     setEmail(e.target.value);
                     if (error) setError('');
                   }}
-                  className="block w-full pl-11 pr-4 py-3.5 border border-gray-200 rounded-xl bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-brand-green/10 focus:border-brand-green transition-all font-medium text-gray-900 outline-none placeholder:text-gray-400"
+                  className="block w-full pl-11 pr-4 py-3.5 border border-surface-variant rounded-full bg-surface-container/50 focus:bg-surface hover:bg-surface-container-high transition-colors focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all font-medium text-on-surface outline-none placeholder:text-on-surface-variant/80"
                   placeholder="you@example.com"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">
+              <label className="block text-sm font-bold text-on-surface mb-2">
                 Password
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
+                  <Lock className="h-5 w-5 text-on-surface-variant/80" />
                 </div>
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -186,13 +186,13 @@ export function Register() {
                     setPasswordStrength(calculateStrength(val));
                     if (error) setError('');
                   }}
-                  className="block w-full pl-11 pr-11 py-3.5 border border-gray-200 rounded-xl bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-brand-green/10 focus:border-brand-green transition-all font-medium text-gray-900 outline-none placeholder:text-gray-400"
+                  className="block w-full pl-11 pr-11 py-3.5 border border-surface-variant rounded-full bg-surface-container/50 focus:bg-surface hover:bg-surface-container-high transition-colors focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all font-medium text-on-surface outline-none placeholder:text-on-surface-variant/80"
                   placeholder="••••••••"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-on-surface-variant/80 hover:text-on-surface-variant transition-colors"
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
@@ -204,7 +204,7 @@ export function Register() {
                       <div 
                         key={i} 
                         className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${
-                          i <= passwordStrength.score ? passwordStrength.color : 'bg-gray-200'
+                          i <= passwordStrength.score ? passwordStrength.color : 'bg-surface-container-highest'
                         }`}
                       />
                     ))}
@@ -220,7 +220,7 @@ export function Register() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex justify-center items-center py-4 px-4 border border-transparent rounded-xl shadow-lg shadow-brand-green/20 text-base font-bold text-white bg-brand-gradient hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-green transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                className="w-full flex justify-center items-center py-4 px-4 border border-transparent rounded-full shadow-md shadow-md text-base font-bold text-white bg-surface-variant hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
               >
                 {isLoading ? (
                   <span className="flex items-center gap-2">
@@ -232,20 +232,20 @@ export function Register() {
             </div>
           </form>
 
-          <p className="mt-6 text-center text-xs text-gray-500 font-medium leading-relaxed">
+          <p className="mt-6 text-center text-xs text-on-surface-variant font-medium leading-relaxed">
             By signing up, you agree to our{' '}
-            <Link to="/terms-of-service" className="font-bold text-brand-green hover:text-brand-yellow-dark transition-colors">
+            <Link to="/terms-of-service" className="font-bold text-primary hover:text-secondary-dark transition-colors">
               Terms of Service
             </Link>{' '}
             and{' '}
-            <Link to="/privacy-policy" className="font-bold text-brand-green hover:text-brand-yellow-dark transition-colors">
+            <Link to="/privacy-policy" className="font-bold text-primary hover:text-secondary-dark transition-colors">
               Privacy Policy
             </Link>.
           </p>
 
-          <p className="mt-8 text-center text-sm text-gray-600 font-medium">
+          <p className="mt-8 text-center text-sm text-on-surface-variant font-medium">
             Already have an account?{' '}
-            <Link to="/login" className="font-bold text-brand-green hover:text-brand-yellow-dark transition-colors">
+            <Link to="/login" className="font-bold text-primary hover:text-secondary-dark transition-colors">
               Sign in instead
             </Link>
           </p>

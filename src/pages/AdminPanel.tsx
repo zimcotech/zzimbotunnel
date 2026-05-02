@@ -11,11 +11,11 @@ export function AdminPanel() {
 
   if (user?.role !== 'admin') {
     return (
-      <div className="flex justify-center items-center h-screen bg-gray-50">
+      <div className="flex justify-center items-center h-screen bg-surface-container">
         <div className="text-center">
           <XCircle className="mx-auto h-12 w-12 text-red-500 mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
-          <p className="text-gray-500">You do not have permission to view this page.</p>
+          <h2 className="text-2xl font-bold text-on-surface mb-2">Access Denied</h2>
+          <p className="text-on-surface-variant">You do not have permission to view this page.</p>
         </div>
       </div>
     );
@@ -36,20 +36,20 @@ export function AdminPanel() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-24">
       <div className="mb-6">
-        <Link to="/" className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-brand-green transition-colors">
+        <Link to="/" className="inline-flex items-center gap-2 text-sm font-bold text-on-surface-variant hover:text-primary transition-colors">
           <ArrowLeft className="w-4 h-4" /> Back to Dashboard
         </Link>
       </div>
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="w-full lg:w-72 shrink-0">
-          <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 p-5 sticky top-24">
+          <div className="bg-surface hover:bg-surface-container-high transition-colors rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-surface-container-highest p-5 sticky top-24">
             <div className="flex items-center gap-3 mb-6 px-2">
-              <div className="w-10 h-10 rounded-xl bg-brand-green-light flex items-center justify-center text-brand-green">
+              <div className="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-primary">
                 <Settings className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-lg font-extrabold text-gray-900 tracking-tight">Admin Console</h2>
-                <p className="text-xs text-gray-500 font-medium">Manage your platform</p>
+                <h2 className="text-lg font-bold text-on-surface tracking-tight">Admin Console</h2>
+                <p className="text-xs text-on-surface-variant font-medium">Manage your platform</p>
               </div>
             </div>
             <nav className="space-y-1.5">
@@ -66,32 +66,32 @@ export function AdminPanel() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold transition-all relative overflow-hidden group ${
+                    className={`w-full flex items-center justify-between px-4 py-3 rounded-full text-sm font-bold transition-all relative overflow-hidden group ${
                       isActive
-                        ? 'text-brand-green bg-brand-green-light/50'
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                        ? 'text-primary bg-primary-container/50'
+                        : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
                     }`}
                   >
                     {isActive && (
                       <motion.div 
                         layoutId="activeTabIndicator"
-                        className="absolute inset-0 bg-brand-green-light" 
+                        className="absolute inset-0 bg-primary-container" 
                         initial={false}
                         transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
                       />
                     )}
                     <div className="flex items-center gap-3 relative z-10">
-                      <tab.icon className={`w-4 h-4 transition-colors ${isActive ? 'text-brand-green' : 'text-gray-400 group-hover:text-gray-600'}`} />
+                      <tab.icon className={`w-4 h-4 transition-colors ${isActive ? 'text-primary' : 'text-on-surface-variant/80 group-hover:text-on-surface-variant'}`} />
                       {tab.label}
                     </div>
-                    {isActive && <ChevronRight className="w-4 h-4 text-brand-green relative z-10 opacity-50" />}
+                    {isActive && <ChevronRight className="w-4 h-4 text-primary relative z-10 opacity-50" />}
                   </button>
                 );
               })}
             </nav>
           </div>
         </div>
-        <div className="flex-1 bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 p-6 md:p-8 min-h-[600px] overflow-hidden">
+        <div className="flex-1 bg-surface hover:bg-surface-container-high transition-colors rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-surface-container-highest p-6 md:p-8 min-h-[600px] overflow-hidden">
           <AnimatePresence mode="wait">
             <motion.div 
               key={activeTab}
@@ -159,21 +159,21 @@ function PaymentsTab() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
         <div>
-          <h3 className="text-xl font-extrabold text-gray-900 tracking-tight">Recent Payments</h3>
-          <p className="text-sm text-gray-500 font-medium">View and monitor transaction history.</p>
+          <h3 className="text-xl font-bold text-on-surface tracking-tight">Recent Payments</h3>
+          <p className="text-sm text-on-surface-variant font-medium">View and monitor transaction history.</p>
         </div>
-        <button onClick={fetchPayments} className="flex items-center gap-2 text-sm font-bold text-brand-green bg-brand-green-light px-4 py-2.5 rounded-xl hover:bg-brand-green/10 transition-colors">
+        <button onClick={fetchPayments} className="flex items-center gap-2 text-sm font-bold text-primary bg-primary-container px-4 py-2.5 rounded-full hover:bg-primary/10 transition-colors">
           <Settings className="w-4 h-4" /> Refresh
         </button>
       </div>
       {loading ? (
         <div className="flex justify-center items-center py-20">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-green"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white">
-          <table className="w-full text-left text-sm text-gray-600">
-            <thead className="text-xs text-gray-500 uppercase bg-gray-50/80 border-b border-gray-100 font-bold tracking-wider">
+        <div className="overflow-x-auto rounded-full border border-surface-container-highest bg-surface hover:bg-surface-container-high transition-colors">
+          <table className="w-full text-left text-sm text-on-surface-variant">
+            <thead className="text-xs text-on-surface-variant uppercase bg-surface-container/80 border-b border-surface-container-highest font-bold tracking-wider">
               <tr>
                 <th className="px-5 py-4">Date & Time</th>
                 <th className="px-5 py-4">User</th>
@@ -183,12 +183,12 @@ function PaymentsTab() {
             </thead>
             <tbody>
               {payments.map(p => (
-                <tr key={p.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-                  <td className="px-5 py-4 font-medium whitespace-nowrap text-gray-900">
-                    {new Date(p.created_at).toLocaleDateString()} <span className="text-gray-400 ml-1">{new Date(p.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                <tr key={p.id} className="border-b border-gray-50 hover:bg-surface-container/50 transition-colors">
+                  <td className="px-5 py-4 font-medium whitespace-nowrap text-on-surface">
+                    {new Date(p.created_at).toLocaleDateString()} <span className="text-on-surface-variant/80 ml-1">{new Date(p.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                   </td>
-                  <td className="px-5 py-4 font-medium text-gray-900">{p.profiles?.username || p.user_id}</td>
-                  <td className="px-5 py-4 font-extrabold text-brand-green">${p.amount.toFixed(2)}</td>
+                  <td className="px-5 py-4 font-medium text-on-surface">{p.profiles?.username || p.user_id}</td>
+                  <td className="px-5 py-4 font-bold text-primary">${p.amount.toFixed(2)}</td>
                   <td className="px-5 py-4">
                     <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold leading-none ${p.status === 'completed' || p.status === 'success' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
                       {p.status}
@@ -198,7 +198,7 @@ function PaymentsTab() {
               ))}
               {payments.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="px-5 py-12 text-center text-gray-500 font-medium">No payments found.</td>
+                  <td colSpan={4} className="px-5 py-12 text-center text-on-surface-variant font-medium">No payments found.</td>
                 </tr>
               )}
             </tbody>
@@ -244,27 +244,27 @@ function UsersTab() {
   return (
     <div>
       <div className="mb-8">
-        <h3 className="text-xl font-extrabold text-gray-900 tracking-tight">Manage Users</h3>
-        <p className="text-sm text-gray-500 font-medium">Search and manage platform users.</p>
+        <h3 className="text-xl font-bold text-on-surface tracking-tight">Manage Users</h3>
+        <p className="text-sm text-on-surface-variant font-medium">Search and manage platform users.</p>
       </div>
       <div className="mb-6 relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-on-surface-variant/80" />
         <input 
           type="text" 
           placeholder="Search by username or email..." 
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-brand-green/10 focus:border-brand-green transition-all"
+          className="w-full pl-12 pr-4 py-3.5 bg-surface-container border border-surface-variant rounded-full focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all"
         />
       </div>
       {loading ? (
         <div className="flex justify-center items-center py-20">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-green"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white">
-          <table className="w-full text-left text-sm text-gray-600">
-            <thead className="text-xs text-gray-500 uppercase bg-gray-50/80 border-b border-gray-100 font-bold tracking-wider">
+        <div className="overflow-x-auto rounded-full border border-surface-container-highest bg-surface hover:bg-surface-container-high transition-colors">
+          <table className="w-full text-left text-sm text-on-surface-variant">
+            <thead className="text-xs text-on-surface-variant uppercase bg-surface-container/80 border-b border-surface-container-highest font-bold tracking-wider">
               <tr>
                 <th className="px-5 py-4">User</th>
                 <th className="px-5 py-4">Role</th>
@@ -274,28 +274,28 @@ function UsersTab() {
             </thead>
             <tbody>
               {filteredUsers.map(u => (
-                <tr key={u.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                <tr key={u.id} className="border-b border-gray-50 hover:bg-surface-container/50 transition-colors">
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-brand-green-light text-brand-green flex items-center justify-center font-bold">
+                      <div className="w-9 h-9 rounded-full bg-primary-container text-primary flex items-center justify-center font-bold">
                         {u.username?.charAt(0).toUpperCase() || '?'}
                       </div>
                       <div>
-                        <div className="font-bold text-gray-900">{u.username}</div>
-                        <div className="text-xs text-gray-500">{u.email}</div>
+                        <div className="font-bold text-on-surface">{u.username}</div>
+                        <div className="text-xs text-on-surface-variant">{u.email}</div>
                       </div>
                     </div>
                   </td>
                   <td className="px-5 py-4">
-                    <span className="inline-flex px-2 py-1 rounded bg-gray-100 text-gray-600 text-xs font-bold capitalize">
+                    <span className="inline-flex px-2 py-1 rounded bg-surface-container-high text-on-surface-variant text-xs font-bold capitalize">
                       {u.role || 'user'}
                     </span>
                   </td>
-                  <td className="px-5 py-4 font-bold text-gray-900">${(u.balance || 0).toFixed(2)}</td>
+                  <td className="px-5 py-4 font-bold text-on-surface">${(u.balance || 0).toFixed(2)}</td>
                   <td className="px-5 py-4">
                     <button 
                       onClick={() => handleBanToggle(u.id, !!u.is_banned)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm hover:shadow active:scale-95 ${u.is_banned ? 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200' : 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-100'}`}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm hover:shadow active:scale-95 ${u.is_banned ? 'bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest border border-surface-variant' : 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-100'}`}
                     >
                       {u.is_banned ? 'Unban User' : 'Ban User'}
                     </button>
@@ -304,7 +304,7 @@ function UsersTab() {
               ))}
               {filteredUsers.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="px-5 py-12 text-center text-gray-500 font-medium">No users found matching your search.</td>
+                  <td colSpan={4} className="px-5 py-12 text-center text-on-surface-variant font-medium">No users found matching your search.</td>
                 </tr>
               )}
             </tbody>
@@ -338,32 +338,32 @@ function NotificationsTab() {
   return (
     <div className="max-w-xl">
       <div className="mb-8">
-        <h3 className="text-xl font-extrabold text-gray-900 tracking-tight">Send Global Notification</h3>
-        <p className="text-sm text-gray-500 font-medium">Broadcast a message to all users on the platform.</p>
+        <h3 className="text-xl font-bold text-on-surface tracking-tight">Send Global Notification</h3>
+        <p className="text-sm text-on-surface-variant font-medium">Broadcast a message to all users on the platform.</p>
       </div>
       <form onSubmit={handleSend} className="space-y-5">
         <div>
-          <label className="block text-sm font-bold text-gray-900 mb-2">Notification Title</label>
+          <label className="block text-sm font-bold text-on-surface mb-2">Notification Title</label>
           <input 
             type="text" 
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full px-4 py-3 sm:py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-brand-green/10 focus:border-brand-green transition-all"
+            className="w-full px-4 py-3 sm:py-3.5 bg-surface-container border border-surface-variant rounded-full focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all"
             required
             placeholder="e.g., System Maintenance"
           />
         </div>
         <div>
-          <label className="block text-sm font-bold text-gray-900 mb-2">Message</label>
+          <label className="block text-sm font-bold text-on-surface mb-2">Message</label>
           <textarea 
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            className="w-full px-4 py-3 sm:py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-brand-green/10 focus:border-brand-green h-32 resize-none transition-all"
+            className="w-full px-4 py-3 sm:py-3.5 bg-surface-container border border-surface-variant rounded-full focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary h-32 resize-none transition-all"
             required
             placeholder="Enter your message here..."
           />
         </div>
-        <button type="submit" className="w-full sm:w-auto px-8 py-3.5 bg-brand-green text-white font-bold rounded-xl shadow-lg shadow-brand-green/20 hover:-translate-y-0.5 hover:shadow-xl transition-all">
+        <button type="submit" className="w-full sm:w-auto px-8 py-3.5 bg-primary text-white font-bold rounded-full shadow-md shadow-md hover:-translate-y-0.5 hover:shadow-xl transition-all">
           Send Notification
         </button>
         {status && (
@@ -402,32 +402,32 @@ function BlogsTab() {
   return (
     <div className="max-w-2xl">
       <div className="mb-8">
-        <h3 className="text-xl font-extrabold text-gray-900 tracking-tight">Add New Blog</h3>
-        <p className="text-sm text-gray-500 font-medium">Publish a new article to the site blog.</p>
+        <h3 className="text-xl font-bold text-on-surface tracking-tight">Add New Blog</h3>
+        <p className="text-sm text-on-surface-variant font-medium">Publish a new article to the site blog.</p>
       </div>
       <form onSubmit={handleAdd} className="space-y-5">
         <div>
-          <label className="block text-sm font-bold text-gray-900 mb-2">Blog Title</label>
+          <label className="block text-sm font-bold text-on-surface mb-2">Blog Title</label>
           <input 
             type="text" 
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full px-4 py-3 sm:py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-brand-green/10 focus:border-brand-green transition-all"
+            className="w-full px-4 py-3 sm:py-3.5 bg-surface-container border border-surface-variant rounded-full focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all"
             required
             placeholder="Enter blog title"
           />
         </div>
         <div>
-          <label className="block text-sm font-bold text-gray-900 mb-2">Content</label>
+          <label className="block text-sm font-bold text-on-surface mb-2">Content</label>
           <textarea 
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-brand-green/10 focus:border-brand-green h-64 resize-y transition-all"
+            className="w-full px-4 py-3 bg-surface-container border border-surface-variant rounded-full focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary h-64 resize-y transition-all"
             required
             placeholder="Write your blog post here..."
           />
         </div>
-        <button type="submit" className="w-full sm:w-auto px-8 py-3.5 bg-brand-green text-white font-bold rounded-xl shadow-lg shadow-brand-green/20 hover:-translate-y-0.5 hover:shadow-xl transition-all">
+        <button type="submit" className="w-full sm:w-auto px-8 py-3.5 bg-primary text-white font-bold rounded-full shadow-md shadow-md hover:-translate-y-0.5 hover:shadow-xl transition-all">
           Publish Blog
         </button>
         {status && (
@@ -511,36 +511,36 @@ function CouponsTab() {
   return (
     <div className="max-w-4xl">
       <div className="mb-8">
-        <h3 className="text-xl font-extrabold text-gray-900 tracking-tight">Manage Coupons</h3>
-        <p className="text-sm text-gray-500 font-medium">Generate and manage discount codes.</p>
+        <h3 className="text-xl font-bold text-on-surface tracking-tight">Manage Coupons</h3>
+        <p className="text-sm text-on-surface-variant font-medium">Generate and manage discount codes.</p>
       </div>
       
       {/* Create form */}
       <div className="mb-12 max-w-xl">
         <form onSubmit={handleCreate} className="space-y-5">
           <div>
-            <label className="block text-sm font-bold text-gray-900 mb-2">Coupon Code</label>
+            <label className="block text-sm font-bold text-on-surface mb-2">Coupon Code</label>
             <div className="relative">
-              <Tag className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Tag className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-on-surface-variant/80" />
               <input 
                 type="text" 
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 sm:py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-brand-green/10 focus:border-brand-green uppercase transition-all"
+                className="w-full pl-12 pr-4 py-3 sm:py-3.5 bg-surface-container border border-surface-variant rounded-full focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary uppercase transition-all"
                 placeholder="e.g. SUMMER20"
                 required
               />
             </div>
-            <p className="mt-1.5 text-xs text-gray-500 font-medium">Use alphanumeric characters. Will be converted to uppercase.</p>
+            <p className="mt-1.5 text-xs text-on-surface-variant font-medium">Use alphanumeric characters. Will be converted to uppercase.</p>
           </div>
           <div className="grid grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">Discount (%)</label>
+              <label className="block text-sm font-bold text-on-surface mb-2">Discount (%)</label>
               <input 
                 type="number" 
                 value={discount}
                 onChange={(e) => setDiscount(e.target.value)}
-                className="w-full px-4 py-3 sm:py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-brand-green/10 focus:border-brand-green transition-all"
+                className="w-full px-4 py-3 sm:py-3.5 bg-surface-container border border-surface-variant rounded-full focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all"
                 placeholder="20"
                 min="1"
                 max="100"
@@ -548,18 +548,18 @@ function CouponsTab() {
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">Max Uses</label>
+              <label className="block text-sm font-bold text-on-surface mb-2">Max Uses</label>
               <input 
                 type="number" 
                 value={maxUses}
                 onChange={(e) => setMaxUses(e.target.value)}
-                className="w-full px-4 py-3 sm:py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-brand-green/10 focus:border-brand-green transition-all"
+                className="w-full px-4 py-3 sm:py-3.5 bg-surface-container border border-surface-variant rounded-full focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all"
                 placeholder="100"
                 min="1"
               />
             </div>
           </div>
-          <button type="submit" className="w-full sm:w-auto px-8 py-3.5 bg-brand-green text-white font-bold rounded-xl shadow-lg shadow-brand-green/20 hover:-translate-y-0.5 hover:shadow-xl transition-all">
+          <button type="submit" className="w-full sm:w-auto px-8 py-3.5 bg-primary text-white font-bold rounded-full shadow-md shadow-md hover:-translate-y-0.5 hover:shadow-xl transition-all">
             Create Coupon
           </button>
           {status && (
@@ -575,15 +575,15 @@ function CouponsTab() {
 
       {/* List of Coupons */}
       <div>
-        <h4 className="font-bold text-gray-900 mb-4">Active & Used Coupons</h4>
+        <h4 className="font-bold text-on-surface mb-4">Active & Used Coupons</h4>
         {loading ? (
           <div className="flex justify-center items-center py-10">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-green"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
-            <table className="w-full text-left text-sm text-gray-600">
-              <thead className="text-xs text-gray-500 uppercase bg-gray-50/80 border-b border-gray-100 font-bold tracking-wider">
+          <div className="overflow-x-auto rounded-full border border-surface-container-highest bg-surface hover:bg-surface-container-high transition-colors shadow-sm">
+            <table className="w-full text-left text-sm text-on-surface-variant">
+              <thead className="text-xs text-on-surface-variant uppercase bg-surface-container/80 border-b border-surface-container-highest font-bold tracking-wider">
                 <tr>
                   <th className="px-5 py-4">Code</th>
                   <th className="px-5 py-4">Discount</th>
@@ -594,26 +594,26 @@ function CouponsTab() {
               </thead>
               <tbody>
                 {coupons.map((c) => (
-                  <tr key={c.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                  <tr key={c.id} className="border-b border-gray-50 hover:bg-surface-container/50 transition-colors">
                     <td className="px-5 py-4">
-                      <span className="font-bold text-brand-green bg-brand-green-light px-2.5 py-1 rounded-md">{c.code}</span>
+                      <span className="font-bold text-primary bg-primary-container px-2.5 py-1 rounded-md">{c.code}</span>
                     </td>
-                    <td className="px-5 py-4 font-bold text-gray-900">{c.discount_percent}%</td>
+                    <td className="px-5 py-4 font-bold text-on-surface">{c.discount_percent}%</td>
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-2">
-                        <div className="w-full bg-gray-100 rounded-full h-1.5 max-w-[80px]">
-                          <div className="bg-brand-green h-1.5 rounded-full" style={{ width: `${Math.min((c.uses / c.max_uses) * 100, 100)}%` }}></div>
+                        <div className="w-full bg-surface-container-high rounded-full h-1.5 max-w-[80px]">
+                          <div className="bg-primary h-1.5 rounded-full" style={{ width: `${Math.min((c.uses / c.max_uses) * 100, 100)}%` }}></div>
                         </div>
-                        <span className="text-xs font-medium text-gray-500">{c.uses}/{c.max_uses}</span>
+                        <span className="text-xs font-medium text-on-surface-variant">{c.uses}/{c.max_uses}</span>
                       </div>
                     </td>
-                    <td className="px-5 py-4 text-gray-500 font-medium whitespace-nowrap">
+                    <td className="px-5 py-4 text-on-surface-variant font-medium whitespace-nowrap">
                       {new Date(c.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-5 py-4 text-right">
                       <button 
                         onClick={() => handleDelete(c.id)}
-                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                        className="p-2 text-on-surface-variant/80 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                         title="Delete Coupon"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -623,7 +623,7 @@ function CouponsTab() {
                 ))}
                 {coupons.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="px-5 py-12 text-center text-gray-500 font-medium">No coupons have been created yet.</td>
+                    <td colSpan={5} className="px-5 py-12 text-center text-on-surface-variant font-medium">No coupons have been created yet.</td>
                   </tr>
                 )}
               </tbody>
@@ -692,35 +692,35 @@ function CoinsTab() {
   return (
     <div className="max-w-xl">
       <div className="mb-8">
-        <h3 className="text-xl font-extrabold text-gray-900 tracking-tight">Add Coins to User</h3>
-        <p className="text-sm text-gray-500 font-medium">Manually credit coins to a user's balance.</p>
+        <h3 className="text-xl font-bold text-on-surface tracking-tight">Add Coins to User</h3>
+        <p className="text-sm text-on-surface-variant font-medium">Manually credit coins to a user's balance.</p>
       </div>
       <form onSubmit={handleAddCoins} className="space-y-5">
         <div>
-          <label className="block text-sm font-bold text-gray-900 mb-2">Username or Email</label>
+          <label className="block text-sm font-bold text-on-surface mb-2">Username or Email</label>
           <input 
             type="text" 
             value={identifier}
             onChange={(e) => setIdentifier(e.target.value)}
-            className="w-full px-4 py-3 sm:py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-brand-green/10 focus:border-brand-green transition-all"
+            className="w-full px-4 py-3 sm:py-3.5 bg-surface-container border border-surface-variant rounded-full focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all"
             placeholder="johndoe or user@example.com"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-bold text-gray-900 mb-2">Amount to Add ($)</label>
+          <label className="block text-sm font-bold text-on-surface mb-2">Amount to Add ($)</label>
           <input 
             type="number" 
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="w-full px-4 py-3 sm:py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-brand-green/10 focus:border-brand-green transition-all"
+            className="w-full px-4 py-3 sm:py-3.5 bg-surface-container border border-surface-variant rounded-full focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all"
             placeholder="10.00"
             step="0.01"
             min="0.01"
             required
           />
         </div>
-        <button type="submit" className="w-full sm:w-auto px-8 py-3.5 bg-brand-green text-white font-bold rounded-xl shadow-lg shadow-brand-green/20 hover:-translate-y-0.5 hover:shadow-xl transition-all">
+        <button type="submit" className="w-full sm:w-auto px-8 py-3.5 bg-primary text-white font-bold rounded-full shadow-md shadow-md hover:-translate-y-0.5 hover:shadow-xl transition-all">
           Add Coins
         </button>
         {status && (

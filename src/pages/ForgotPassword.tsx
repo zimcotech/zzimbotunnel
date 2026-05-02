@@ -46,19 +46,19 @@ export function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-[#fcfdf2] flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans relative overflow-hidden">
+    <div className="min-h-screen bg-background flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans relative overflow-hidden">
       {/* Background decorative elements */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-64 bg-brand-green/5 blur-[120px] rounded-full pointer-events-none"></div>
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-64 bg-primary/5 blur-[120px] rounded-full pointer-events-none"></div>
       
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <Link to="/" className="flex justify-center items-center gap-2 mb-8 group">
-          <Logo size={48} className="drop-shadow-lg group-hover:scale-105 transition-transform" />
-          <span className="font-black text-3xl tracking-tight text-gray-900 text-shadow-sm">Zimbo <span className="text-brand-green">Tunnel</span></span>
+          <Logo size={48} className="drop-shadow-md group-hover:scale-105 transition-transform" />
+          <span className="font-bold text-3xl tracking-tight text-on-surface text-shadow-sm">Zimbo <span className="text-primary">Tunnel</span></span>
         </Link>
-        <h2 className="mt-2 text-center text-3xl font-black text-gray-900 tracking-tight">
+        <h2 className="mt-2 text-center text-3xl font-bold text-on-surface tracking-tight">
           Reset your password
         </h2>
-        <p className="mt-3 text-center text-base text-gray-500 font-medium">
+        <p className="mt-3 text-center text-base text-on-surface-variant font-medium">
           Enter your email and we'll send you a reset link
         </p>
       </div>
@@ -67,20 +67,20 @@ export function ForgotPassword() {
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white py-10 px-6 shadow-2xl shadow-brand-green/5 sm:rounded-[2rem] sm:px-12 border border-brand-yellow/10"
+          className="bg-surface hover:bg-surface-container-high transition-colors py-10 px-6 shadow-2xl shadow-md sm:rounded-[2rem] sm:px-12 border border-brand-yellow/10"
         >
           {isSuccess ? (
             <div className="text-center">
-              <div className="w-16 h-16 bg-brand-green-light rounded-full flex items-center justify-center mx-auto mb-4 border border-brand-green/20 shadow-inner">
-                <CheckCircle2 className="h-8 w-8 text-brand-green" />
+              <div className="w-16 h-16 bg-primary-container rounded-full flex items-center justify-center mx-auto mb-4 border border-primary/20 shadow-inner">
+                <CheckCircle2 className="h-8 w-8 text-primary" />
               </div>
-              <h3 className="text-xl font-black text-gray-900 mb-2">Check your email</h3>
-              <p className="text-gray-500 font-medium mb-8">
-                We've sent a password reset link to <span className="font-bold text-gray-900">{email}</span>.
+              <h3 className="text-xl font-bold text-on-surface mb-2">Check your email</h3>
+              <p className="text-on-surface-variant font-medium mb-8">
+                We've sent a password reset link to <span className="font-bold text-on-surface">{email}</span>.
               </p>
               <Link 
                 to="/login"
-                className="w-full flex justify-center items-center py-4 px-4 border border-transparent rounded-2xl shadow-lg shadow-brand-green/20 text-[10px] font-black uppercase tracking-widest text-white bg-brand-gradient hover:scale-[1.02] active:scale-[0.98] transition-all"
+                className="w-full flex justify-center items-center py-4 px-4 border border-transparent rounded-3xl shadow-md shadow-md text-[10px] font-bold uppercase tracking-widest text-white bg-surface-variant hover:scale-[1.02] active:scale-[0.98] transition-all"
               >
                 Return to sign in
               </Link>
@@ -88,7 +88,7 @@ export function ForgotPassword() {
           ) : (
             <>
               {error && (
-                <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-start gap-3 text-red-700">
+                <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-3xl flex items-start gap-3 text-red-700">
                   <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
                   <p className="text-sm font-medium">{error}</p>
                 </div>
@@ -96,12 +96,12 @@ export function ForgotPassword() {
 
               <form className="space-y-6" onSubmit={handleSubmit} noValidate>
                 <div>
-                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">
+                  <label className="block text-[10px] font-bold text-on-surface-variant/80 uppercase tracking-widest mb-3 ml-1">
                     Email address
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <Mail className="h-5 w-5 text-gray-400" />
+                      <Mail className="h-5 w-5 text-on-surface-variant/80" />
                     </div>
                     <input
                       type="email"
@@ -110,7 +110,7 @@ export function ForgotPassword() {
                         setEmail(e.target.value);
                         if (error) setError('');
                       }}
-                      className="block w-full pl-11 pr-4 py-4 border border-gray-100 rounded-2xl bg-gray-50/50 focus:bg-white focus:ring-4 focus:ring-brand-green/10 focus:border-brand-green transition-all font-medium text-gray-900 outline-none placeholder:text-gray-400"
+                      className="block w-full pl-11 pr-4 py-4 border border-surface-container-highest rounded-3xl bg-surface-container/50 focus:bg-surface hover:bg-surface-container-high transition-colors focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-medium text-on-surface outline-none placeholder:text-on-surface-variant/80"
                       placeholder="you@example.com"
                     />
                   </div>
@@ -120,7 +120,7 @@ export function ForgotPassword() {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full flex justify-center items-center py-4 px-4 border border-transparent rounded-2xl shadow-xl shadow-brand-green/20 text-[10px] font-black uppercase tracking-widest text-white bg-brand-gradient hover:scale-[1.02] active:scale-[0.98] focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full flex justify-center items-center py-4 px-4 border border-transparent rounded-3xl shadow-xl shadow-md text-[10px] font-bold uppercase tracking-widest text-white bg-surface-variant hover:scale-[1.02] active:scale-[0.98] focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isLoading ? (
                       <span className="flex items-center gap-2">
@@ -135,18 +135,18 @@ export function ForgotPassword() {
           )}
 
           <div className="mt-10 text-center">
-            <Link to="/login" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-brand-green transition-colors">
+            <Link to="/login" className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/80 hover:text-primary transition-colors">
               <ArrowLeft className="h-4 w-4" />
               Back to login
             </Link>
           </div>
-          <p className="mt-10 text-center text-[10px] text-gray-400 font-bold leading-relaxed uppercase tracking-tighter">
+          <p className="mt-10 text-center text-[10px] text-on-surface-variant/80 font-bold leading-relaxed uppercase tracking-tighter">
             Protected by reCAPTCHA and subject to our{' '}
-            <Link to="/privacy-policy" className="text-brand-green hover:text-brand-green/80 transition-colors">
+            <Link to="/privacy-policy" className="text-primary hover:text-primary/80 transition-colors">
               Privacy Policy
             </Link>{' '}
             and{' '}
-            <Link to="/terms-of-service" className="text-brand-green hover:text-brand-green/80 transition-colors">
+            <Link to="/terms-of-service" className="text-primary hover:text-primary/80 transition-colors">
               Terms of Service
             </Link>.
           </p>

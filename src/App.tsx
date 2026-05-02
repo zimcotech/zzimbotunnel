@@ -15,6 +15,7 @@ import { Dashboard } from './pages/Dashboard';
 import { Profile } from './pages/Profile';
 import { ServerDetails } from './pages/ServerDetails';
 import { Status } from './pages/Status';
+import { InstallPrompt } from './components/InstallPrompt';
 import { CookieConsent } from './components/CookieConsent';
 
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
@@ -28,8 +29,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-green"></div>
+      <div className="min-h-screen flex items-center justify-center bg-surface hover:bg-surface-container-high transition-colors">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -83,6 +84,7 @@ function AppContent() {
               </div>
               <Footer />
               <CookieConsent />
+              <InstallPrompt />
             </>
           } />
         </Routes>
