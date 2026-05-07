@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Server, Plus, Clock, Copy, CheckCircle2, AlertCircle, Wallet, History, LogOut, User, LayoutDashboard, Facebook, Send, Youtube, Filter, ArrowUpDown, Coins, DollarSign, Bitcoin, Briefcase, Smartphone, Infinity, ArrowRightLeft, Info, X, ChevronDown, Bell, ExternalLink, RefreshCw, Loader2, PlayCircle } from 'lucide-react';
+import { Server, Plus, Clock, Copy, CheckCircle2, AlertCircle, Wallet, History, LogOut, User, LayoutDashboard, Facebook, Send, Youtube, Filter, ArrowUpDown, Coins, DollarSign, Bitcoin, Briefcase, Smartphone, Infinity, ArrowRightLeft, Info, X, ChevronDown, Bell, ExternalLink, RefreshCw, Loader2, PlayCircle, Check } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Topbar } from '../components/Topbar';
 import { WhatsAppIcon } from '../components/icons/WhatsAppIcon';
@@ -13,7 +13,9 @@ export function Dashboard() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [servers, setServers] = useState<any[]>([]);
+  const [isLoadingServers, setIsLoadingServers] = useState(true);
   const [transactions, setTransactions] = useState<any[]>([]);
+  const [isLoadingTransactions, setIsLoadingTransactions] = useState(true);
   const [verifiedTxs, setVerifiedTxs] = useState<Record<string, boolean>>({});
   
   const tabParam = searchParams.get('tab') as 'overview' | 'servers' | 'create' | 'billing' | null;
@@ -162,6 +164,7 @@ export function Dashboard() {
 
   const fetchServers = async () => {
     try {
+      setIsLoadingServers(true);
       const { data, error } = await supabase
         .from('servers')
         .select('*')
@@ -172,11 +175,14 @@ export function Dashboard() {
       if (data) setServers(data);
     } catch (error) {
       console.error('Failed to fetch servers', error);
+    } finally {
+      setIsLoadingServers(false);
     }
   };
 
   const fetchTransactions = async () => {
     try {
+      setIsLoadingTransactions(true);
       const { data, error } = await supabase
         .from('transactions')
         .select('*')
@@ -209,6 +215,8 @@ export function Dashboard() {
       }
     } catch (error) {
       console.error('Failed to fetch transactions', error);
+    } finally {
+      setIsLoadingTransactions(false);
     }
   };
 
@@ -688,46 +696,61 @@ export function Dashboard() {
         </div>
       )}
       <Topbar />
-      <div className="flex-1 flex flex-col md:flex-row overflow-hidden bg-[#454d55] text-white">
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         {/* Sidebar */}
-        <aside className="w-full md:w-[250px] bg-[#343a40] flex-shrink-0 shadow-lg z-10 flex flex-col overflow-y-auto">
-          <div className="p-4 border-b border-[#4f5962] flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-[#17a2b8] flex items-center justify-center text-white font-bold shadow">
-              <User className="h-5 w-5" />
+        <aside className="w-full md:w-72 bg-surface hover:bg-surface-container-high transition-colors border-r border-brand-yellow/10 flex-shrink-0 shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-10 flex flex-col overflow-y-auto">
+          <div className="p-6">
+            <div className="flex items-center gap-4 mb-8 p-2 rounded-3xl hover:bg-secondary-light/50 transition-colors cursor-pointer">
+              <div className="w-12 h-12 rounded-full bg-surface-variant flex items-center justify-center text-white shadow-md border border-white/20">
+                <User className="h-6 w-6" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-bold text-on-surface truncate">{user.username}</h3>
+                <p className="text-xs text-on-surface-variant/80 truncate">{user.email}</p>
+              </div>
             </div>
-            <div className="flex flex-col">
-              <h3 className="font-semibold text-white leading-tight truncate">{user.username}</h3>
-              <span className="text-xs text-[#c2c7d0] flex items-center gap-1">
-                <div className="w-2 h-2 rounded-full bg-[#28a745]"></div> Online
-              </span>
-            </div>
-          </div>
 
-          <nav className="mt-4 px-2 space-y-1">
-            {[
-              { id: 'overview', icon: LayoutDashboard, label: 'Dashboard' },
-              { id: 'servers', icon: Server, label: 'My Servers' },
-              { id: 'create', icon: Plus, label: 'Create Server' },
-              { id: 'billing', icon: Wallet, label: 'Billing & Coins' },
-            ].map((item) => (
-              <button 
-                key={item.id}
-                onClick={() => setActiveTab(item.id as any)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded text-sm transition-colors ${
-                  activeTab === item.id 
-                    ? 'bg-[#007bff] text-white' 
-                    : 'text-[#c2c7d0] hover:bg-[#4f5962] hover:text-white'
-                }`}
-              >
-                <item.icon className="h-4 w-4" />
-                <span className="font-semibold">{item.label}</span>
-              </button>
-            ))}
-          </nav>
+            <div className="relative overflow-hidden bg-surface-variant rounded-3xl p-5 text-white mb-8 shadow-md border border-white/10 group">
+              <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-surface hover:bg-surface-container-high transition-colors opacity-10 rounded-full blur-2xl group-hover:opacity-20 transition-opacity duration-500"></div>
+              <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-20 h-20 bg-secondary/30 rounded-full blur-xl"></div>
+              
+              <div className="relative z-10">
+                <p className="text-white/80 text-[10px] font-bold tracking-widest uppercase mb-1 flex items-center gap-1.5">
+                  <Wallet className="h-3.5 w-3.5" /> Available Balance
+                </p>
+                <div className="flex items-baseline gap-1">
+                  <h2 className="text-3xl font-bold tracking-tight">{user.balance.toFixed(0)}</h2>
+                  <span className="text-xs font-bold text-secondary uppercase tracking-tight">Coins</span>
+                </div>
+              </div>
+            </div>
+
+            <nav className="space-y-1.5">
+              {[
+                { id: 'overview', icon: LayoutDashboard, label: 'Overview' },
+                { id: 'servers', icon: Server, label: 'My Servers' },
+                { id: 'create', icon: Plus, label: 'Create Server' },
+                { id: 'billing', icon: Wallet, label: 'Billing & Coins' },
+              ].map((item) => (
+                <button 
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id as any)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-full text-sm font-bold transition-all duration-200 ${
+                    activeTab === item.id 
+                      ? 'bg-primary text-white shadow-md shadow-md scale-[1.02]' 
+                      : 'text-on-surface-variant hover:bg-secondary-light hover:text-primary-dark'
+                  }`}
+                >
+                  <item.icon className={`h-5 w-5 ${activeTab === item.id ? 'text-white' : 'text-on-surface-variant/80'}`} />
+                  {item.label}
+                </button>
+              ))}
+            </nav>
+          </div>
         </aside>
 
         {/* Main Content */}
-        <main id="main-content" className="flex-1 p-4 md:p-6 overflow-y-auto flex flex-col bg-[#454d55]">
+        <main id="main-content" className="flex-1 p-6 md:p-8 overflow-y-auto flex flex-col">
           {globalNotification && (
             <div className="mb-6 bg-primary/10 border-l-4 border-primary p-5 rounded-3xl relative overflow-hidden flex items-start gap-4 animate-in fade-in slide-in-from-top-2">
               <div className="absolute right-0 top-0 w-40 h-40 bg-primary opacity-[0.03] blur-2xl rounded-full -translate-y-1/2 translate-x-1/2" />
@@ -754,61 +777,47 @@ export function Dashboard() {
             <h1 className="text-2xl md:text-3xl font-bold text-on-surface mb-2 tracking-tight">Dashboard Overview</h1>
             <p className="text-on-surface-variant mb-8">Welcome back, here's what's happening with your account today.</p>
             
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* Total Coins */}
-                <div className="relative overflow-hidden rounded shadow bg-[#17a2b8] text-white">
-                  <div className="p-4 relative z-10">
-                    <h3 className="text-4xl font-bold mb-1">{user.balance.toFixed(0)}</h3>
-                    <p className="text-sm">Total Coins</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="group bg-surface hover:bg-surface-container-high transition-colors rounded-3xl border border-surface-container-highest p-8 shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-all duration-300 hover:shadow-xl hover:border-primary/20 relative overflow-hidden">
+                  <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-primary/5 rounded-full blur-3xl transition-all duration-500 group-hover:bg-primary/10"></div>
+                  <div className="flex justify-between items-start mb-6">
+                    <div className="w-14 h-14 rounded-3xl bg-primary/5 flex items-center justify-center text-primary shadow-inner border border-primary/10 transition-transform duration-300 group-hover:scale-110">
+                      <Server className="h-7 w-7" />
+                    </div>
+                    <span className="px-4 py-1.5 bg-green-50 text-green-700 text-xs font-bold uppercase tracking-wider rounded-full border border-green-200/50 flex items-center gap-2 shadow-sm">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                      </span>
+                      {servers.filter(s => new Date(s.expires_at) > new Date()).length} Active
+                    </span>
                   </div>
-                  <div className="absolute top-4 right-4 z-0 text-black/15">
-                    <Wallet className="w-[70px] h-[70px]" />
+                  <div className="relative z-10">
+                    <h3 className="text-on-surface-variant font-bold uppercase tracking-wider text-xs mb-1">Active Servers</h3>
+                    <div className="flex items-baseline gap-2">
+                      <p className="text-5xl font-bold text-on-surface tracking-tight">{servers.filter(s => new Date(s.expires_at) > new Date()).length}</p>
+                      <p className="text-sm text-on-surface-variant/80 font-bold uppercase">/ {servers.length} Total</p>
+                    </div>
                   </div>
-                  <button onClick={() => setActiveTab('billing')} className="w-full relative z-10 block text-center py-1.5 bg-black/10 hover:bg-black/20 text-sm transition-colors mt-2">
-                    More info <span className="ml-1 text-xs">→</span>
-                  </button>
                 </div>
 
-                {/* Active Servers */}
-                <div className="relative overflow-hidden rounded shadow bg-[#28a745] text-white">
-                  <div className="p-4 relative z-10">
-                    <h3 className="text-4xl font-bold mb-1">{servers.filter(s => new Date(s.expires_at) > new Date()).length}</h3>
-                    <p className="text-sm">Active Servers</p>
+                <div className="group bg-surface hover:bg-surface-container-high transition-colors rounded-3xl border border-surface-container-highest p-8 shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-all duration-300 hover:shadow-xl hover:border-brand-yellow/20 relative overflow-hidden">
+                  <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-secondary/5 rounded-full blur-3xl transition-all duration-500 group-hover:bg-secondary/10"></div>
+                  <div className="flex justify-between items-start mb-6">
+                    <div className="w-14 h-14 rounded-3xl bg-secondary-light flex items-center justify-center text-secondary-dark shadow-inner border border-brand-yellow/10 transition-transform duration-300 group-hover:scale-110">
+                      <Clock className="h-7 w-7" />
+                    </div>
+                    <span className="px-4 py-1.5 bg-secondary/5 text-secondary-dark text-xs font-bold uppercase tracking-wider rounded-full border border-brand-yellow/10 shadow-sm">
+                      {servers.filter(s => new Date(s.expires_at) < new Date()).length} Expired
+                    </span>
                   </div>
-                  <div className="absolute top-4 right-4 z-0 text-black/15">
-                    <Server className="w-[70px] h-[70px]" />
+                  <div className="relative z-10">
+                    <h3 className="text-on-surface-variant font-bold uppercase tracking-wider text-xs mb-1">Expired Servers</h3>
+                    <div className="flex items-baseline gap-2">
+                      <p className="text-5xl font-bold text-on-surface tracking-tight">{servers.filter(s => new Date(s.expires_at) < new Date()).length}</p>
+                      <p className="text-sm text-on-surface-variant/80 font-bold uppercase">/ {servers.length} Total</p>
+                    </div>
                   </div>
-                  <button onClick={() => setActiveTab('servers')} className="w-full relative z-10 block text-center py-1.5 bg-black/10 hover:bg-black/20 text-sm transition-colors mt-2">
-                    More info <span className="ml-1 text-xs">→</span>
-                  </button>
-                </div>
-
-                {/* Expired Servers */}
-                <div className="relative overflow-hidden rounded shadow bg-[#ffc107] text-[#1f2d3d]">
-                  <div className="p-4 relative z-10">
-                    <h3 className="text-4xl font-bold mb-1">{servers.filter(s => new Date(s.expires_at) < new Date()).length}</h3>
-                    <p className="text-sm border-[#1f2d3d]">Expired Servers</p>
-                  </div>
-                  <div className="absolute top-4 right-4 z-0 text-black/10">
-                    <Clock className="w-[70px] h-[70px]" />
-                  </div>
-                  <button onClick={() => setActiveTab('servers')} className="w-full relative z-10 block text-center py-1.5 bg-black/10 hover:bg-black/20 text-sm transition-colors mt-2 text-[#1f2d3d]">
-                    More info <span className="ml-1 text-xs text-[#1f2d3d]">→</span>
-                  </button>
-                </div>
-
-                {/* Total Servers */}
-                <div className="relative overflow-hidden rounded shadow bg-[#dc3545] text-white">
-                  <div className="p-4 relative z-10">
-                    <h3 className="text-4xl font-bold mb-1">{servers.length}</h3>
-                    <p className="text-sm">Total Servers</p>
-                  </div>
-                  <div className="absolute top-4 right-4 z-0 text-black/15">
-                    <LayoutDashboard className="w-[70px] h-[70px]" />
-                  </div>
-                  <button onClick={() => setActiveTab('servers')} className="w-full relative z-10 block text-center py-1.5 bg-black/10 hover:bg-black/20 text-sm transition-colors mt-2">
-                    More info <span className="ml-1 text-xs">→</span>
-                  </button>
                 </div>
               </div>
           </motion.div>
@@ -830,14 +839,14 @@ export function Dashboard() {
             </div>
 
             {createSuccess && (
-              <div className="mb-8 p-4 bg-[#28a745] rounded flex items-start gap-3 text-white shadow-sm">
+              <div className="mb-8 p-4 bg-green-50 border border-green-100 rounded-full flex items-start gap-3 text-green-700">
                 <CheckCircle2 className="h-5 w-5 flex-shrink-0 mt-0.5" />
                 <p className="text-sm font-medium">{createSuccess}</p>
               </div>
             )}
 
             {servers.length > 0 && (
-              <div className="bg-[#343a40] text-[#c2c7d0] p-4 rounded shadow-sm border-t-[3px] border-t-[#007bff] mb-6 flex flex-col md:flex-row gap-4 justify-between items-center">
+              <div className="bg-surface hover:bg-surface-container-high transition-colors p-4 rounded-3xl border border-surface-container-highest shadow-sm mb-6 flex flex-col md:flex-row gap-4 justify-between items-center">
                 <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
                   <div className="flex items-center gap-2 text-sm text-on-surface-variant font-medium">
                     <Filter className="h-4 w-4" /> Filters:
@@ -867,19 +876,22 @@ export function Dashboard() {
                     {isProtocolDropdownOpen && (
                       <div className="absolute z-50 mt-2 w-48 bg-surface hover:bg-surface-container-high transition-colors border border-surface-container-highest rounded-3xl shadow-xl py-3 left-0 animate-in fade-in zoom-in-95 duration-200">
                         {['V2Ray', 'SSH WebSocket', 'Slow DNS', 'OpenVPN', 'WireGuard'].map(p => (
-                          <label key={p} className={`flex items-center px-4 py-2.5 hover:bg-primary-container/30 cursor-pointer transition-colors ${filterProtocols.includes(p) ? 'bg-primary-container/20' : ''}`}>
-                            <input
-                              type="checkbox"
-                              checked={filterProtocols.includes(p)}
-                              onChange={() => {
-                                if (filterProtocols.includes(p)) {
-                                  setFilterProtocols(filterProtocols.filter(item => item !== p));
-                                } else {
-                                  setFilterProtocols([...filterProtocols, p]);
-                                }
-                              }}
-                              className="w-4 h-4 rounded border-gray-300 accent-primary cursor-pointer mr-3"
-                            />
+                          <label key={p} className={`flex items-center px-4 py-2.5 hover:bg-primary-container/30 cursor-pointer transition-colors select-none ${filterProtocols.includes(p) ? 'bg-primary-container/20' : ''}`}>
+                            <div className="relative flex items-center mr-3">
+                              <input
+                                type="checkbox"
+                                checked={filterProtocols.includes(p)}
+                                onChange={() => {
+                                  if (filterProtocols.includes(p)) {
+                                    setFilterProtocols(filterProtocols.filter(item => item !== p));
+                                  } else {
+                                    setFilterProtocols([...filterProtocols, p]);
+                                  }
+                                }}
+                                className="peer appearance-none h-4 w-4 border-2 border-surface-container-highest rounded bg-surface checked:bg-primary checked:border-primary transition-all cursor-pointer hover:border-primary/50"
+                              />
+                              <Check className="absolute left-[2px] top-[2px] h-3 w-3 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" strokeWidth={3} />
+                            </div>
                             <span className={`text-sm font-medium ${filterProtocols.includes(p) ? 'text-primary' : 'text-on-surface-variant'}`}>{p}</span>
                           </label>
                         ))}
@@ -921,19 +933,22 @@ export function Dashboard() {
                     {isStatusDropdownOpen && (
                       <div className="absolute z-50 mt-2 w-44 bg-surface hover:bg-surface-container-high transition-colors border border-surface-container-highest rounded-3xl shadow-xl py-3 left-0 animate-in fade-in zoom-in-95 duration-200">
                         {['Active', 'Expired'].map(s => (
-                          <label key={s} className={`flex items-center px-4 py-2.5 hover:bg-primary-container/30 cursor-pointer transition-colors ${filterStatuses.includes(s) ? 'bg-primary-container/20' : ''}`}>
-                            <input
-                              type="checkbox"
-                              checked={filterStatuses.includes(s)}
-                              onChange={() => {
-                                if (filterStatuses.includes(s)) {
-                                  setFilterStatuses(filterStatuses.filter(item => item !== s));
-                                } else {
-                                  setFilterStatuses([...filterStatuses, s]);
-                                }
-                              }}
-                              className="w-4 h-4 rounded border-gray-300 accent-primary cursor-pointer mr-3"
-                            />
+                          <label key={s} className={`flex items-center px-4 py-2.5 hover:bg-primary-container/30 cursor-pointer transition-colors select-none ${filterStatuses.includes(s) ? 'bg-primary-container/20' : ''}`}>
+                            <div className="relative flex items-center mr-3">
+                              <input
+                                type="checkbox"
+                                checked={filterStatuses.includes(s)}
+                                onChange={() => {
+                                  if (filterStatuses.includes(s)) {
+                                    setFilterStatuses(filterStatuses.filter(item => item !== s));
+                                  } else {
+                                    setFilterStatuses([...filterStatuses, s]);
+                                  }
+                                }}
+                                className="peer appearance-none h-4 w-4 border-2 border-surface-container-highest rounded bg-surface checked:bg-primary checked:border-primary transition-all cursor-pointer hover:border-primary/50"
+                              />
+                              <Check className="absolute left-[2px] top-[2px] h-3 w-3 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" strokeWidth={3} />
+                            </div>
                             <span className={`text-sm font-medium ${filterStatuses.includes(s) ? 'text-primary' : 'text-on-surface-variant'}`}>{s}</span>
                           </label>
                         ))}
@@ -1009,31 +1024,37 @@ export function Dashboard() {
               </div>
             )}
 
-            {servers.length === 0 ? (
-              <div className="bg-[#343a40] text-center p-12 rounded shadow-sm border-t-[3px] border-t-[#007bff]">
-                <div className="w-20 h-20 bg-[#4f5962] rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Server className="h-10 w-10 text-white" />
+            {isLoadingServers ? (
+              <div className="bg-surface hover:bg-surface-container-high transition-colors rounded-3xl border border-surface-container-highest p-12 text-center shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+                <div className="flex justify-center items-center py-8">
+                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">No active servers</h3>
-                <p className="text-[#c2c7d0] mb-8 max-w-sm mx-auto">You haven't created any tunneling servers yet. Create one now to get started.</p>
+              </div>
+            ) : servers.length === 0 ? (
+              <div className="bg-surface hover:bg-surface-container-high transition-colors rounded-3xl border border-surface-container-highest p-12 text-center shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+                <div className="w-20 h-20 bg-surface-container rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Server className="h-10 w-10 text-gray-300" />
+                </div>
+                <h3 className="text-xl font-bold text-on-surface mb-2">No active servers</h3>
+                <p className="text-on-surface-variant mb-8 max-w-sm mx-auto">You haven't created any tunneling servers yet. Create one now to get started.</p>
                 <button 
                   onClick={() => setActiveTab('create')}
-                  className="px-8 py-3 bg-[#007bff] text-white rounded font-bold hover:bg-[#0056b3] transition-all inline-flex items-center gap-2 text-base shadow"
+                  className="px-8 py-4 bg-primary text-white rounded-full font-bold hover:bg-primary/90 transition-all shadow-[0_4px_14px_0_rgba(22,163,74,0.3)] hover:shadow-[0_6px_20px_rgba(22,163,74,0.2)] hover:-translate-y-0.5 inline-flex items-center gap-2 text-base"
                 >
                   <Plus className="h-5 w-5" />
                   Create your first server
                 </button>
               </div>
             ) : filteredAndSortedServers.length === 0 ? (
-              <div className="bg-[#343a40] text-center p-12 rounded shadow-sm border-t-[3px] border-t-[#007bff]">
-                <div className="w-20 h-20 bg-[#4f5962] rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Filter className="h-10 w-10 text-white" />
+              <div className="bg-surface hover:bg-surface-container-high transition-colors rounded-3xl border border-surface-container-highest p-12 text-center shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+                <div className="w-20 h-20 bg-surface-container rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Filter className="h-10 w-10 text-gray-300" />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">No servers match your filters</h3>
-                <p className="text-[#c2c7d0] mb-8 max-w-sm mx-auto">Try adjusting your protocol or status filters to see your servers.</p>
+                <h3 className="text-xl font-bold text-on-surface mb-2">No servers match your filters</h3>
+                <p className="text-on-surface-variant mb-8 max-w-sm mx-auto">Try adjusting your protocol or status filters to see your servers.</p>
                 <button 
                   onClick={() => { setFilterProtocols([]); setFilterStatuses([]); }}
-                  className="px-6 py-2.5 bg-[#4f5962] text-white rounded font-bold hover:bg-[#6c757d] transition-all inline-flex items-center gap-2 text-sm"
+                  className="px-6 py-2.5 bg-surface-container-high text-on-surface-variant rounded-full font-bold hover:bg-surface-container-highest transition-all inline-flex items-center gap-2 text-sm"
                 >
                   Clear Filters
                 </button>
@@ -1046,7 +1067,7 @@ export function Dashboard() {
                     <div 
                       key={server.id} 
                       onClick={() => navigate(`/server/${server.id}`)}
-                      className={`group bg-[#343a40] rounded shadow-sm border-t-[3px] ${isExpired ? 'border-t-[#dc3545]' : 'border-t-[#28a745]'} p-6 cursor-pointer hover:shadow-md transition-all relative overflow-hidden text-[#c2c7d0]`}
+                      className={`group bg-surface hover:bg-surface-container-high transition-colors rounded-3xl border ${isExpired ? 'border-red-100' : 'border-surface-container-highest'} p-6 shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] cursor-pointer transition-all duration-300 relative overflow-hidden`}
                     >
                       {/* Subtle gradient background on hover */}
                       <div className="absolute inset-0 bg-gradient-to-br from-brand-green-light/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
@@ -1055,42 +1076,42 @@ export function Dashboard() {
                         <div className="flex justify-between items-start mb-5">
                           <div>
                             <div className="flex items-center gap-2 mb-2">
-                              <span className="px-2 py-1 rounded bg-[#4f5962] text-white text-xs font-bold uppercase">
+                              <span className="px-2.5 py-1 rounded-md bg-surface-container-high text-on-surface-variant text-xs font-bold uppercase tracking-wider">
                                 {server.protocol}
                               </span>
                               {isExpired ? (
-                                <span className="px-2 py-1 rounded bg-[#dc3545] text-white text-xs font-bold uppercase flex items-center gap-1">
-                                  Expired
+                                <span className="px-2.5 py-1 rounded-md bg-red-50 text-red-700 border border-red-100 text-xs font-bold uppercase tracking-wider flex items-center gap-1">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span> Expired
                                 </span>
                               ) : (
-                                <span className="px-2 py-1 rounded bg-[#28a745] text-white text-xs font-bold uppercase flex items-center gap-1">
-                                  Active
+                                <span className="px-2.5 py-1 rounded-md bg-green-50 text-green-700 border border-green-100 text-xs font-bold uppercase tracking-wider flex items-center gap-1">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span> Active
                                 </span>
                               )}
                             </div>
-                            <h3 className="text-xl font-bold text-white tracking-tight">{server.location}</h3>
+                            <h3 className="text-xl font-bold text-on-surface tracking-tight">{server.location}</h3>
                           </div>
                           <div className="text-right">
-                            <p className="text-sm font-semibold text-[#c2c7d0] flex items-center gap-1.5 justify-end bg-[#4f5962] px-3 py-1.5 rounded">
-                              <Clock className="h-4 w-4" />
+                            <p className="text-sm font-semibold text-on-surface-variant flex items-center gap-1.5 justify-end bg-surface-container px-3 py-1.5 rounded-lg">
+                              <Clock className="h-4 w-4 text-on-surface-variant/80" />
                               {server.duration} Days
                             </p>
-                            <p className="text-xs text-[#c2c7d0] mt-2 font-medium">
+                            <p className="text-xs text-on-surface-variant/80 mt-2 font-medium">
                               Expires: {new Date(server.expires_at).toLocaleDateString()}
                             </p>
                           </div>
                         </div>
 
-                        <div className="mt-5 bg-[#454d55] rounded p-3.5 border border-[#4f5962] relative group/config">
-                          <p className="text-sm font-mono text-white break-all pr-12 line-clamp-2 leading-relaxed">
+                        <div className="mt-5 bg-surface-container/80 rounded-full p-3.5 border border-surface-container-highest/80 relative group/config">
+                          <p className="text-sm font-mono text-on-surface-variant break-all pr-12 line-clamp-2 leading-relaxed">
                             {server.config}
                           </p>
                           <button 
                             onClick={(e) => { e.stopPropagation(); copyToClipboard(server.config, server.id); }}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 text-[#c2c7d0] hover:text-white transition-colors rounded shadow-sm"
+                            className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 text-on-surface-variant/80 hover:text-primary hover:bg-surface hover:bg-surface-container-high transition-colors rounded-lg shadow-sm border border-transparent hover:border-surface-variant transition-all"
                             title="Copy Config"
                           >
-                            {copiedId === server.id ? <CheckCircle2 className="h-4 w-4 text-[#28a745]" /> : <Copy className="h-4 w-4" />}
+                            {copiedId === server.id ? <CheckCircle2 className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
                           </button>
                         </div>
                       </div>
@@ -1109,9 +1130,9 @@ export function Dashboard() {
               <p className="text-on-surface-variant mt-1">Deploy a new high-speed tunneling server instantly.</p>
             </div>
             
-            <div className="bg-[#343a40] text-[#c2c7d0] rounded shadow-sm border-t-[3px] border-t-[#007bff] p-6 md:p-8">
+            <div className="bg-surface hover:bg-surface-container-high transition-colors rounded-3xl border border-surface-container-highest p-6 md:p-8 shadow-[0_2px_20px_rgba(0,0,0,0.02)]">
               {createError && (
-                <div className="mb-8 p-4 bg-[#dc3545] rounded flex items-start gap-3 text-white shadow-sm">
+                <div className="mb-8 p-4 bg-red-50 border border-red-100 rounded-full flex items-start gap-3 text-red-700">
                   <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
                   <p className="text-sm font-medium">{createError}</p>
                 </div>
@@ -1316,15 +1337,19 @@ export function Dashboard() {
                   </button>
                 </div>
 
-                <div className="bg-[#343a40] text-[#c2c7d0] rounded shadow-sm border-t-[3px] border-t-[#007bff] p-6 h-fit">
+                <div className="bg-surface hover:bg-surface-container-high transition-colors rounded-3xl border border-surface-container-highest p-6 shadow-[0_2px_20px_rgba(0,0,0,0.02)] h-fit">
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded bg-[#17a2b8] flex items-center justify-center text-white">
+                    <div className="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-primary">
                       <History className="h-5 w-5" />
                     </div>
-                    <h2 className="text-lg font-bold text-white">Transaction History</h2>
+                    <h2 className="text-lg font-bold text-on-surface">Transaction History</h2>
                   </div>
                   
-                  {transactions.length === 0 ? (
+                  {isLoadingTransactions ? (
+                    <div className="flex justify-center items-center py-10">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    </div>
+                  ) : transactions.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-10 text-center">
                       <div className="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center mb-3">
                         <History className="h-5 w-5 text-on-surface-variant/80" />
@@ -1427,8 +1452,8 @@ export function Dashboard() {
 
                   <div className="space-y-6">
                     {/* Coin Package */}
-                    <div className="bg-[#343a40] text-[#c2c7d0] rounded shadow-sm border-t-[3px] border-t-[#007bff] p-6">
-                      <h2 className="text-lg font-bold text-white mb-4">Coin Package</h2>
+                    <div className="bg-surface hover:bg-surface-container-high transition-colors rounded-3xl border border-surface-container-highest p-6 shadow-[0_2px_20px_rgba(0,0,0,0.02)]">
+                      <h2 className="text-lg font-bold text-on-surface mb-4">Coin Package</h2>
                       <div className="space-y-3">
                         {PACKAGES.map(pkg => (
                           <div 
@@ -1457,8 +1482,8 @@ export function Dashboard() {
                     </div>
 
                     {/* Payment Method */}
-                    <div className="bg-[#343a40] text-[#c2c7d0] rounded shadow-sm border-t-[3px] border-t-[#007bff] p-6">
-                      <h2 className="text-lg font-bold text-white mb-4">Payment Method</h2>
+                    <div className="bg-surface hover:bg-surface-container-high transition-colors rounded-3xl border border-surface-container-highest p-6 shadow-md">
+                      <h2 className="text-lg font-bold text-on-surface mb-4">Payment Method</h2>
                       <div className="grid grid-cols-2 gap-4">
                         <div 
                           onClick={() => setPaymentMethod('ecocash')}

@@ -2,19 +2,21 @@ export const PAYMENT_API_KEY = import.meta.env.VITE_PAYMENT_API_KEY || 'd0d945b8
 export const PAYMENT_RECIPIENT = import.meta.env.VITE_PAYMENT_RECIPIENT || 'susankufakunesu@gmail.com';
 
 export async function createPaymentOrder(orderId: string, amount: number, sender: string = '+263780070488', currency: string = 'ZWG', returnUrl?: string) {
+  const roundedAmount = Number(amount.toFixed(2));
+  
   const response = await fetch('/api/payment/create', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'X-Api-Key': PAYMENT_API_KEY,
     },
     body: JSON.stringify({
-      api_key: PAYMENT_API_KEY,
       order_id: orderId,
       sender: sender,
       recipient: PAYMENT_RECIPIENT,
-      amount: amount,
+      amount: roundedAmount,
       currency: currency,
-      return_url: returnUrl,
+      redirect_url: returnUrl,
     }),
   });
 
@@ -27,9 +29,9 @@ export async function checkPaymentStatus(orderId: string) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'X-Api-Key': PAYMENT_API_KEY,
     },
     body: JSON.stringify({
-      api_key: PAYMENT_API_KEY,
       order_id: orderId,
       recipient: PAYMENT_RECIPIENT,
     }),

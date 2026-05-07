@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Shield, Mail, Lock, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { Shield, Mail, Lock, AlertCircle, Eye, EyeOff, Check } from 'lucide-react';
 import { motion } from 'motion/react';
 import { supabase } from '../lib/supabase';
 import { Logo } from '../components/Logo';
@@ -134,13 +134,16 @@ export function Login() {
 
             <div className="flex items-center justify-between pt-2">
               <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 accent-primary border-gray-300 rounded cursor-pointer"
-                />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-on-surface-variant font-medium cursor-pointer">
+                <div className="relative flex items-center">
+                  <input
+                    id="remember-me"
+                    name="remember-me"
+                    type="checkbox"
+                    className="peer appearance-none h-5 w-5 border-2 border-surface-container-highest rounded-md bg-surface checked:bg-primary checked:border-primary transition-all cursor-pointer hover:border-primary/50"
+                  />
+                  <Check className="absolute left-[3px] top-[3px] h-3.5 w-3.5 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" strokeWidth={3} />
+                </div>
+                <label htmlFor="remember-me" className="ml-2.5 block text-sm text-on-surface-variant font-medium cursor-pointer select-none">
                   Remember me
                 </label>
               </div>

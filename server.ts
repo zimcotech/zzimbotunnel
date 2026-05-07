@@ -22,10 +22,12 @@ async function startServer() {
   // Payment API Proxy Routes
   app.post('/api/payment/create', async (req, res) => {
     try {
+      const apiKey = req.headers['x-api-key'];
       const response = await fetch('https://dischub.co.zw/api/orders/create/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(apiKey && { 'X-Api-Key': apiKey as string }),
         },
         body: JSON.stringify(req.body),
       });
@@ -40,10 +42,12 @@ async function startServer() {
 
   app.post('/api/payment/status', async (req, res) => {
     try {
+      const apiKey = req.headers['x-api-key'];
       const response = await fetch('https://dischub.co.zw/api/payment/status/3/step/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(apiKey && { 'X-Api-Key': apiKey as string }),
         },
         body: JSON.stringify(req.body),
       });
