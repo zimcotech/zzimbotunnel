@@ -45,9 +45,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Check active sessions and sets the user
     const initializeAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session }, error } = await supabase.auth.getSession();
       
-      if (session) {
+      if (error) {
+        console.error("Auth session error:", error.message);
+        await supabase.auth.signOut({ scope: 'local' });
+      }
+      
+      if (session && !error) {
         setToken(session.access_token);
         await fetchProfile(session.user.id, session.user.email || '', session.user.user_metadata?.username);
       } else {
