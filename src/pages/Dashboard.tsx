@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Server, Plus, Clock, Copy, CheckCircle2, AlertCircle, Wallet, History, LogOut, User, LayoutDashboard, Facebook, Send, Youtube, Filter, ArrowUpDown, Coins, DollarSign, Bitcoin, Briefcase, Smartphone, Infinity, ArrowRightLeft, Info, X, ChevronDown, Bell, ExternalLink, RefreshCw, Loader2, PlayCircle, Check } from 'lucide-react';
+import { Server, Plus, Clock, Copy, CheckCircle2, AlertCircle, Wallet, History, LogOut, User, LayoutDashboard, Facebook, Send, Youtube, Filter, ArrowUpDown, Coins, DollarSign, Bitcoin, Briefcase, Smartphone, Infinity, ArrowRightLeft, Info, X, ChevronDown, Bell, ExternalLink, RefreshCw, Loader2, PlayCircle, Check, ChevronRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Topbar } from '../components/Topbar';
 import { WhatsAppIcon } from '../components/icons/WhatsAppIcon';
@@ -1091,14 +1091,19 @@ export function Dashboard() {
                             </div>
                             <h3 className="text-xl font-bold text-on-surface tracking-tight">{server.location}</h3>
                           </div>
-                          <div className="text-right">
-                            <p className="text-sm font-semibold text-on-surface-variant flex items-center gap-1.5 justify-end bg-surface-container px-3 py-1.5 rounded-lg">
-                              <Clock className="h-4 w-4 text-on-surface-variant/80" />
-                              {server.duration} Days
-                            </p>
-                            <p className="text-xs text-on-surface-variant/80 mt-2 font-medium">
-                              Expires: {new Date(server.expires_at).toLocaleDateString()}
-                            </p>
+                          <div className="flex items-center gap-4">
+                            <div className="text-right">
+                              <p className="text-sm font-semibold text-on-surface-variant flex items-center gap-1.5 justify-end bg-surface-container px-3 py-1.5 rounded-lg">
+                                <Clock className="h-4 w-4 text-on-surface-variant/80" />
+                                {server.duration} Days
+                              </p>
+                              <p className="text-xs text-on-surface-variant/80 mt-2 font-medium">
+                                Expires: {new Date(server.expires_at).toLocaleDateString()}
+                              </p>
+                            </div>
+                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 transform">
+                              <ChevronRight className="w-5 h-5" />
+                            </div>
                           </div>
                         </div>
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
-import { Settings, Users, CreditCard, Bell, FileText, Tag, Banknote, Search, CheckCircle, XCircle, ChevronRight, Plus, ArrowLeft, Trash2 } from 'lucide-react';
+import { Settings, Users, CreditCard, Bell, FileText, Tag, Banknote, Search, CheckCircle, XCircle, ChevronRight, Plus, ArrowLeft, Trash2, Server } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 export function AdminPanel() {
@@ -25,6 +25,7 @@ export function AdminPanel() {
     switch (activeTab) {
       case 'payments': return <PaymentsTab />;
       case 'users': return <UsersTab />;
+      case 'servers': return <ServersTab />;
       case 'notifications': return <NotificationsTab />;
       case 'blogs': return <BlogsTab />;
       case 'coupons': return <CouponsTab />;
@@ -56,6 +57,7 @@ export function AdminPanel() {
               {[
                 { id: 'payments', label: 'Payments', icon: CreditCard },
                 { id: 'users', label: 'Manage Users', icon: Users },
+                { id: 'servers', label: 'Servers', icon: Server },
                 { id: 'notifications', label: 'Notifications', icon: Bell },
                 { id: 'blogs', label: 'Blogs', icon: FileText },
                 { id: 'coupons', label: 'Coupons', icon: Tag },
@@ -729,6 +731,98 @@ function CoinsTab() {
           </motion.div>
         )}
       </form>
+    </div>
+  );
+}
+
+function ServersTab() {
+  const [servers, setServers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchServers();
+  }, []);
+
+  const fetchServers = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.from('servers').select('*, profiles(username, email)').order('created_at', { ascending: false }).limit(100);
+      if (error) throw error;
+      setServers(data || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+        <div>
+          <h3 className="text-xl font-bold text-on-surface tracking-tight">Manage Servers</h3>
+          <p className="text-sm text-on-surface-variant font-medium">View and monitor all active and expired servers.</p>
+        </div>
+        <button onClick={fetchServers} className="flex items-center gap-2 text-sm font-bold text-primary bg-primary-container px-4 py-2.5 rounded-full hover:bg-primary/10 transition-colors">
+          <Settings className="w-4 h-4" /> Refresh
+        </button>
+      </div>
+      {loading ? (
+        <div className="flex justify-center items-center py-20">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      ) : (
+        <div className="overflow-x-auto rounded-3xl border border-surface-container-highest bg-surface hover:bg-surface-container-high transition-colors">
+          <table className="w-full text-left text-sm text-on-surface-variant">
+            <thead className="text-xs text-on-surface-variant uppercase bg-surface-container/80 border-b border-surface-container-highest font-bold tracking-wider">
+              <tr>
+                <th className="px-5 py-4">User</th>
+                <th className="px-5 py-4">Location</th>
+                <th className="px-5 py-4">Protocol</th>
+                <th className="px-5 py-4">Config</th>
+                <th className="px-5 py-4">Status</th>
+                <th className="px-5 py-4">Expires</th>
+              </tr>
+            </thead>
+            <tbody>
+              {servers.map(s => {
+                const isExpired = new Date(s.expires_at) < new Date();
+                return (
+                  <tr key={s.id} className="border-b border-surface-container-highest hover:bg-surface-container/50 transition-colors">
+                    <td className="px-5 py-4 font-medium text-on-surface">{s.profiles?.username || s.user_id}</td>
+                    <td className="px-5 py-4 font-medium">{s.location}</td>
+                    <td className="px-5 py-4">
+                      <span className="px-2 py-1 rounded bg-surface-container-high text-xs font-bold uppercase">{s.protocol}</span>
+                    </td>
+                    <td className="px-5 py-4">
+                      <div className="group relative inline-block cursor-help max-w-[200px]" title={s.config}>
+                        <p className="truncate text-on-surface-variant font-mono text-xs bg-surface-container px-2 py-1 rounded border border-surface-variant/30">{s.config}</p>
+                        <div className="opacity-0 invisible group-hover:opacity-100 group-hover:visible absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-max max-w-xs sm:max-w-md bg-inverse-surface text-inverse-on-surface text-xs rounded-lg p-3 shadow-lg transition-all break-all whitespace-normal">
+                          {s.config}
+                          <div className="absolute top-full left-1/2 -translate-x-1/2 border-[6px] border-transparent border-t-inverse-surface"></div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-5 py-4">
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold leading-none ${isExpired ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
+                        {isExpired ? 'Expired' : 'Active'}
+                      </span>
+                    </td>
+                    <td className="px-5 py-4 whitespace-nowrap text-xs font-medium">
+                      {new Date(s.expires_at).toLocaleDateString()}
+                    </td>
+                  </tr>
+                );
+              })}
+              {servers.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-5 py-12 text-center text-on-surface-variant font-medium">No servers found.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
