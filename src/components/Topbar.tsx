@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Menu, X, User, Star, Info, Activity, LayoutDashboard, LogOut, Headset, Bot, Settings, HelpCircle } from 'lucide-react';
+import { Menu, X, User, Star, Info, Activity, LayoutDashboard, LogOut, Headset, Bot, Settings } from 'lucide-react';
 import { Logo } from './Logo';
 
 export function Topbar() {
@@ -20,50 +20,43 @@ export function Topbar() {
     <header className="bg-surface hover:bg-surface-container-high transition-colors border-b border-surface-variant sticky top-0 z-50 shadow-sm">
       <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo (Left side) */}
-          <div className="flex items-center">
+          {/* Left side / Mobile menu button */}
+          <div className="flex items-center md:hidden">
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-2 text-on-surface-variant hover:text-on-surface focus:outline-none rounded-full hover:bg-surface-container-high transition-colors"
+            >
+              {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
+
+          {/* Logo */}
+          <div className="flex items-center justify-center md:justify-start">
             <Link to="/" className="flex items-center gap-1.5 sm:gap-2 group">
-              <Logo size={32} className="group-hover:rotate-12 transition-transform duration-300" />
-              <span className="font-bold text-lg sm:text-xl tracking-tight text-on-surface whitespace-nowrap hidden sm:block">Zimbo Tunnel</span>
-              <span className="px-1.5 sm:px-2 py-0.5 rounded-md bg-secondary-light text-secondary-dark text-[10px] sm:text-xs font-bold whitespace-nowrap border border-brand-yellow/10 hidden sm:block">1.0</span>
+              <Logo size={28} className="group-hover:rotate-12 transition-transform duration-300" />
+              <span className="font-bold text-lg sm:text-xl tracking-tight text-on-surface whitespace-nowrap">Zimbo Tunnel</span>
+              <span className="px-1.5 sm:px-2 py-0.5 rounded-md bg-secondary-light text-secondary-dark text-[10px] sm:text-xs font-bold whitespace-nowrap border border-brand-yellow/10">1.0</span>
             </Link>
           </div>
 
           {/* Center Links (Desktop) */}
-          <nav className="hidden md:flex items-center justify-center gap-8 flex-1 pl-8">
+          <nav className="hidden md:flex items-center gap-8">
             <Link to="/#features" className="text-sm font-bold text-on-surface-variant hover:text-primary transition-colors">Features</Link>
             <Link to="/#how-it-works" className="text-sm font-bold text-on-surface-variant hover:text-primary transition-colors">How it Works</Link>
           </nav>
 
           {/* Right side */}
-          <div className="flex items-center gap-4 relative">
-            <Link to="/#support" className="text-on-surface-variant hover:text-primary transition-colors">
-              <HelpCircle className="w-[26px] h-[26px] stroke-[2px]" />
-            </Link>
-
+          <div className="flex items-center relative">
             {user ? (
-              <button onClick={() => setShowUserDetails(!showUserDetails)} className="relative w-[42px] h-[42px] rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold shadow-sm hover:scale-105 transition-all outline-none border border-primary/20 hover:bg-primary/30">
-                {user.username ? (user.username.includes(' ') ? user.username.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : user.username.substring(0, 2).toUpperCase()) : 'U'}
-                <div className="absolute 0 -bottom-0.5 -right-0.5 w-[14px] h-[14px] bg-green-500 rounded-full flex items-center justify-center shadow-sm border-2 border-surface">
-                </div>
+              <button onClick={() => setShowUserDetails(!showUserDetails)} className="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center text-white shadow-md border border-white/20 hover:scale-105 transition-all">
+                <User className="h-5 w-5" />
               </button>
             ) : (
-              <Link to="/login" className="px-5 py-2 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-all shadow-md flex items-center gap-2">
+              <Link to="/login" className="px-5 py-2.5 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary transition-all shadow-md shadow-md flex items-center gap-2">
                 <span className="hidden sm:inline">Get Started</span>
                 <span className="sm:hidden">Start</span>
               </Link>
             )}
-
-            {/* Mobile menu button */}
-            <div className="flex items-center md:hidden ml-1">
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="text-primary hover:text-primary/80 focus:outline-none transition-colors"
-                aria-label="Menu"
-              >
-                {isMobileMenuOpen ? <X className="h-[28px] w-[28px] stroke-[2.5]" /> : <Menu className="h-[28px] w-[28px] stroke-[2.5]" />}
-              </button>
-            </div>
 
             {/* User Details Dropdown */}
             {showUserDetails && user && (
@@ -72,7 +65,7 @@ export function Topbar() {
                 <div className="absolute top-full right-0 mt-3 w-64 sm:w-72 bg-surface hover:bg-surface-container-high transition-colors rounded-3xl shadow-xl border border-surface-container-highest overflow-hidden z-[100] animate-in fade-in slide-in-from-top-2">
                   <div className="bg-surface-variant p-5 text-white text-center relative">
                     <div className="w-14 h-14 rounded-full bg-surface hover:bg-surface-container-high transition-colors/20 backdrop-blur-md flex items-center justify-center text-white text-xl font-bold border border-white/30 mx-auto mb-3 shadow-md">
-                      {user.username ? (user.username.includes(' ') ? user.username.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : user.username.substring(0, 2).toUpperCase()) : 'U'}
+                      {user.username.charAt(0).toUpperCase()}
                     </div>
                     <h2 className="text-lg font-bold tracking-tight">{user.username}</h2>
                     <p className="text-white/80 text-xs font-medium truncate">{user.email}</p>
