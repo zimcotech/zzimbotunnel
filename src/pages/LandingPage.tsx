@@ -141,7 +141,7 @@ export function LandingPage() {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="flex flex-col sm:flex-row justify-center items-center gap-4"
             >
-              <Link to="/register" className="w-full sm:w-auto px-8 py-4 rounded-full bg-primary text-white font-semibold text-lg hover:bg-primary transition-all shadow-md hover:shadow-xl shadow-md hover:shadow-md flex items-center justify-center gap-2 group">
+              <Link to="/register" className="w-full sm:w-auto px-8 py-4 rounded-full bg-primary text-white font-semibold text-lg hover:bg-primary/90 transition-all shadow-md hover:shadow-xl flex items-center justify-center gap-2 group hover:-translate-y-0.5">
                 Get Started
                 <motion.div
                   animate={{ x: [0, 5, 0] }}
@@ -150,8 +150,9 @@ export function LandingPage() {
                   <ArrowRight className="h-5 w-5" />
                 </motion.div>
               </Link>
-              <a href="#features" className="w-full sm:w-auto px-8 py-4 rounded-full bg-surface hover:bg-surface-container-high transition-colors border-2 border-brand-yellow/20 text-on-surface-variant font-semibold text-lg hover:bg-secondary-light hover:border-brand-yellow/40 transition-all shadow-sm flex items-center justify-center gap-2">
-                Explore Features
+              <a href="https://apkpure.com/p/co.zw.zimbotunnel" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto px-8 py-4 rounded-full bg-surface border border-surface-container-highest text-on-surface font-semibold text-lg hover:bg-surface-container-high transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-3 group hover:-translate-y-0.5">
+                <Download className="h-5 w-5 text-on-surface-variant group-hover:text-primary transition-colors" />
+                <span>Download Zimbo Tunnel Apk</span>
               </a>
             </motion.div>
 
