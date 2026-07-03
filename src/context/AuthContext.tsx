@@ -45,17 +45,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Check active sessions and sets the user
     const initializeAuth = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
-      if (error) {
-        console.error("Auth session error:", error.message);
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.warn("Auth session error:", error.message);
+          await supabase.auth.signOut({ scope: 'local' });
+          setToken(null);
+          setUser(null);
+          setIsLoading(false);
+          return;
+        }
+        
+        if (session && !error) {
+          setToken(session.access_token);
+          await fetchProfile(session.user.id, session.user.email || '', session.user.user_metadata?.username);
+        } else {
+          setToken(null);
+          setUser(null);
+          setIsLoading(false);
+        }
+      } catch (err: any) {
+        console.warn("Auth session error caught:", err.message);
         await supabase.auth.signOut({ scope: 'local' });
-      }
-      
-      if (session && !error) {
-        setToken(session.access_token);
-        await fetchProfile(session.user.id, session.user.email || '', session.user.user_metadata?.username);
-      } else {
         setToken(null);
         setUser(null);
         setIsLoading(false);
@@ -136,7 +148,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else if (data) {
         if (data.is_banned) {
           alert("Your account has been banned. Please contact support.");
-          await supabase.auth.signOut();
+          try {
+            await supabase.auth.signOut();
+          } catch (e) {
+            await supabase.auth.signOut({ scope: 'local' });
+          }
           setToken(null);
           setUser(null);
           setIsLoading(false);
@@ -171,9 +187,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = async () => {
-    await supabase.auth.signOut();
-    setToken(null);
-    setUser(null);
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      await supabase.auth.signOut({ scope: 'local' });
+    } finally {
+      setToken(null);
+      setUser(null);
+    }
   };
 
   const updateBalance = (newBalance: number) => {

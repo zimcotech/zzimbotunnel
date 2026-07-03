@@ -150,7 +150,7 @@ export function LandingPage() {
                   <ArrowRight className="h-5 w-5" />
                 </motion.div>
               </Link>
-              <a href="https://apkpure.com/p/co.zw.zimbotunnel" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto px-8 py-4 rounded-full bg-surface border border-surface-container-highest text-on-surface font-semibold text-lg hover:bg-surface-container-high transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-3 group hover:-translate-y-0.5">
+              <a href="https://play.google.com/store/apps/details?id=com.zigtunnel" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto px-8 py-4 rounded-full bg-surface border border-surface-container-highest text-on-surface font-semibold text-lg hover:bg-surface-container-high transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-3 group hover:-translate-y-0.5">
                 <Download className="h-5 w-5 text-on-surface-variant group-hover:text-primary transition-colors" />
                 <span>Download Zimbo Tunnel Apk</span>
               </a>
