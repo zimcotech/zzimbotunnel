@@ -76,6 +76,7 @@ function AppContent() {
               <div className="flex-grow">
                 <Routes>
                   <Route path="/" element={<LandingPage />} />
+                  <Route path="/download" element={<Navigate to="/" replace />} />
                   <Route path="/status" element={<Status />} />
                   <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                   <Route path="/terms-of-service" element={<TermsOfService />} />
